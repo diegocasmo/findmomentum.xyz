@@ -57,7 +57,7 @@
     "@shadcn/ui": "^0.0.4",
     "@tailwindcss/postcss": "^4.2.1",
     "@types/node": "^25",
-    "@types/pg": "^8.16.0",
+    "@types/pg": "^8.18.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^10",
