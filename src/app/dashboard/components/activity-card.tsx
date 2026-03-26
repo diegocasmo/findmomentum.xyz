@@ -14,7 +14,16 @@ import { Calendar, CheckCircle } from "lucide-react";
 import { ActivityActions } from "@/app/dashboard/components/activity-actions";
 import { BookmarkButton } from "@/components/bookmark-button";
 import type { ActivityWithTasksAndTimeEntries } from "@/types";
-import { formatTimeHHMMss, formatDateAsTimeAgo } from "@/lib/utils/time";
+import {
+  formatTimeHHMMss,
+  formatDateAsTimeAgo,
+  formatDateWithTime,
+} from "@/lib/utils/time";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { isActivityRunning } from "@/lib/utils/is-activity-running";
 import { useGetActivityRemainingTime } from "@/hooks/use-get-activity-remaining-time";
 import { useReturnUrl } from "@/hooks/use-return-url";
@@ -23,12 +32,14 @@ type ActivityCardProps = {
   activity: ActivityWithTasksAndTimeEntries;
   showCompletedAt?: boolean;
   showDescription?: boolean;
+  timezone?: string;
 };
 
 export function ActivityCard({
   activity,
   showCompletedAt = true,
   showDescription = true,
+  timezone = "UTC",
 }: ActivityCardProps) {
   const returnUrl = useReturnUrl();
 
@@ -68,10 +79,17 @@ export function ActivityCard({
         <CardContent className="pb-2">
           <div className="flex items-center text-sm text-muted-foreground">
             <Calendar className="w-3 h-3 mr-1 text-primary" />
-            <span className="first-letter:uppercase">
-              Created&nbsp;
-              {formatDateAsTimeAgo(activity.createdAt)}
-            </span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="first-letter:uppercase">
+                  Created&nbsp;
+                  {formatDateAsTimeAgo(activity.createdAt)}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {formatDateWithTime(activity.createdAt, timezone)}
+              </TooltipContent>
+            </Tooltip>
           </div>
         </CardContent>
         {showCompletedAt && (
@@ -79,10 +97,17 @@ export function ActivityCard({
             {activity.completedAt ? (
               <div className="flex items-center text-sm text-muted-foreground">
                 <CheckCircle className="w-3 h-3 mr-1 text-primary" />
-                <span className="first-letter:uppercase">
-                  Completed&nbsp;
-                  {formatDateAsTimeAgo(activity.completedAt)}
-                </span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="first-letter:uppercase">
+                      Completed&nbsp;
+                      {formatDateAsTimeAgo(activity.completedAt)}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {formatDateWithTime(activity.completedAt!, timezone)}
+                  </TooltipContent>
+                </Tooltip>
               </div>
             ) : (
               <div className="h-4"></div>
