@@ -32,14 +32,12 @@ type ActivityCardProps = {
   activity: ActivityWithTasksAndTimeEntries;
   showCompletedAt?: boolean;
   showDescription?: boolean;
-  timezone?: string;
 };
 
 export function ActivityCard({
   activity,
   showCompletedAt = true,
   showDescription = true,
-  timezone = "UTC",
 }: ActivityCardProps) {
   const returnUrl = useReturnUrl();
 
@@ -87,7 +85,7 @@ export function ActivityCard({
                 </span>
               </TooltipTrigger>
               <TooltipContent>
-                {formatDateWithTime(activity.createdAt, timezone)}
+                {formatDateWithTime(activity.createdAt)}
               </TooltipContent>
             </Tooltip>
           </div>
@@ -105,7 +103,7 @@ export function ActivityCard({
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {formatDateWithTime(activity.completedAt!, timezone)}
+                    {formatDateWithTime(activity.completedAt!)}
                   </TooltipContent>
                 </Tooltip>
               </div>

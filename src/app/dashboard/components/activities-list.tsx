@@ -4,20 +4,16 @@ import type { ActivityWithTasksAndTimeEntries } from "@/types";
 
 type ActivitiesListProps = {
   activities: ActivityWithTasksAndTimeEntries[];
-  timezone?: string;
 };
 
-export function ActivitiesList({
-  activities,
-  timezone = "UTC",
-}: ActivitiesListProps) {
+export function ActivitiesList({ activities }: ActivitiesListProps) {
   if (activities.length === 0) return <NoActivities />;
 
   return (
     <ul className="space-y-4">
       {activities.map((activity) => (
         <li key={activity.id}>
-          <ActivityCard activity={activity} timezone={timezone} />
+          <ActivityCard activity={activity} />
         </li>
       ))}
     </ul>

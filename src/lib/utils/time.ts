@@ -107,6 +107,6 @@ export function formatDateAsTimeAgo(
   return format(date, absoluteDateFormat);
 }
 
-export function formatDateWithTime(date: Date, timezone: string): string {
-  return formatInTimeZone(date, timezone, "MMM d, yyyy 'at' h:mm a");
+export function formatDateWithTime(date: Date): string {
+  return format(date, "MMM d, yyyy 'at' h:mm a");
 }

@@ -10,7 +10,6 @@ import { ActivityContributions } from "@/app/dashboard/components/activity-contr
 import { BookmarkedActivitiesList } from "@/app/dashboard/components/bookmarked-activities-list";
 import { Pagination } from "@/app/dashboard/components/pagination";
 import { CollapsibleSection } from "@/components/collapsible-section";
-import { getUserTimezone } from "@/lib/utils/timezone";
 import type { CompletionStatus } from "@/types";
 
 type SearchParams = {
@@ -70,10 +69,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   }
 
   // Get paginated activities with filters
-  const [params, timezone] = await Promise.all([
-    searchParams,
-    getUserTimezone(),
-  ]);
+  const params = await searchParams;
   const { activities, totalPages, currentPage, totalCount } =
     await getActivitiesData({ userId, searchParams: params });
 
@@ -114,7 +110,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           iconName="activity"
         >
           <ActivityFilters />
-          <ActivitiesList activities={activities} timezone={timezone} />
+          <ActivitiesList activities={activities} />
           <Pagination totalPages={totalPages} currentPage={currentPage} />
         </CollapsibleSection>
       </div>

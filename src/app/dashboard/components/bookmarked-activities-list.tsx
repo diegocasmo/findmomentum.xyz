@@ -1,7 +1,6 @@
 import { getBookmarkedActivities } from "@/lib/services/get-bookmarked-activities";
 import { ActivityCard } from "@/app/dashboard/components/activity-card";
 import { NoBookmarkedActivities } from "@/app/dashboard/components/no-bookmarked-activities";
-import { getUserTimezone } from "@/lib/utils/timezone";
 
 type BookmarkedActivitiesListProps = {
   userId: string;
@@ -10,10 +9,7 @@ type BookmarkedActivitiesListProps = {
 export async function BookmarkedActivitiesList({
   userId,
 }: BookmarkedActivitiesListProps) {
-  const [activities, timezone] = await Promise.all([
-    getBookmarkedActivities({ userId }),
-    getUserTimezone(),
-  ]);
+  const activities = await getBookmarkedActivities({ userId });
 
   if (activities.length === 0) return <NoBookmarkedActivities />;
 
@@ -26,7 +22,6 @@ export async function BookmarkedActivitiesList({
             key={activity.id}
             showCompletedAt={false}
             showDescription={false}
-            timezone={timezone}
           />
         ))}
       </div>
