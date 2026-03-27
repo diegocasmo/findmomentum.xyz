@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useDebounce } from "@/hooks/use-debounce";
+import { cn } from "@/lib/utils";
 import type { CompletionStatus } from "@/types";
 
 const SEARCH_DEBOUNCE_DELAY_MS = 300;
@@ -20,6 +21,7 @@ const SEARCH_DEBOUNCE_DELAY_MS = 300;
 export function ActivityFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   const initialSearchQuery = searchParams.get("search") ?? "";
   const initialCompletionStatus =
@@ -56,9 +58,11 @@ export function ActivityFilters() {
       if (Boolean(newParams.search) || newParams.status !== undefined) {
         params.set("page", "1");
       }
-      router.push(`?${params.toString()}`, { scroll: false });
+      startTransition(() => {
+        router.push(`?${params.toString()}`, { scroll: false });
+      });
     },
-    [router]
+    [router, startTransition]
   );
 
   // Track previous debounced value to avoid unnecessary updates
@@ -91,7 +95,12 @@ export function ActivityFilters() {
   }, [searchParams]);
 
   return (
-    <div className="flex flex-col sm:flex-row items-start gap-4 mb-6">
+    <div
+      className={cn(
+        "flex flex-col sm:flex-row items-start gap-4 mb-6 transition-opacity",
+        isPending && "opacity-60"
+      )}
+    >
       <div className="relative flex-1 w-full">
         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none">
           <Search className="h-full w-full" />

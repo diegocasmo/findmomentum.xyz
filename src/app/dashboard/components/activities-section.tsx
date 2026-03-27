@@ -2,6 +2,7 @@ import { getActivities } from "@/lib/services/get-activities";
 import { ActivityFilters } from "@/app/dashboard/components/activity-filters";
 import { ActivitiesList } from "@/app/dashboard/components/activities-list";
 import { Pagination } from "@/app/dashboard/components/pagination";
+
 import type { CompletionStatus } from "@/types";
 
 type SearchParams = {
