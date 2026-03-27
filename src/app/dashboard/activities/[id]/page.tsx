@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { auth } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 import { getActivity } from "@/lib/services/get-activity";
@@ -8,10 +9,15 @@ import { ListTodoIcon, PlusCircleIcon } from "lucide-react";
 import { ActivityTimer } from "@/app/dashboard/activities/[id]/components/activity-timer";
 import { CompleteActivity } from "@/components/complete-activity";
 import { UpsertTaskDialog } from "@/components/upsert-task-dialog";
-import { ActivityCompletedCard } from "@/components/activity-completed-card";
 import { ActivityPageSkeleton } from "@/components/activity-page-skeleton";
 import { ActivityHeader } from "@/app/dashboard/activities/[id]/components/activity-header";
 import { Button } from "@/components/ui/button";
+
+const ActivityCompletedCard = dynamic(() =>
+  import("@/components/activity-completed-card").then((m) => ({
+    default: m.ActivityCompletedCard,
+  }))
+);
 
 type ActivityPageProps = {
   params: Promise<{ id: string }>;

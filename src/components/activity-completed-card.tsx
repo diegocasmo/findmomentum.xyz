@@ -7,8 +7,10 @@ import { formatMsAsDuration } from "@/lib/utils/time";
 import type { ActivityWithTasksAndTimeEntries } from "@/types";
 import { getActivityTotalDuration } from "@/lib/utils/time";
 import { useEffect, useState } from "react";
-import Confetti from "react-confetti";
+import dynamic from "next/dynamic";
 import { useWindowSize } from "@/hooks/use-window-size";
+
+const Confetti = dynamic(() => import("react-confetti"), { ssr: false });
 
 type ActivityCompletedCardProps = {
   activity: ActivityWithTasksAndTimeEntries;
