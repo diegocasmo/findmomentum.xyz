@@ -59,7 +59,7 @@ export async function ActivitiesSection({
 
   return (
     <>
-      <p className="text-sm text-foreground -mt-2 mb-4">{description}</p>
+      <p className="text-sm text-foreground mb-4">{description}</p>
       <ActivityFilters />
       <ActivitiesList activities={activities} />
       <Pagination totalPages={totalPages} currentPage={currentPage} />
