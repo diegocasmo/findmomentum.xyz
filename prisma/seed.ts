@@ -12,6 +12,10 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Seed script must not be run in production");
+  }
+
   // Create a new user with verified email
   const user = await prisma.user.create({
     data: {
@@ -27,18 +31,16 @@ async function main() {
     throw new Error("Failed to create default team");
   }
 
-  // Create starter categories for the user (dev/test only)
-  if (process.env.NODE_ENV !== "production") {
-    const STARTER_CATEGORIES = [
-      "Health",
-      "Work",
-      "Personal",
-      "Learning",
-      "Hobby",
-    ];
-    for (const name of STARTER_CATEGORIES) {
-      await createCategory({ name, userId: user.id });
-    }
+  // Create starter categories for the user
+  const STARTER_CATEGORIES = [
+    "Health",
+    "Work",
+    "Personal",
+    "Learning",
+    "Hobby",
+  ];
+  for (const name of STARTER_CATEGORIES) {
+    await createCategory({ name, userId: user.id });
   }
 
   // Create 10 activities for the user
