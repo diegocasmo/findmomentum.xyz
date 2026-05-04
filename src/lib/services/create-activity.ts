@@ -40,10 +40,11 @@ export async function createActivity({
 
       if (categoryIds && categoryIds.length > 0) {
         const uniqueIds = Array.from(new Set(categoryIds));
-        const count = await tx.category.count({
+        const ownedCategories = await tx.category.findMany({
           where: { id: { in: uniqueIds }, teamId: teamMembership.teamId },
+          select: { id: true },
         });
-        if (count !== uniqueIds.length) {
+        if (ownedCategories.length !== uniqueIds.length) {
           throw new Error("One or more categories do not belong to your team");
         }
         await tx.activityCategory.createMany({
