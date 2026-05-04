@@ -32,10 +32,13 @@ export async function createActivityFromTemplate({
             where: { deletedAt: null },
             orderBy: { position: "asc" },
           },
+          categories: {
+            select: { categoryId: true },
+          },
         },
       });
 
-      return await tx.activity.create({
+      const created = await tx.activity.create({
         data: {
           name: sourceActivity.name,
           description: sourceActivity.description
@@ -52,6 +55,18 @@ export async function createActivityFromTemplate({
           },
         },
       });
+
+      if (sourceActivity.categories.length > 0) {
+        await tx.activityCategory.createMany({
+          data: sourceActivity.categories.map(({ categoryId }) => ({
+            activityId: created.id,
+            categoryId,
+          })),
+          skipDuplicates: true,
+        });
+      }
+
+      return created;
     });
   } catch (error) {
     console.error("Error creating activity from template:", error);

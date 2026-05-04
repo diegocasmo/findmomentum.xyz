@@ -8,6 +8,21 @@ export type ActivityWithTasksAndTimeEntries = Prisma.ActivityGetPayload<{
         timeEntries: true;
       };
     };
+    categories: {
+      include: {
+        category: true;
+      };
+    };
+  };
+}>;
+
+export type ActivityWithCategories = Prisma.ActivityGetPayload<{
+  include: {
+    categories: {
+      include: {
+        category: true;
+      };
+    };
   };
 }>;
 

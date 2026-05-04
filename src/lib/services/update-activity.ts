@@ -1,4 +1,4 @@
-import type { Activity } from "@prisma/client";
+import type { ActivityWithCategories } from "@/types";
 import { TeamMembershipRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
@@ -7,6 +7,7 @@ type UpdateActivityParams = {
   name?: string;
   description?: string;
   userId: string;
+  categoryIds?: string[];
 };
 
 export async function updateActivity({
@@ -14,12 +15,11 @@ export async function updateActivity({
   name,
   description,
   userId,
-}: UpdateActivityParams): Promise<Activity> {
+  categoryIds,
+}: UpdateActivityParams): Promise<ActivityWithCategories> {
   try {
     return await prisma.$transaction(async (tx) => {
-      // Find the activity and ensure the user is the owner
-      // of the team
-      await tx.activity.findFirstOrThrow({
+      const activity = await tx.activity.findFirstOrThrow({
         where: {
           id: activityId,
           userId,
@@ -35,11 +35,42 @@ export async function updateActivity({
         },
       });
 
+      if (categoryIds !== undefined) {
+        await tx.activityCategory.deleteMany({
+          where: { activityId },
+        });
+        if (categoryIds.length > 0) {
+          const uniqueIds = Array.from(new Set(categoryIds));
+          const count = await tx.category.count({
+            where: { id: { in: uniqueIds }, teamId: activity.teamId },
+          });
+          if (count !== uniqueIds.length) {
+            throw new Error(
+              "One or more categories do not belong to your team"
+            );
+          }
+          await tx.activityCategory.createMany({
+            data: uniqueIds.map((categoryId) => ({
+              activityId,
+              categoryId,
+            })),
+            skipDuplicates: true,
+          });
+        }
+      }
+
       return tx.activity.update({
         where: { id: activityId },
         data: {
           ...(name && { name }),
           ...(description !== undefined && { description }),
+        },
+        include: {
+          categories: {
+            include: {
+              category: true,
+            },
+          },
         },
       });
     });
