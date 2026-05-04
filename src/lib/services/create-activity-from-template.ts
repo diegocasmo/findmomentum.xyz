@@ -38,12 +38,10 @@ export async function createActivityFromTemplate({
         },
       });
 
-      const created = await tx.activity.create({
+      return tx.activity.create({
         data: {
           name: sourceActivity.name,
-          description: sourceActivity.description
-            ? sourceActivity.description
-            : null,
+          description: sourceActivity.description ?? null,
           teamId: sourceActivity.teamId,
           userId: userId,
           tasks: {
@@ -53,20 +51,16 @@ export async function createActivityFromTemplate({
               durationMs: task.durationMs,
             })),
           },
+          categories: {
+            createMany: {
+              data: sourceActivity.categories.map(({ categoryId }) => ({
+                categoryId,
+              })),
+              skipDuplicates: true,
+            },
+          },
         },
       });
-
-      if (sourceActivity.categories.length > 0) {
-        await tx.activityCategory.createMany({
-          data: sourceActivity.categories.map(({ categoryId }) => ({
-            activityId: created.id,
-            categoryId,
-          })),
-          skipDuplicates: true,
-        });
-      }
-
-      return created;
     });
   } catch (error) {
     console.error("Error creating activity from template:", error);

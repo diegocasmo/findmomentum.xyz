@@ -22,24 +22,9 @@ export async function createActivity({
         select: { teamId: true },
       });
 
-      const activity = await tx.activity.create({
-        data: {
-          name,
-          description,
-          teamId: teamMembership.teamId,
-          userId,
-        },
-        include: {
-          categories: {
-            include: {
-              category: true,
-            },
-          },
-        },
-      });
+      const uniqueIds = categoryIds ? Array.from(new Set(categoryIds)) : null;
 
-      if (categoryIds && categoryIds.length > 0) {
-        const uniqueIds = Array.from(new Set(categoryIds));
+      if (uniqueIds !== null) {
         const ownedCategories = await tx.category.findMany({
           where: { id: { in: uniqueIds }, teamId: teamMembership.teamId },
           select: { id: true },
@@ -47,26 +32,27 @@ export async function createActivity({
         if (ownedCategories.length !== uniqueIds.length) {
           throw new Error("One or more categories do not belong to your team");
         }
-        await tx.activityCategory.createMany({
-          data: uniqueIds.map((categoryId) => ({
-            activityId: activity.id,
-            categoryId,
-          })),
-          skipDuplicates: true,
-        });
-        return tx.activity.findFirstOrThrow({
-          where: { id: activity.id },
-          include: {
-            categories: {
-              include: {
-                category: true,
-              },
-            },
-          },
-        });
       }
 
-      return activity;
+      return tx.activity.create({
+        data: {
+          name,
+          description,
+          teamId: teamMembership.teamId,
+          userId,
+          ...(uniqueIds !== null && {
+            categories: {
+              createMany: {
+                data: uniqueIds.map((categoryId) => ({ categoryId })),
+                skipDuplicates: true,
+              },
+            },
+          }),
+        },
+        include: {
+          categories: { include: { category: true } },
+        },
+      });
     });
   } catch (error) {
     console.error("Error creating activity:", error);

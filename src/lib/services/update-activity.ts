@@ -35,28 +35,17 @@ export async function updateActivity({
         },
       });
 
-      if (categoryIds !== undefined) {
-        await tx.activityCategory.deleteMany({
-          where: { activityId },
+      const uniqueIds = categoryIds !== undefined ? Array.from(new Set(categoryIds)) : null;
+
+      if (uniqueIds !== null) {
+        const ownedCategories = await tx.category.findMany({
+          where: { id: { in: uniqueIds }, teamId: activity.teamId },
+          select: { id: true },
         });
-        if (categoryIds.length > 0) {
-          const uniqueIds = Array.from(new Set(categoryIds));
-          const ownedCategories = await tx.category.findMany({
-            where: { id: { in: uniqueIds }, teamId: activity.teamId },
-            select: { id: true },
-          });
-          if (ownedCategories.length !== uniqueIds.length) {
-            throw new Error(
-              "One or more categories do not belong to your team"
-            );
-          }
-          await tx.activityCategory.createMany({
-            data: uniqueIds.map((categoryId) => ({
-              activityId,
-              categoryId,
-            })),
-            skipDuplicates: true,
-          });
+        if (ownedCategories.length !== uniqueIds.length) {
+          throw new Error(
+            "One or more categories do not belong to your team"
+          );
         }
       }
 
@@ -65,13 +54,18 @@ export async function updateActivity({
         data: {
           ...(name && { name }),
           ...(description !== undefined && { description }),
+          ...(uniqueIds !== null && {
+            categories: {
+              deleteMany: {},
+              createMany: {
+                data: uniqueIds.map((categoryId) => ({ categoryId })),
+                skipDuplicates: true,
+              },
+            },
+          }),
         },
         include: {
-          categories: {
-            include: {
-              category: true,
-            },
-          },
+          categories: { include: { category: true } },
         },
       });
     });
