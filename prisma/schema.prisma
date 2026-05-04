@@ -101,7 +101,14 @@ model Category {
   user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   activities ActivityCategory[]
 
-  @@unique([teamId, name])
+  /// Case-insensitive uniqueness on (team_id, name) is enforced by the
+  /// raw-SQL functional unique index `categories_team_id_lower_name_key`.
+  /// Prisma cannot model functional indexes (prisma/prisma#12914), so it is
+  /// unrepresented here. IMPORTANT: every future `prisma migrate dev` run
+  /// that touches `categories` MUST be inspected — Prisma will propose
+  /// `DROP INDEX categories_team_id_lower_name_key`. That line MUST be
+  /// removed before the migration is committed, or case-insensitive
+  /// uniqueness is silently lost.
   @@index([userId, teamId])
   @@map("categories")
 }
