@@ -1,15 +1,20 @@
 "use server";
 
-import { createActivitySchema } from "@/app/schemas/create-activity-schema";
-import { createActivity } from "@/lib/services/create-activity";
+import { deleteCategorySchema } from "@/app/schemas/delete-category-schema";
+import { deleteCategory } from "@/lib/services/delete-category";
 import { parseZodErrors, createZodError } from "@/lib/utils/form";
 import { auth } from "@/lib/auth";
 import { transformPrismaErrorToZodError } from "@/lib/utils/prisma-error-handler";
-import type { ActionResult, ActivityWithCategories } from "@/types";
+import type { ActionResult } from "@/types";
 
-export async function createActivityAction(
+type DeleteCategoryResult = {
+  id: string;
+  affectedActivitiesCount: number;
+};
+
+export async function deleteCategoryAction(
   formData: FormData
-): Promise<ActionResult<ActivityWithCategories>> {
+): Promise<ActionResult<DeleteCategoryResult>> {
   const session = await auth();
   if (!session?.user?.id) {
     return {
@@ -20,25 +25,22 @@ export async function createActivityAction(
     };
   }
 
-  const result = createActivitySchema.safeParse({
-    name: formData.get("name"),
-    description: formData.get("description"),
-    categoryIds: formData.getAll("categoryIds"),
+  const result = deleteCategorySchema.safeParse({
+    categoryId: formData.get("categoryId"),
   });
 
   if (!result.success) {
     return { success: false, errors: parseZodErrors(result) };
   }
+
   try {
-    const activity = await createActivity({
-      name: result.data.name,
-      description: result.data.description,
+    const deleteResult = await deleteCategory({
+      categoryId: result.data.categoryId,
       userId: session.user.id,
-      categoryIds: result.data.categoryIds,
     });
-    return { success: true, data: activity };
+    return { success: true, data: deleteResult };
   } catch (error) {
-    console.error("Error creating activity:", error);
+    console.error("Error deleting category:", error);
     const zodError =
       transformPrismaErrorToZodError(error) ||
       createZodError("An unexpected error occurred. Please try again.", [

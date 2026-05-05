@@ -12,6 +12,7 @@ export const createActivitySchema = z.object({
     .max(500, "Description must be 500 characters or less")
     .optional()
     .transform((v) => v?.trim() || ""),
+  categoryIds: z.array(z.string().cuid()).default([]),
 });
 
 export type CreateActivitySchema = z.infer<typeof createActivitySchema>;
