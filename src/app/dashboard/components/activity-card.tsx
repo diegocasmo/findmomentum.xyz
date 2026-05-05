@@ -13,7 +13,7 @@ import {
 import { Calendar, CheckCircle } from "lucide-react";
 import { ActivityActions } from "@/app/dashboard/components/activity-actions";
 import { BookmarkButton } from "@/components/bookmark-button";
-import type { ActivityWithTasksAndTimeEntries } from "@/types";
+import type { ActivityWithTasksAndTimeEntries, CategoryOption } from "@/types";
 import {
   formatTimeHHMMss,
   formatDateAsTimeAgo,
@@ -30,12 +30,14 @@ import { useReturnUrl } from "@/hooks/use-return-url";
 
 type ActivityCardProps = {
   activity: ActivityWithTasksAndTimeEntries;
+  categories: CategoryOption[];
   showCompletedAt?: boolean;
   showDescription?: boolean;
 };
 
 export function ActivityCard({
   activity,
+  categories,
   showCompletedAt = true,
   showDescription = true,
 }: ActivityCardProps) {
@@ -66,7 +68,7 @@ export function ActivityCard({
                 {isRunning ? `(${formatTimeHHMMss(remainingTime)})` : null}
               </CardTitle>
             </div>
-            <ActivityActions activity={activity} returnUrl={returnUrl} />
+            <ActivityActions activity={activity} returnUrl={returnUrl} categories={categories} />
           </div>
           {showDescription && (
             <CardDescription className="text-sm text-muted-foreground mt-1 truncate min-h-[1.5rem]">

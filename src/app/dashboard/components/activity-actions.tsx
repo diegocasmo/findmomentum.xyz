@@ -12,19 +12,21 @@ import {
 import { UpsertActivityDialog } from "@/components/upsert-activity-dialog";
 import { DeleteActivityDialog } from "@/components/delete-activity-dialog";
 import { BookmarkButton } from "@/components/bookmark-button";
-import type { ActivityWithTasksAndTimeEntries } from "@/types";
+import type { ActivityWithTasksAndTimeEntries, CategoryOption } from "@/types";
 import { useRouter } from "next/navigation";
 import { createActivityFromTemplateAction } from "@/app/actions/create-activity-from-template-action";
 import { useToast } from "@/hooks/use-toast";
 
 type ActivityActionsProps = {
   activity: ActivityWithTasksAndTimeEntries;
+  categories: CategoryOption[];
   redirectUrl?: string;
   returnUrl?: string;
 };
 
 export function ActivityActions({
   activity,
+  categories,
   redirectUrl,
   returnUrl,
 }: ActivityActionsProps) {
@@ -89,7 +91,7 @@ export function ActivityActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuItem asChild>
-            <UpsertActivityDialog activity={activity}>
+            <UpsertActivityDialog activity={activity} categories={categories}>
               <Button
                 variant="ghost"
                 className="w-full cursor-pointer justify-start"

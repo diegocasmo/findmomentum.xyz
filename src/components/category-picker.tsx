@@ -42,7 +42,7 @@ const GENERIC_ERROR_CONFIG: Parameters<typeof _toast>[0] = {
 };
 
 type CategoryPickerProps = {
-  categories: Category[];
+  categories: Pick<Category, "id" | "name">[];
   selectedIds: string[];
   onChange: (ids: string[]) => void;
   mode?: "manage" | "filter";
@@ -64,7 +64,7 @@ export function CategoryPicker({
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Pick<Category, "id" | "name"> | null>(null);
 
   const editInputRef = useRef<HTMLInputElement>(null);
   // guards rename-blur ↔ Pencil-click race
@@ -148,7 +148,7 @@ export function CategoryPicker({
     });
   };
 
-  const handleDelete = (category: Category) => {
+  const handleDelete = (category: Pick<Category, "id" | "name">) => {
     if (isPending) return;
     startTransition(async () => {
       try {

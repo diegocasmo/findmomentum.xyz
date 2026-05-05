@@ -3,6 +3,7 @@
 import type React from "react";
 import Link from "next/link";
 import { Home, Plus, User } from "lucide-react";
+import type { CategoryOption } from "@/types";
 import { UserDropdownMenu } from "@/components/user-dropdown-menu";
 import { UpsertActivityDialog } from "@/components/upsert-activity-dialog";
 
@@ -40,7 +41,11 @@ function NavButton({
   );
 }
 
-export function BottomNav() {
+type BottomNavProps = {
+  categories: CategoryOption[];
+};
+
+export function BottomNav({ categories }: BottomNavProps) {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border">
       <nav className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -51,7 +56,7 @@ export function BottomNav() {
             as={Link}
             href="/dashboard"
           />
-          <UpsertActivityDialog>
+          <UpsertActivityDialog categories={categories}>
             <NavButton icon={<Plus className="h-6 w-6" />} label="Create" />
           </UpsertActivityDialog>
           <UserDropdownMenu>

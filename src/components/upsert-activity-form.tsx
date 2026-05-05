@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
-import type { Activity } from "@prisma/client";
+import type { ActivityWithCategories, CategoryOption } from "@/types";
+import { CategoryPicker } from "@/components/category-picker";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createActivitySchema } from "@/app/schemas/create-activity-schema";
 import { updateActivitySchema } from "@/app/schemas/update-activity-schema";
@@ -32,15 +33,18 @@ type FormData = {
   activityId?: string;
   name: string;
   description: string;
+  categoryIds: string[];
 };
 
 type UpsertActivityFormProps = {
-  activity?: Activity;
+  activity?: ActivityWithCategories;
+  categories: CategoryOption[];
   onSuccess: () => void;
 };
 
 export function UpsertActivityForm({
   activity,
+  categories,
   onSuccess,
 }: UpsertActivityFormProps) {
   const [isPending, startTransition] = useTransition();
@@ -54,6 +58,7 @@ export function UpsertActivityForm({
       ...(activity && { activityId: activity.id }),
       name: activity?.name || "",
       description: activity?.description || "",
+      categoryIds: activity?.categories?.map((ac) => ac.categoryId) ?? [],
     },
   });
 
@@ -63,6 +68,7 @@ export function UpsertActivityForm({
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("description", data.description);
+        data.categoryIds.forEach((id) => formData.append("categoryIds", id));
         if (activity) {
           formData.append("activityId", activity.id);
         }
@@ -122,6 +128,33 @@ export function UpsertActivityForm({
                 </FormControl>
                 <FormDescription>
                   Choose a clear and concise name for your activity.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="categoryIds"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Categories</FormLabel>
+                <CategoryPicker
+                  categories={categories}
+                  selectedIds={field.value}
+                  onChange={field.onChange}
+                  trigger={
+                    <FormControl>
+                      <Button variant="outline" type="button" className="w-full justify-start font-normal">
+                        {field.value.length > 0
+                          ? `${field.value.length} selected`
+                          : "Select categories"}
+                      </Button>
+                    </FormControl>
+                  }
+                />
+                <FormDescription>
+                  Tag this activity with categories.
                 </FormDescription>
                 <FormMessage />
               </FormItem>

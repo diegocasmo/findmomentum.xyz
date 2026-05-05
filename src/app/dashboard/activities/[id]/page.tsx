@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { auth } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 import { getActivity } from "@/lib/services/get-activity";
+import { getCategories } from "@/lib/services/get-categories";
 import { TasksList } from "@/app/dashboard/activities/[id]/components/tasks-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ListTodoIcon, PlusCircleIcon } from "lucide-react";
@@ -32,7 +33,11 @@ export default async function ActivityPage({ params }: ActivityPageProps) {
     redirect("/auth/sign-in");
   }
 
-  const activity = await getActivity({ id: activityId, userId });
+  const [activity, rawCategories] = await Promise.all([
+    getActivity({ id: activityId, userId }),
+    getCategories({ userId }),
+  ]);
+  const categories = rawCategories.map(({ id, name }) => ({ id, name }));
 
   if (!activity) {
     notFound();
@@ -41,7 +46,7 @@ export default async function ActivityPage({ params }: ActivityPageProps) {
   return (
     <Suspense fallback={<ActivityPageSkeleton />}>
       <div className="container mx-auto space-y-8 h-full flex flex-col">
-        <ActivityHeader activity={activity} />
+        <ActivityHeader activity={activity} categories={categories} />
         {activity.completedAt ? (
           <div className="flex justify-center">
             <ActivityCompletedCard activity={activity} />
