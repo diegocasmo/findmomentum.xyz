@@ -52,7 +52,7 @@ export async function ActivitiesSection({
       completionStatus,
     });
 
-  const categories = (await getCategories({ userId })).map(({ id, name }) => ({ id, name }));
+  const categories = await getCategories({ userId });
 
   const description = getActivityDescription({
     totalCount,

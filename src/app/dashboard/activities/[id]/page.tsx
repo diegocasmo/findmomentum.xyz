@@ -33,11 +33,10 @@ export default async function ActivityPage({ params }: ActivityPageProps) {
     redirect("/auth/sign-in");
   }
 
-  const [activity, rawCategories] = await Promise.all([
+  const [activity, categories] = await Promise.all([
     getActivity({ id: activityId, userId }),
     getCategories({ userId }),
   ]);
-  const categories = rawCategories.map(({ id, name }) => ({ id, name }));
 
   if (!activity) {
     notFound();

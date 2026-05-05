@@ -16,7 +16,7 @@ export default async function DashboardLayout({
 
   if (!session?.user?.id) redirect("/auth/sign-in");
   const userId = session.user.id;
-  const categories = (await getCategories({ userId })).map(({ id, name }) => ({ id, name }));
+  const categories = await getCategories({ userId });
 
   return (
     <SessionProvider session={session}>

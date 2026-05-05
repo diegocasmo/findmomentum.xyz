@@ -11,7 +11,7 @@ export async function BookmarkedActivitiesList({
   userId,
 }: BookmarkedActivitiesListProps) {
   const activities = await getBookmarkedActivities({ userId });
-  const categories = (await getCategories({ userId })).map(({ id, name }) => ({ id, name }));
+  const categories = await getCategories({ userId });
 
   if (activities.length === 0) return <NoBookmarkedActivities />;
 
