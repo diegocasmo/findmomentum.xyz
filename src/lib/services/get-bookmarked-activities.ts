@@ -38,6 +38,11 @@ export async function getBookmarkedActivities({
           position: "asc",
         },
       },
+      categories: {
+        include: {
+          category: true,
+        },
+      },
     },
   });
 

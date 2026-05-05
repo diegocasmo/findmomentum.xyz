@@ -83,6 +83,11 @@ export async function getActivities({
             position: "asc",
           },
         },
+        categories: {
+          include: {
+            category: true,
+          },
+        },
       },
       skip,
       take: limit,

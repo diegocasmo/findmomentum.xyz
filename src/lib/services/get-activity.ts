@@ -38,6 +38,11 @@ export async function getActivity({
             position: "asc",
           },
         },
+        categories: {
+          include: {
+            category: true,
+          },
+        },
       },
     });
   } catch (error) {

@@ -32,15 +32,16 @@ export async function createActivityFromTemplate({
             where: { deletedAt: null },
             orderBy: { position: "asc" },
           },
+          categories: {
+            select: { categoryId: true },
+          },
         },
       });
 
-      return await tx.activity.create({
+      return tx.activity.create({
         data: {
           name: sourceActivity.name,
-          description: sourceActivity.description
-            ? sourceActivity.description
-            : null,
+          description: sourceActivity.description ?? null,
           teamId: sourceActivity.teamId,
           userId: userId,
           tasks: {
@@ -49,6 +50,14 @@ export async function createActivityFromTemplate({
               position: task.position,
               durationMs: task.durationMs,
             })),
+          },
+          categories: {
+            createMany: {
+              data: sourceActivity.categories.map(({ categoryId }) => ({
+                categoryId,
+              })),
+              skipDuplicates: true,
+            },
           },
         },
       });
