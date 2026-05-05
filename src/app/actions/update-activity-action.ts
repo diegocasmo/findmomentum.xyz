@@ -4,13 +4,12 @@ import { updateActivitySchema } from "@/app/schemas/update-activity-schema";
 import { updateActivity } from "@/lib/services/update-activity";
 import { parseZodErrors, createZodError } from "@/lib/utils/form";
 import { auth } from "@/lib/auth";
-import type { Activity } from "@prisma/client";
 import { transformPrismaErrorToZodError } from "@/lib/utils/prisma-error-handler";
-import type { ActionResult } from "@/types";
+import type { ActionResult, ActivityWithCategories } from "@/types";
 
 export async function updateActivityAction(
   formData: FormData
-): Promise<ActionResult<Activity>> {
+): Promise<ActionResult<ActivityWithCategories>> {
   const session = await auth();
   if (!session?.user?.id) {
     return {
@@ -25,6 +24,7 @@ export async function updateActivityAction(
     activityId: formData.get("activityId"),
     name: formData.get("name"),
     description: formData.get("description"),
+    categoryIds: formData.getAll("categoryIds"),
   });
 
   if (!result.success) {
@@ -36,6 +36,7 @@ export async function updateActivityAction(
       name: result.data.name,
       description: result.data.description,
       userId: session.user.id,
+      categoryIds: result.data.categoryIds,
     });
     return { success: true, data: activity };
   } catch (error) {

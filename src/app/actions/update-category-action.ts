@@ -1,15 +1,16 @@
 "use server";
 
-import { createActivitySchema } from "@/app/schemas/create-activity-schema";
-import { createActivity } from "@/lib/services/create-activity";
+import { updateCategorySchema } from "@/app/schemas/update-category-schema";
+import { updateCategory } from "@/lib/services/update-category";
 import { parseZodErrors, createZodError } from "@/lib/utils/form";
 import { auth } from "@/lib/auth";
+import type { Category } from "@prisma/client";
 import { transformPrismaErrorToZodError } from "@/lib/utils/prisma-error-handler";
-import type { ActionResult, ActivityWithCategories } from "@/types";
+import type { ActionResult } from "@/types";
 
-export async function createActivityAction(
+export async function updateCategoryAction(
   formData: FormData
-): Promise<ActionResult<ActivityWithCategories>> {
+): Promise<ActionResult<Category>> {
   const session = await auth();
   if (!session?.user?.id) {
     return {
@@ -20,25 +21,24 @@ export async function createActivityAction(
     };
   }
 
-  const result = createActivitySchema.safeParse({
+  const result = updateCategorySchema.safeParse({
+    categoryId: formData.get("categoryId"),
     name: formData.get("name"),
-    description: formData.get("description"),
-    categoryIds: formData.getAll("categoryIds"),
   });
 
   if (!result.success) {
     return { success: false, errors: parseZodErrors(result) };
   }
+
   try {
-    const activity = await createActivity({
+    const category = await updateCategory({
+      categoryId: result.data.categoryId,
       name: result.data.name,
-      description: result.data.description,
       userId: session.user.id,
-      categoryIds: result.data.categoryIds,
     });
-    return { success: true, data: activity };
+    return { success: true, data: category };
   } catch (error) {
-    console.error("Error creating activity:", error);
+    console.error("Error updating category:", error);
     const zodError =
       transformPrismaErrorToZodError(error) ||
       createZodError("An unexpected error occurred. Please try again.", [

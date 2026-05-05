@@ -49,6 +49,15 @@ const defaultPrismaErrorMapping: PrismaErrorMapping = {
       field,
     ]);
   },
+  P2025: (error) => {
+    const meta = error.meta as { modelName?: unknown } | undefined;
+    const modelName =
+      typeof meta?.modelName === "string" ? meta.modelName : null;
+    return createZodError(
+      modelName ? `${modelName} not found` : "Record not found",
+      ["root"]
+    );
+  },
 };
 
 export function transformPrismaErrorToZodError(
