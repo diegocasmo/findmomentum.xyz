@@ -316,7 +316,7 @@ export function CategoryPicker({
                 <CommandItem
                   key="__create__"
                   value="__create__"
-                  onSelect={() => handleCreate(trimmedSearch)}
+                  onSelect={() => handleCreate(search.trim())}
                 >
                   Create &apos;{search.trim()}&apos;
                 </CommandItem>
