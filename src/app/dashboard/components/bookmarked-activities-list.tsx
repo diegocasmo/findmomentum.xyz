@@ -1,4 +1,5 @@
 import { getBookmarkedActivities } from "@/lib/services/get-bookmarked-activities";
+import { getCategories } from "@/lib/services/get-categories";
 import { ActivityCard } from "@/app/dashboard/components/activity-card";
 import { NoBookmarkedActivities } from "@/app/dashboard/components/no-bookmarked-activities";
 
@@ -10,6 +11,7 @@ export async function BookmarkedActivitiesList({
   userId,
 }: BookmarkedActivitiesListProps) {
   const activities = await getBookmarkedActivities({ userId });
+  const categories = await getCategories({ userId });
 
   if (activities.length === 0) return <NoBookmarkedActivities />;
 
@@ -20,6 +22,7 @@ export async function BookmarkedActivitiesList({
           <ActivityCard
             activity={activity}
             key={activity.id}
+            categories={categories}
             showCompletedAt={false}
             showDescription={false}
           />

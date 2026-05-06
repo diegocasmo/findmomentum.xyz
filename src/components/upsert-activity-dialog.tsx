@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Activity } from "@prisma/client";
+import type { ActivityWithCategories, CategoryOption } from "@/types";
 import {
   Dialog,
   DialogContent,
@@ -12,19 +12,21 @@ import { UpsertActivityForm } from "@/components/upsert-activity-form";
 
 type UpsertActivityDialogProps = {
   children: React.ReactNode;
-  activity?: Activity;
+  activity?: ActivityWithCategories;
+  categories: CategoryOption[];
 };
 
 export function UpsertActivityDialog({
   children,
   activity,
+  categories,
 }: UpsertActivityDialogProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] max-w-[90%] w-full">
+      <DialogContent className="sm:max-w-[425px] max-w-[90%] w-full flex flex-col overflow-hidden max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>
             {activity ? "Update" : "Create New"} Activity
@@ -37,6 +39,7 @@ export function UpsertActivityDialog({
         </DialogHeader>
         <UpsertActivityForm
           activity={activity}
+          categories={categories}
           onSuccess={() => setOpen(false)}
         />
       </DialogContent>

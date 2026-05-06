@@ -6,13 +6,14 @@ import { useSearchParams } from "next/navigation";
 import { ActivityIcon, ChevronLeft } from "lucide-react";
 import { ActivityActions } from "@/app/dashboard/components/activity-actions";
 import { BookmarkButton } from "@/components/bookmark-button";
-import type { ActivityWithTasksAndTimeEntries } from "@/types";
+import type { ActivityWithTasksAndTimeEntries, CategoryOption } from "@/types";
 
 type ActivityHeaderProps = {
   activity: ActivityWithTasksAndTimeEntries;
+  categories: CategoryOption[];
 };
 
-export function ActivityHeader({ activity }: ActivityHeaderProps) {
+export function ActivityHeader({ activity, categories }: ActivityHeaderProps) {
   const searchParams = useSearchParams();
   const returnUrl = searchParams.get("returnUrl") || "/dashboard";
 
@@ -45,7 +46,7 @@ export function ActivityHeader({ activity }: ActivityHeaderProps) {
           )}
         </div>
         <div className="flex items-center sm:self-center ml-auto sm:ml-0">
-          <ActivityActions activity={activity} redirectUrl={returnUrl} />
+          <ActivityActions activity={activity} redirectUrl={returnUrl} categories={categories} />
         </div>
       </div>
     </div>

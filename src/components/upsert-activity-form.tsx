@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
-import type { Activity } from "@prisma/client";
+import type { ActivityWithCategories, CategoryOption } from "@/types";
+import { CategoryPicker } from "@/components/category-picker";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createActivitySchema } from "@/app/schemas/create-activity-schema";
 import { updateActivitySchema } from "@/app/schemas/update-activity-schema";
@@ -16,12 +17,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  ActivityIcon,
   Loader2Icon,
   PlusCircleIcon,
   Pencil,
+  X,
+  ChevronDown,
 } from "lucide-react";
-import { useTransition } from "react";
+import { Badge } from "@/components/ui/badge";
+import { useState, useTransition } from "react";
 import { createActivityAction } from "@/app/actions/create-activity-action";
 import { updateActivityAction } from "@/app/actions/update-activity-action";
 import { setFormErrors } from "@/lib/utils/form";
@@ -32,28 +35,47 @@ type FormData = {
   activityId?: string;
   name: string;
   description: string;
+  categoryIds: string[];
 };
 
 type UpsertActivityFormProps = {
-  activity?: Activity;
+  activity?: ActivityWithCategories;
+  categories: CategoryOption[];
   onSuccess: () => void;
 };
 
 export function UpsertActivityForm({
   activity,
+  categories,
   onSuccess,
 }: UpsertActivityFormProps) {
   const [isPending, startTransition] = useTransition();
+  const [optimisticCategories, setOptimisticCategories] = useState<
+    CategoryOption[]
+  >([]);
+  const [isCategoryPending, setIsCategoryPending] = useState(false);
   const router = useRouter();
+
+  const augmentedCategories: CategoryOption[] = [
+    ...categories,
+    ...optimisticCategories.filter(
+      (opt) => !categories.some((c) => c.id === opt.id),
+    ),
+  ];
+
+  const handleCategoryCreated = (cat: CategoryOption) => {
+    setOptimisticCategories((prev) => [...prev, cat]);
+  };
 
   const form = useForm<FormData>({
     resolver: zodResolver(
-      activity ? updateActivitySchema : createActivitySchema
+      activity ? updateActivitySchema : createActivitySchema,
     ),
     defaultValues: {
       ...(activity && { activityId: activity.id }),
       name: activity?.name || "",
       description: activity?.description || "",
+      categoryIds: activity?.categories?.map((ac) => ac.categoryId) ?? [],
     },
   });
 
@@ -63,6 +85,7 @@ export function UpsertActivityForm({
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("description", data.description);
+        data.categoryIds.forEach((id) => formData.append("categoryIds", id));
         if (activity) {
           formData.append("activityId", activity.id);
         }
@@ -85,7 +108,7 @@ export function UpsertActivityForm({
       } catch (error) {
         console.error(
           `Activity ${activity ? "update" : "create"} error:`,
-          error
+          error,
         );
         form.setError("root", {
           type: "manual",
@@ -96,7 +119,7 @@ export function UpsertActivityForm({
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-background">
+    <div className="max-w-2xl py-6 px-2 bg-background flex-1 min-h-0 overflow-y-auto">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
@@ -106,9 +129,8 @@ export function UpsertActivityForm({
               <FormItem>
                 <FormLabel
                   htmlFor="activity-name"
-                  className="text-lg font-semibold flex items-center"
+                  className="text-lg font-semibold"
                 >
-                  <ActivityIcon className="w-5 h-5 mr-2" />
                   Name
                 </FormLabel>
                 <FormControl>
@@ -122,6 +144,82 @@ export function UpsertActivityForm({
                 </FormControl>
                 <FormDescription>
                   Choose a clear and concise name for your activity.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="categoryIds"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-lg font-semibold">
+                  Categories
+                </FormLabel>
+                <CategoryPicker
+                  categories={augmentedCategories}
+                  selectedIds={field.value}
+                  onChange={field.onChange}
+                  onCategoryCreated={handleCategoryCreated}
+                  onPendingChange={setIsCategoryPending}
+                  trigger={
+                    <FormControl>
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        aria-label="Select categories"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            (e.currentTarget as HTMLDivElement).click();
+                          }
+                        }}
+                        className="flex w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors md:text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-wrap items-center gap-1.5 min-h-9 cursor-pointer"
+                      >
+                        {field.value.length === 0 ? (
+                          <span className="text-muted-foreground">
+                            Select categories
+                          </span>
+                        ) : (
+                          field.value.map((id: string) => {
+                            const cat = augmentedCategories.find(
+                              (c) => c.id === id,
+                            );
+                            if (!cat) return null;
+                            return (
+                              <Badge
+                                key={id}
+                                variant="secondary"
+                                className="font-normal text-sm pl-2 pr-0 py-0.5 [&:has(button:hover)]:bg-secondary"
+                              >
+                                <span>{cat.name}</span>
+                                <button
+                                  type="button"
+                                  aria-label={`Remove ${cat.name}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    field.onChange(
+                                      field.value.filter(
+                                        (v: string) => v !== id,
+                                      ),
+                                    );
+                                  }}
+                                  className="relative inline-flex items-center justify-center rounded-sm ml-1 mr-1 hover:bg-secondary-foreground/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring before:absolute before:inset-[-15px] before:content-['']"
+                                >
+                                  <X className="h-4 w-4" />
+                                </button>
+                              </Badge>
+                            );
+                          })
+                        )}
+                        <ChevronDown className="ml-auto h-4 w-4 opacity-50 shrink-0 self-center" />
+                      </div>
+                    </FormControl>
+                  }
+                />
+                <FormDescription>
+                  Choose relevant categories for your activity.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -148,8 +246,7 @@ export function UpsertActivityForm({
                   />
                 </FormControl>
                 <FormDescription>
-                  Provide additional details about your activity (max 500
-                  characters).
+                  Provide additional details about your activity.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -160,7 +257,7 @@ export function UpsertActivityForm({
             <Button
               type="submit"
               className="w-full text-base font-semibold"
-              disabled={isPending}
+              disabled={isCategoryPending || isPending}
             >
               {isPending ? (
                 <Loader2Icon className="h-4 w-4 animate-spin mr-2" />

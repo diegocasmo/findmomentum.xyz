@@ -1,4 +1,5 @@
 import { getActivities } from "@/lib/services/get-activities";
+import { getCategories } from "@/lib/services/get-categories";
 import { ActivityFilters } from "@/app/dashboard/components/activity-filters";
 import { ActivitiesList } from "@/app/dashboard/components/activities-list";
 import { Pagination } from "@/app/dashboard/components/pagination";
@@ -51,6 +52,8 @@ export async function ActivitiesSection({
       completionStatus,
     });
 
+  const categories = await getCategories({ userId });
+
   const description = getActivityDescription({
     totalCount,
     currentPage,
@@ -61,7 +64,7 @@ export async function ActivitiesSection({
     <>
       <p className="text-sm text-foreground mb-4">{description}</p>
       <ActivityFilters />
-      <ActivitiesList activities={activities} />
+      <ActivitiesList activities={activities} categories={categories} />
       <Pagination totalPages={totalPages} currentPage={currentPage} />
     </>
   );

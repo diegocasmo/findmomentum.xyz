@@ -42,9 +42,11 @@ const GENERIC_ERROR_CONFIG: Parameters<typeof _toast>[0] = {
 };
 
 type CategoryPickerProps = {
-  categories: Category[];
+  categories: Pick<Category, "id" | "name">[];
   selectedIds: string[];
   onChange: (ids: string[]) => void;
+  onCategoryCreated?: (cat: Pick<Category, "id" | "name">) => void;
+  onPendingChange?: (pending: boolean) => void;
   mode?: "manage" | "filter";
   trigger?: React.ReactNode;
 };
@@ -53,6 +55,8 @@ export function CategoryPicker({
   categories,
   selectedIds,
   onChange,
+  onCategoryCreated,
+  onPendingChange,
   mode = "manage",
   trigger,
 }: CategoryPickerProps) {
@@ -64,7 +68,7 @@ export function CategoryPicker({
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Pick<Category, "id" | "name"> | null>(null);
 
   const editInputRef = useRef<HTMLInputElement>(null);
   // guards rename-blur ↔ Pencil-click race
@@ -100,6 +104,7 @@ export function CategoryPicker({
             description: `"${name}" has been created.`,
           });
           onChange([...selectedIds, result.data.id]);
+          onCategoryCreated?.({ id: result.data.id, name: result.data.name });
           setSearch("");
           router.refresh();
         } else {
@@ -148,7 +153,7 @@ export function CategoryPicker({
     });
   };
 
-  const handleDelete = (category: Category) => {
+  const handleDelete = (category: Pick<Category, "id" | "name">) => {
     if (isPending) return;
     startTransition(async () => {
       try {
@@ -180,6 +185,10 @@ export function CategoryPicker({
     if (editingId !== null) editInputRef.current?.focus();
   }, [editingId]);
 
+  useEffect(() => {
+    onPendingChange?.(isPending);
+  }, [isPending, onPendingChange]);
+
   return (
     <>
       <Popover
@@ -203,7 +212,7 @@ export function CategoryPicker({
             </Button>
           )}
         </PopoverTrigger>
-        <PopoverContent className="p-0 w-[300px]" align="start">
+        <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]" align="start">
           <Command shouldFilter={false}>
             <CommandInput
               value={search}
@@ -276,11 +285,12 @@ export function CategoryPicker({
                     <>
                       <span className="flex-1 truncate">{category.name}</span>
                       {mode !== "filter" && (
-                        <span className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 [@media(hover:none)_and_(pointer:coarse)]:opacity-100">
+                        <span className="ml-auto flex items-center gap-2 opacity-0 group-hover:opacity-100 [@media(hover:none)_and_(pointer:coarse)]:opacity-100">
                           <button
                             type="button"
                             tabIndex={-1}
                             aria-label={`Rename ${category.name}`}
+                            className="rounded p-1.5 hover:bg-foreground/10 hover:text-foreground transition-colors"
                             onPointerDown={(e) => {
                               e.stopPropagation();
                               nextEditingIdRef.current = category.id;
@@ -292,19 +302,20 @@ export function CategoryPicker({
                               nextEditingIdRef.current = null;
                             }}
                           >
-                            <Pencil className="h-3 w-3" />
+                            <Pencil className="h-3.5 w-3.5" />
                           </button>
                           <button
                             type="button"
                             tabIndex={-1}
                             aria-label={`Delete ${category.name}`}
+                            className="rounded p-1.5 hover:bg-foreground/10 hover:text-foreground transition-colors"
                             onPointerDown={(e) => e.stopPropagation()}
                             onClick={(e) => {
                               e.stopPropagation();
                               setDeleteTarget(category);
                             }}
                           >
-                            <Trash2 className="h-3 w-3" />
+                            <Trash2 className="h-3.5 w-3.5" />
                           </button>
                         </span>
                       )}

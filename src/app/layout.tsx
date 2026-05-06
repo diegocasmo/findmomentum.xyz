@@ -1,5 +1,6 @@
 import type React from "react";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import localFont from "next/font/local";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -23,22 +24,26 @@ export const metadata: Metadata = {
   description: "Small wins. Big progress.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const themeCookie = cookieStore.get("theme")?.value;
+  const resolvedTheme = themeCookie === "dark" ? "dark" : "light";
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={resolvedTheme}
+      style={{ colorScheme: resolvedTheme }}
+      suppressHydrationWarning
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider>
           <SetTimezoneCookie />
           <TooltipProvider>
             <div className="container max-w-7xl mx-auto px-2">{children}</div>

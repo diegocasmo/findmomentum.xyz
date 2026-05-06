@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import type { Prisma, Category } from "@prisma/client";
 import type { FieldErrors } from "react-hook-form";
 
 export type ActivityWithTasksAndTimeEntries = Prisma.ActivityGetPayload<{
@@ -25,6 +25,8 @@ export type ActivityWithCategories = Prisma.ActivityGetPayload<{
     };
   };
 }>;
+
+export type CategoryOption = Pick<Category, "id" | "name">;
 
 export type TaskWithTimeEntries = Prisma.TaskGetPayload<{
   include: {
