@@ -42,6 +42,7 @@ export async function getBookmarkedActivities({
         include: {
           category: true,
         },
+        orderBy: { createdAt: "asc" },
       },
     },
   });

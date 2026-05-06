@@ -26,7 +26,7 @@ export function UpsertActivityDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] max-w-[90%] w-full">
+      <DialogContent className="sm:max-w-[425px] max-w-[90%] w-full flex flex-col overflow-hidden max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>
             {activity ? "Update" : "Create New"} Activity

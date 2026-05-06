@@ -45,6 +45,8 @@ type CategoryPickerProps = {
   categories: Pick<Category, "id" | "name">[];
   selectedIds: string[];
   onChange: (ids: string[]) => void;
+  onCategoryCreated?: (cat: Pick<Category, "id" | "name">) => void;
+  onPendingChange?: (pending: boolean) => void;
   mode?: "manage" | "filter";
   trigger?: React.ReactNode;
 };
@@ -53,6 +55,8 @@ export function CategoryPicker({
   categories,
   selectedIds,
   onChange,
+  onCategoryCreated,
+  onPendingChange,
   mode = "manage",
   trigger,
 }: CategoryPickerProps) {
@@ -100,6 +104,7 @@ export function CategoryPicker({
             description: `"${name}" has been created.`,
           });
           onChange([...selectedIds, result.data.id]);
+          onCategoryCreated?.({ id: result.data.id, name: result.data.name });
           setSearch("");
           router.refresh();
         } else {
@@ -179,6 +184,10 @@ export function CategoryPicker({
   useEffect(() => {
     if (editingId !== null) editInputRef.current?.focus();
   }, [editingId]);
+
+  useEffect(() => {
+    onPendingChange?.(isPending);
+  }, [isPending, onPendingChange]);
 
   return (
     <>

@@ -42,6 +42,7 @@ export async function getActivity({
           include: {
             category: true,
           },
+          orderBy: { createdAt: "asc" },
         },
       },
     });
