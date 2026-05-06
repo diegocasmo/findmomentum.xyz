@@ -39,10 +39,8 @@ export async function getActivity({
           },
         },
         categories: {
-          include: {
-            category: true,
-          },
-          orderBy: { createdAt: "asc" },
+          orderBy: { category: { name: "asc" } },
+          include: { category: true },
         },
       },
     });

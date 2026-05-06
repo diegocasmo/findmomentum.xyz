@@ -7,6 +7,7 @@ import { ActivityIcon, ChevronLeft } from "lucide-react";
 import { ActivityActions } from "@/app/dashboard/components/activity-actions";
 import { BookmarkButton } from "@/components/bookmark-button";
 import type { ActivityWithTasksAndTimeEntries, CategoryOption } from "@/types";
+import { Badge } from "@/components/ui/badge";
 
 type ActivityHeaderProps = {
   activity: ActivityWithTasksAndTimeEntries;
@@ -43,6 +44,15 @@ export function ActivityHeader({ activity, categories }: ActivityHeaderProps) {
             <p className="mt-1 text-sm sm:text-base md:text-lg text-muted-foreground line-clamp-2">
               {activity.description}
             </p>
+          )}
+          {activity.categories.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {activity.categories.map((ac) => (
+                <Badge key={ac.id} variant="secondary" title={ac.category.name}>
+                  {ac.category.name}
+                </Badge>
+              ))}
+            </div>
           )}
         </div>
         <div className="flex items-center sm:self-center ml-auto sm:ml-0">
