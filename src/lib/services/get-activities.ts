@@ -84,10 +84,8 @@ export async function getActivities({
           },
         },
         categories: {
-          include: {
-            category: true,
-          },
-          orderBy: { createdAt: "asc" },
+          orderBy: { category: { name: "asc" } },
+          include: { category: true },
         },
       },
       skip,
