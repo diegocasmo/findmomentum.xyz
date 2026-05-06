@@ -1,6 +1,6 @@
 "use client";
 import { Moon, Sun, Laptop } from "lucide-react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/theme-provider";
 
 import {
   DropdownMenuItem,
