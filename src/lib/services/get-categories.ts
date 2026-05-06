@@ -24,10 +24,10 @@ export const getCategories = cache(
             },
           },
         },
-        orderBy: {
-          name: "asc",
-          createdAt: "desc",
-        },
+        orderBy: [
+          { name: "asc" },
+          { createdAt: "desc" },
+        ],
         select: {
           id: true,
           name: true,
