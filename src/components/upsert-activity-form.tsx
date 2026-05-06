@@ -17,7 +17,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  ActivityIcon,
   Loader2Icon,
   PlusCircleIcon,
   Pencil,
@@ -51,14 +50,16 @@ export function UpsertActivityForm({
   onSuccess,
 }: UpsertActivityFormProps) {
   const [isPending, startTransition] = useTransition();
-  const [optimisticCategories, setOptimisticCategories] = useState<CategoryOption[]>([]);
+  const [optimisticCategories, setOptimisticCategories] = useState<
+    CategoryOption[]
+  >([]);
   const [isCategoryPending, setIsCategoryPending] = useState(false);
   const router = useRouter();
 
   const augmentedCategories: CategoryOption[] = [
     ...categories,
     ...optimisticCategories.filter(
-      (opt) => !categories.some((c) => c.id === opt.id)
+      (opt) => !categories.some((c) => c.id === opt.id),
     ),
   ];
 
@@ -68,7 +69,7 @@ export function UpsertActivityForm({
 
   const form = useForm<FormData>({
     resolver: zodResolver(
-      activity ? updateActivitySchema : createActivitySchema
+      activity ? updateActivitySchema : createActivitySchema,
     ),
     defaultValues: {
       ...(activity && { activityId: activity.id }),
@@ -107,7 +108,7 @@ export function UpsertActivityForm({
       } catch (error) {
         console.error(
           `Activity ${activity ? "update" : "create"} error:`,
-          error
+          error,
         );
         form.setError("root", {
           type: "manual",
@@ -118,7 +119,7 @@ export function UpsertActivityForm({
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-background flex-1 min-h-0 overflow-y-auto">
+    <div className="max-w-2xl py-6 px-2 bg-background flex-1 min-h-0 overflow-y-auto">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
@@ -128,9 +129,8 @@ export function UpsertActivityForm({
               <FormItem>
                 <FormLabel
                   htmlFor="activity-name"
-                  className="text-lg font-semibold flex items-center"
+                  className="text-lg font-semibold"
                 >
-                  <ActivityIcon className="w-5 h-5 mr-2" />
                   Name
                 </FormLabel>
                 <FormControl>
@@ -154,7 +154,9 @@ export function UpsertActivityForm({
             name="categoryIds"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Categories</FormLabel>
+                <FormLabel className="text-lg font-semibold">
+                  Categories
+                </FormLabel>
                 <CategoryPicker
                   categories={augmentedCategories}
                   selectedIds={field.value}
@@ -181,7 +183,9 @@ export function UpsertActivityForm({
                           </span>
                         ) : (
                           field.value.map((id: string) => {
-                            const cat = augmentedCategories.find((c) => c.id === id);
+                            const cat = augmentedCategories.find(
+                              (c) => c.id === id,
+                            );
                             if (!cat) return null;
                             return (
                               <Badge
@@ -196,7 +200,9 @@ export function UpsertActivityForm({
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     field.onChange(
-                                      field.value.filter((v: string) => v !== id)
+                                      field.value.filter(
+                                        (v: string) => v !== id,
+                                      ),
                                     );
                                   }}
                                   className="relative inline-flex items-center justify-center rounded-sm ml-1 mr-1 hover:bg-secondary-foreground/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring before:absolute before:inset-[-15px] before:content-['']"
@@ -212,7 +218,9 @@ export function UpsertActivityForm({
                     </FormControl>
                   }
                 />
-                <FormDescription>Tag this activity with categories.</FormDescription>
+                <FormDescription>
+                  Choose relevant categories for your activity.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -238,8 +246,7 @@ export function UpsertActivityForm({
                   />
                 </FormControl>
                 <FormDescription>
-                  Provide additional details about your activity (max 500
-                  characters).
+                  Provide additional details about your activity.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
