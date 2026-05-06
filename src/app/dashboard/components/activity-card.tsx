@@ -27,7 +27,7 @@ import {
 import { isActivityRunning } from "@/lib/utils/is-activity-running";
 import { useGetActivityRemainingTime } from "@/hooks/use-get-activity-remaining-time";
 import { useReturnUrl } from "@/hooks/use-return-url";
-import { Badge } from "@/components/ui/badge";
+import { CategoryBadge } from "@/components/category-badge";
 
 type ActivityCardProps = {
   activity: ActivityWithTasksAndTimeEntries;
@@ -79,17 +79,16 @@ export function ActivityCard({
           {activity.categories.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
               {activity.categories.slice(0, 2).map((ac) => (
-                <Badge key={ac.id} variant="secondary" title={ac.category.name}>
+                <CategoryBadge key={ac.id} title={ac.category.name}>
                   {ac.category.name}
-                </Badge>
+                </CategoryBadge>
               ))}
               {activity.categories.length > 2 && (
-                <Badge
-                  variant="secondary"
+                <CategoryBadge
                   title={`${activity.categories.length - 2} more categories`}
                 >
                   +{activity.categories.length - 2} more
-                </Badge>
+                </CategoryBadge>
               )}
             </div>
           )}
