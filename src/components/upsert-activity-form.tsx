@@ -191,7 +191,7 @@ export function UpsertActivityForm({
                               <Badge
                                 key={id}
                                 variant="secondary"
-                                className="font-normal pl-2 pr-0 py-0 [&:has(button:hover)]:bg-secondary"
+                                className="font-normal text-sm pl-2 pr-0 py-0.5 [&:has(button:hover)]:bg-secondary"
                               >
                                 <span>{cat.name}</span>
                                 <button
@@ -207,7 +207,7 @@ export function UpsertActivityForm({
                                   }}
                                   className="relative inline-flex items-center justify-center rounded-sm ml-1 mr-1 hover:bg-secondary-foreground/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring before:absolute before:inset-[-15px] before:content-['']"
                                 >
-                                  <X className="h-3.5 w-3.5" />
+                                  <X className="h-4 w-4" />
                                 </button>
                               </Badge>
                             );
