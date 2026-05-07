@@ -397,8 +397,8 @@ export async function getActivity(
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
 
   teamMemberships TeamMembership[]
   activities      Activity[]
@@ -407,8 +407,8 @@ model User {
 model Team {
   id        String   @id @default(cuid())
   name      String
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
 
   memberships TeamMembership[]
 }
@@ -418,8 +418,8 @@ model TeamMembership {
   userId    String
   teamId    String
   role      Role     @default(OWNER)
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -432,10 +432,10 @@ model Activity {
   userId      String
   name        String    @db.VarChar(255)
   description String?   @db.VarChar(500)
-  completedAt DateTime? @db.Timestamptz(6)
-  deletedAt   DateTime? @db.Timestamptz(6)
-  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+  completedAt DateTime? @db.Timestamptz
+  deletedAt   DateTime? @db.Timestamptz
+  createdAt   DateTime  @default(now()) @db.Timestamptz
+  updatedAt   DateTime  @updatedAt @db.Timestamptz
 
   user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   tasks              Task[]
@@ -449,11 +449,11 @@ model Task {
   activityId           String
   name                 String    @db.VarChar(255)
   estimatedDuration    BigInt    // Milliseconds
-  completedAt          DateTime? @db.Timestamptz(6)
+  completedAt          DateTime? @db.Timestamptz
   orderIndex           Int       @default(0)
-  deletedAt            DateTime? @db.Timestamptz(6)
-  createdAt            DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt            DateTime  @updatedAt @db.Timestamptz(6)
+  deletedAt            DateTime? @db.Timestamptz
+  createdAt            DateTime  @default(now()) @db.Timestamptz
+  updatedAt            DateTime  @updatedAt @db.Timestamptz
 
   activity    Activity     @relation(fields: [activityId], references: [id], onDelete: Cascade)
   timeEntries TimeEntry[]
@@ -464,10 +464,10 @@ model Task {
 model TimeEntry {
   id        String    @id @default(cuid())
   taskId    String
-  startedAt DateTime  @default(now()) @db.Timestamptz(6)
-  endedAt   DateTime? @db.Timestamptz(6)
-  createdAt DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime  @updatedAt @db.Timestamptz(6)
+  startedAt DateTime  @default(now()) @db.Timestamptz
+  endedAt   DateTime? @db.Timestamptz
+  createdAt DateTime  @default(now()) @db.Timestamptz
+  updatedAt DateTime  @updatedAt @db.Timestamptz
 
   task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
@@ -475,32 +475,52 @@ model TimeEntry {
 }
 
 model Category {
-  id        String   @id @default(cuid())
-  name      String   @unique @db.VarChar(255)
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  id        String    @id @default(cuid())
+  name      String
+  teamId    String    @map("team_id")
+  userId    String    @map("user_id")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime? @updatedAt @map("updated_at") @db.Timestamptz
 
-  activityCategories ActivityCategory[]
+  team       Team               @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activities ActivityCategory[]
+
+  /// Case-insensitive uniqueness on (team_id, name) is enforced by the
+  /// raw-SQL functional unique index `categories_team_id_lower_name_key`.
+  /// Prisma cannot model functional indexes (prisma/prisma#12914), so it is
+  /// unrepresented here. IMPORTANT: every future `prisma migrate dev` run
+  /// that touches `categories` MUST be inspected — Prisma will propose
+  /// `DROP INDEX categories_team_id_lower_name_key`. That line MUST be
+  /// removed before the migration is committed, or case-insensitive
+  /// uniqueness is silently lost.
+  @@index([userId, teamId])
+  @@map("categories")
 }
 
 model ActivityCategory {
-  id         String   @id @default(cuid())
-  activityId String
-  categoryId String
-  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  id         String    @id @default(cuid())
+  activityId String    @map("activity_id")
+  categoryId String    @map("category_id")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime? @updatedAt @map("updated_at") @db.Timestamptz
 
   activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@unique([activityId, categoryId])
+  @@index([activityId, categoryId])
+  @@map("activity_categories")
 }
 ```
+
+> Case-insensitive uniqueness on `(team_id, name)` is enforced by a Postgres functional unique index, NOT a Prisma `@@unique`. See `prisma/migrations/20260430204410_categories_case_insensitive_unique/`.
 
 ### Database Conventions
 
 **Timestamps**:
 - All models have `createdAt` and `updatedAt`
-- Use `@db.Timestamptz(6)` for timezone-aware timestamps
+- Use `@db.Timestamptz` for timezone-aware timestamps (no precision suffix; matches `prisma/schema.prisma`)
 - Soft deletes via `deletedAt` field
 
 **IDs**:
@@ -521,11 +541,11 @@ model ActivityCategory {
 
 **Location**: `lib/services/`
 
-**Common Services** (25+ functions):
+**Common Services** (28+ functions):
 - `getActivities()` - Fetch user activities with filters
 - `getActivity()` - Single activity with tasks and time entries
-- `createActivity()` - Create new activity
-- `updateActivity()` - Update activity details
+- `createActivity({ name, description, userId, categoryIds? })` - Create new activity; when `categoryIds` provided, dedupes and validates ownership, then bulk-inserts `ActivityCategory` rows
+- `updateActivity({ activityId, name?, description?, userId, categoryIds? })` - Update activity details; passing `categoryIds: []` triggers full replace (deleteMany + createMany); `categoryIds` omitted leaves existing links untouched
 - `deleteActivity()` - Soft delete activity
 - `completeActivity()` - Mark activity complete
 - `uncompleteActivity()` - Revert completion
@@ -537,7 +557,10 @@ model ActivityCategory {
 - `startTask()` - Create TimeEntry with `startedAt`
 - `stopTask()` - Set TimeEntry `endedAt`
 - `reorderTasks()` - Update task order indexes
-- `getCategories()` - Fetch all categories
+- `getCategories({ userId })` - Categories where the user is also OWNER of the parent team; returns `Pick<Category, "id" | "name">[]`, sorted by name
+- `createCategory({ name, userId })` - Create category scoped to the user's OWNER team membership (`src/lib/services/create-category.ts`)
+- `updateCategory({ categoryId, name, userId })` - Rename category; team-membership-OWNER-scoped (`src/lib/services/update-category.ts`)
+- `deleteCategory({ categoryId, userId })` - Delete category, returns `{ id, affectedActivitiesCount }` (`src/lib/services/delete-category.ts`)
 - `getActivityContributions()` - Contribution graph data
 
 **Service Function Pattern**:
@@ -679,13 +702,15 @@ export default async function DashboardPage() {
 **Authorization Pattern in Server Actions**:
 
 ```typescript
-export async function createActivityAction(formData: FormData) {
+export async function createActivityAction(
+  formData: FormData
+): Promise<ActionResult<Activity>> {
   const session = await auth();
-  if (!session) {
-    return { error: { message: "Unauthorized" } };
+  if (!session?.user?.id) {
+    return { success: false, errors: createZodError("Unauthorized") };
   }
 
-  // Proceed with action
+  // Validate, call service, return { success: true, data } or { success: false, errors }
 }
 ```
 
@@ -822,6 +847,33 @@ function BottomNav() {
   );
 }
 ```
+
+### Category picker
+
+**Component**: `src/components/category-picker.tsx`
+
+**`mode` prop** (default: `"manage"`):
+- `"manage"` — full inline CRUD: create via a `Create '…'` row, rename/delete via pencil+trash icons. Popover width matches trigger width. Used in `UpsertActivityForm`.
+- `"filter"` — read-only multi-select; no create/edit/delete UI; popover sized to content. Used in `ActivityFilters` to push `?categories=id1,id2` URL params.
+
+**Core props** (`src/components/category-picker.tsx:44–52`):
+```typescript
+type CategoryPickerProps = {
+  categories: Pick<Category, "id" | "name">[];
+  selectedIds: string[];
+  onChange: (ids: string[]) => void;
+  onCategoryCreated?: (cat: Pick<Category, "id" | "name">) => void;
+  onPendingChange?: (pending: boolean) => void;
+  mode?: "manage" | "filter";
+  trigger?: React.ReactNode;
+};
+```
+
+**Usage**:
+- `src/components/upsert-activity-form.tsx:160` — `mode` omitted (defaults to `"manage"`); merges server-passed `categories` with locally optimistic additions via `onCategoryCreated`.
+- `src/app/dashboard/components/activity-filters.tsx:162` — `mode="filter"`; `onChange` drives URL via `?categories=id1,id2`.
+
+**Prefetch convention**: `getCategories({ userId })` is called in async RSCs (`src/app/dashboard/layout.tsx:19`, `src/app/dashboard/components/activities-section.tsx:48`, `src/app/dashboard/activities/[id]/page.tsx:36–39`). The function is wrapped in React's `cache()` so multiple RSCs in the same request share one DB round-trip.
 
 ---
 
@@ -1129,10 +1181,14 @@ export function CreateTaskForm({ activityId, onSuccess }: Props) {
   );
 }
 
-// 3. Server Action validation
-export async function createTaskAction(formData: FormData) {
+// 3. Server Action — returns ActionResult<T>; no revalidatePath
+export async function createTaskAction(
+  formData: FormData
+): Promise<ActionResult<Task>> {
   const session = await auth();
-  if (!session) return { error: { message: "Unauthorized" } };
+  if (!session?.user?.id) {
+    return { success: false, errors: createZodError("Unauthorized") };
+  }
 
   const parsed = createTaskSchema.safeParse({
     activityId: formData.get("activityId"),
@@ -1142,58 +1198,84 @@ export async function createTaskAction(formData: FormData) {
   });
 
   if (!parsed.success) {
-    return {
-      error: {
-        fieldErrors: parsed.error.flatten().fieldErrors,
-        message: "Validation failed"
-      }
-    };
+    return { success: false, errors: parseZodErrors(parsed) };
   }
 
   try {
     const task = await createTask({
       ...parsed.data,
       estimatedDuration:
-        (parsed.data.estimatedMinutes * 60 + parsed.data.estimatedSeconds) * 1000
+        (parsed.data.estimatedMinutes * 60 + parsed.data.estimatedSeconds) * 1000,
+      userId: session.user.id
     });
-
-    revalidatePath(`/dashboard/activities/${parsed.data.activityId}`);
-    return { data: task };
+    return { success: true, data: task };
   } catch (error) {
-    return { error: { message: "Failed to create task" } };
+    const zodError = transformPrismaErrorToZodError(error);
+    return {
+      success: false,
+      errors: parseZodErrors(zodError ?? createZodError("Failed to create task"))
+    };
   }
 }
 ```
 
 ### Error Handling Pattern
 
-**Error Types**:
+**`ActionResult<T>` type** (`src/types.ts:37–39`):
 ```typescript
-type ActionResult<T> =
-  | { data: T; error?: never }
-  | { data?: never; error: ActionError };
-
-type ActionError = {
-  message: string;
-  fieldErrors?: Record<string, string[]>;
-};
+export type ActionResult<T = void> =
+  | { success: true; data: T }
+  | { success: false; errors: FieldErrors };
 ```
 
-**Transforming Prisma Errors**:
+`FieldErrors` is `import type { FieldErrors } from "react-hook-form"`. In this codebase the runtime shape produced by the canonical helpers is `Record<string, { type: string; message: string }>` (see `parseZodErrors` and `createZodError` in `src/lib/utils/form.ts`). Errors are forwarded directly to `form.setError` via the `setFormErrors` helper.
+
+**Discriminating on the result**:
+```typescript
+const result = await someAction(formData);
+if (result.success) {
+  // result.data is T
+} else {
+  setFormErrors(form.setError, result.errors);
+}
+```
+
+**Transforming Prisma errors** (`src/lib/utils/form.ts`):
 ```typescript
 import { Prisma } from "@prisma/client";
 
-export function transformPrismaError(error: unknown): ActionError {
+export function transformPrismaErrorToZodError(error: unknown) {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    if (error.code === "P2002") {
-      return { message: "A record with this value already exists" };
-    }
-    if (error.code === "P2025") {
-      return { message: "Record not found" };
-    }
+    if (error.code === "P2002") return createZodError("A record with this value already exists");
+    if (error.code === "P2025") return createZodError("Record not found");
   }
+  return null;
+}
+```
 
-  return { message: "An unexpected error occurred" };
+### Server actions / cache invalidation
+
+**This codebase does NOT use `revalidatePath`, `revalidateTag`, or `unstable_cache`.** There are zero call sites for any of these in `src/`.
+
+**How mutations propagate**:
+- Server actions return `ActionResult<T>` and never call `revalidatePath`.
+- Client components, after `result.success`, either:
+  - call `router.push(newUrl)` when navigating to a newly created resource, or
+  - call `router.refresh()` when staying on the same route.
+  Both cause Next.js to re-execute the route's RSCs against the fresh DB.
+- Server components fetch fresh data on every navigation because the routes touched by activity/category mutations don't opt into caching (no `export const revalidate`, no `fetch(..., { next: { revalidate } })`).
+
+**Representative client mutation handler** (`src/components/upsert-activity-form.tsx:82–119`):
+```typescript
+const result = await createActivityAction(formData);
+if (result.success) {
+  if (activity) {
+    router.refresh();           // updating in place
+  } else {
+    router.push(`/dashboard/activities/${result.data.id}`);  // created
+  }
+} else {
+  setFormErrors(form.setError, result.errors);
 }
 ```
 
