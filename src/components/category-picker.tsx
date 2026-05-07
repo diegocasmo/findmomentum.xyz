@@ -212,7 +212,15 @@ export function CategoryPicker({
             </Button>
           )}
         </PopoverTrigger>
-        <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]" align="start">
+        <PopoverContent
+          className={cn(
+            "p-0 max-h-[var(--radix-popover-content-available-height)]",
+            mode === "filter"
+              ? "w-auto min-w-[var(--radix-popover-trigger-width)] max-w-md"
+              : "w-[var(--radix-popover-trigger-width)]"
+          )}
+          align="start"
+        >
           <Command shouldFilter={false}>
             <CommandInput
               value={search}

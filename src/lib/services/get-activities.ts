@@ -11,6 +11,7 @@ export type GetActivitiesParams = {
   limit?: number;
   searchQuery?: string;
   completionStatus?: CompletionStatus;
+  categoryIds?: string[];
 };
 
 export type PaginatedActivities = {
@@ -26,6 +27,7 @@ export async function getActivities({
   limit = 10,
   searchQuery = "",
   completionStatus = "all",
+  categoryIds = [],
 }: GetActivitiesParams): Promise<PaginatedActivities> {
   const skip = (page - 1) * limit;
 
@@ -52,6 +54,9 @@ export async function getActivities({
       ? { completedAt: { not: null } }
       : completionStatus === "incomplete"
       ? { completedAt: null }
+      : {}),
+    ...(categoryIds.length > 0
+      ? { categories: { some: { categoryId: { in: categoryIds } } } }
       : {}),
   };
 
