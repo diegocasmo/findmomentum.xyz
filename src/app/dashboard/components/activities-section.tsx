@@ -10,6 +10,7 @@ type SearchParams = {
   page?: string;
   search?: string;
   status?: string;
+  categories?: string;
 };
 
 type ActivitiesSectionProps = {
@@ -43,6 +44,14 @@ export async function ActivitiesSection({
   const searchQuery = searchParams.search;
   const completionStatus = searchParams.status as CompletionStatus | undefined;
 
+  const categories = await getCategories({ userId });
+  const requestedCategoryIds =
+    searchParams.categories?.split(",").filter(Boolean) ?? [];
+  const userCategoryIdSet = new Set(categories.map((c) => c.id));
+  const selectedCategoryIds = requestedCategoryIds.filter((id) =>
+    userCategoryIdSet.has(id)
+  );
+
   const { activities, totalPages, currentPage, totalCount } =
     await getActivities({
       userId,
@@ -50,9 +59,8 @@ export async function ActivitiesSection({
       limit: 10,
       searchQuery,
       completionStatus,
+      categoryIds: selectedCategoryIds,
     });
-
-  const categories = await getCategories({ userId });
 
   const description = getActivityDescription({
     totalCount,
@@ -63,7 +71,10 @@ export async function ActivitiesSection({
   return (
     <>
       <p className="text-sm text-foreground mb-4">{description}</p>
-      <ActivityFilters />
+      <ActivityFilters
+        categories={categories}
+        selectedCategoryIds={selectedCategoryIds}
+      />
       <ActivitiesList activities={activities} categories={categories} />
       <Pagination totalPages={totalPages} currentPage={currentPage} />
     </>

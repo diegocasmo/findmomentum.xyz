@@ -3,7 +3,8 @@
 import type React from "react";
 import { useState, useEffect, useCallback, useRef, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, Filter } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -12,13 +13,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CategoryPicker } from "@/components/category-picker";
 import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils";
-import type { CompletionStatus } from "@/types";
+import type { CompletionStatus, CategoryOption } from "@/types";
 
 const SEARCH_DEBOUNCE_DELAY_MS = 300;
 
-export function ActivityFilters() {
+function formatSelectedCategoriesLabel(
+  categories: CategoryOption[],
+  selectedCategoryIds: string[]
+): string {
+  const count = selectedCategoryIds.length;
+  if (count === 0) return "All categories";
+  if (count >= 3) return `${count} selected`;
+  const selectedNames = categories
+    .filter((c) => selectedCategoryIds.includes(c.id))
+    .map((c) => c.name)
+    .sort((a, b) => a.localeCompare(b));
+  return selectedNames.join(", ");
+}
+
+type ActivityFiltersProps = {
+  categories: CategoryOption[];
+  selectedCategoryIds: string[];
+};
+
+export function ActivityFilters({ categories, selectedCategoryIds }: ActivityFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -54,8 +75,11 @@ export function ActivityFilters() {
           params.delete(key);
         }
       });
-      // Only reset page to 1 if search or status changes
-      if (Boolean(newParams.search) || newParams.status !== undefined) {
+      if (
+        Boolean(newParams.search) ||
+        newParams.status !== undefined ||
+        newParams.categories !== undefined
+      ) {
         params.set("page", "1");
       }
       startTransition(() => {
@@ -63,6 +87,13 @@ export function ActivityFilters() {
       });
     },
     [router, startTransition]
+  );
+
+  const handleCategoriesChange = useCallback(
+    (ids: string[]) => {
+      updateFilters({ categories: ids.join(",") });
+    },
+    [updateFilters]
   );
 
   // Track previous debounced value to avoid unnecessary updates
@@ -115,20 +146,36 @@ export function ActivityFilters() {
           />
         </div>
       </div>
-      <div className="flex items-center gap-2 w-full sm:w-auto">
-        <Filter className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-        <div className="w-full sm:w-[180px] p-[3px]">
-          <Select value={completionStatus} onValueChange={handleStatusChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All activities</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="incomplete">Incomplete</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="w-full sm:w-[180px] p-[3px]">
+        <Select value={completionStatus} onValueChange={handleStatusChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All activities</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="incomplete">Incomplete</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="w-full sm:w-auto p-[3px]">
+        <CategoryPicker
+          mode="filter"
+          categories={categories}
+          selectedIds={selectedCategoryIds}
+          onChange={handleCategoriesChange}
+          trigger={
+            <Button
+              variant="outline"
+              className="w-full sm:w-[200px] justify-between font-normal hover:bg-background hover:text-foreground"
+            >
+              <span className="truncate">
+                {formatSelectedCategoriesLabel(categories, selectedCategoryIds)}
+              </span>
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          }
+        />
       </div>
     </div>
   );
