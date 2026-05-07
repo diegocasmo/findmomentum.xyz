@@ -43,10 +43,11 @@ const STATUS_LABELS: Record<CompletionStatus, string> = {
 };
 
 function formatSelectedStatusesLabel(selectedStatuses: CompletionStatus[]): string {
-  if (selectedStatuses.length === 0 || selectedStatuses.length === 2) {
-    return "All activities";
-  }
-  return STATUS_LABELS[selectedStatuses[0]];
+  if (selectedStatuses.length === 0) return "All activities";
+  return selectedStatuses
+    .map((s) => STATUS_LABELS[s])
+    .sort((a, b) => a.localeCompare(b))
+    .join(", ");
 }
 
 type ActivityFiltersProps = {
@@ -110,9 +111,8 @@ export function ActivityFilters({ categories, selectedCategoryIds, selectedStatu
 
   const handleStatusesChange = useCallback(
     (statuses: CompletionStatus[]) => {
-      // When both statuses are selected, that's equivalent to "all" — clear the param
-      const allSelected = statuses.length === 2;
-      updateFilters({ status: allSelected ? "" : statuses.join(",") });
+      const sorted = [...statuses].sort();
+      updateFilters({ status: sorted.join(",") });
     },
     [updateFilters]
   );
