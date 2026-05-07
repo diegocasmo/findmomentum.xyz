@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, useTransition } from "react";
+import { useRef, useState, useEffect, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Pencil, Trash2 } from "lucide-react";
 import {
@@ -74,17 +74,14 @@ export function CategoryPicker({
   // guards rename-blur ↔ Pencil-click race
   const nextEditingIdRef = useRef<string | null>(null);
 
+  const sortedCategories = useMemo(
+    () => [...categories].sort((a, b) => a.name.localeCompare(b.name)),
+    [categories]
+  );
   const trimmedSearch = search.trim().toLowerCase();
-  const filtered = categories.filter((c) =>
+  const sorted = sortedCategories.filter((c) =>
     c.name.toLowerCase().includes(trimmedSearch)
   );
-  const selected = filtered
-    .filter((c) => selectedIds.includes(c.id))
-    .sort((a, b) => a.name.localeCompare(b.name));
-  const unselected = filtered
-    .filter((c) => !selectedIds.includes(c.id))
-    .sort((a, b) => a.name.localeCompare(b.name));
-  const sorted = [...selected, ...unselected];
   const hasExactMatch = categories.some(
     (c) => c.name.toLowerCase() === trimmedSearch
   );

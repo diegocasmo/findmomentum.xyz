@@ -3,7 +3,7 @@
 import type React from "react";
 import { useState, useEffect, useCallback, useRef, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,14 +24,14 @@ function formatSelectedCategoriesLabel(
   categories: CategoryOption[],
   selectedCategoryIds: string[]
 ): string {
-  if (selectedCategoryIds.length === 0) return "All categories";
+  const count = selectedCategoryIds.length;
+  if (count === 0) return "All categories";
+  if (count >= 3) return `${count} selected`;
   const selectedNames = categories
     .filter((c) => selectedCategoryIds.includes(c.id))
     .map((c) => c.name)
     .sort((a, b) => a.localeCompare(b));
-  const shown = selectedNames.slice(0, 2);
-  const rest = selectedNames.length - shown.length;
-  return rest > 0 ? `${shown.join(", ")}, +${rest}` : shown.join(", ");
+  return selectedNames.join(", ");
 }
 
 type ActivityFiltersProps = {
@@ -167,11 +167,12 @@ export function ActivityFilters({ categories, selectedCategoryIds }: ActivityFil
           trigger={
             <Button
               variant="outline"
-              className="w-full sm:w-auto sm:max-w-[200px] lg:max-w-[320px]"
+              className="w-full sm:w-[200px] justify-between font-normal"
             >
               <span className="truncate">
                 {formatSelectedCategoriesLabel(categories, selectedCategoryIds)}
               </span>
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
             </Button>
           }
         />
