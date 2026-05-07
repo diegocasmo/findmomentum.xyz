@@ -225,7 +225,7 @@ export function CategoryPicker({
               maxLength={CATEGORY_NAME_MAX_LENGTH}
               placeholder={mode === "filter" ? "Search…" : "Search or create…"}
             />
-            <CommandList>
+            <CommandList className={cn(mode === "filter" && "p-1")}>
               <CommandEmpty>
                 {mode === "filter"
                   ? "No categories yet."
@@ -235,7 +235,10 @@ export function CategoryPicker({
                 <CommandItem
                   key={category.id}
                   value={category.id}
-                  className="group flex items-center"
+                  className={cn(
+                    "group flex items-center",
+                    mode === "filter" && "py-1.5 pl-2 pr-8"
+                  )}
                   onSelect={() => {
                     if (editingId === category.id || isPending) return;
                     const next = selectedIds.includes(category.id)
@@ -244,14 +247,22 @@ export function CategoryPicker({
                     onChange(next);
                   }}
                 >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      selectedIds.includes(category.id)
-                        ? "opacity-100"
-                        : "opacity-0"
-                    )}
-                  />
+                  {mode === "filter" ? (
+                    selectedIds.includes(category.id) && (
+                      <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+                        <Check className="h-4 w-4" />
+                      </span>
+                    )
+                  ) : (
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        selectedIds.includes(category.id)
+                          ? "opacity-100"
+                          : "opacity-0"
+                      )}
+                    />
+                  )}
                   {editingId === category.id ? (
                     <Input
                       ref={editInputRef}
