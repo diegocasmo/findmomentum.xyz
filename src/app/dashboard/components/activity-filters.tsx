@@ -167,7 +167,7 @@ export function ActivityFilters({ categories, selectedCategoryIds }: ActivityFil
           trigger={
             <Button
               variant="outline"
-              className="w-full sm:w-[200px] justify-between font-normal"
+              className="w-full sm:w-[200px] justify-between font-normal hover:bg-background hover:text-foreground"
             >
               <span className="truncate">
                 {formatSelectedCategoriesLabel(categories, selectedCategoryIds)}
