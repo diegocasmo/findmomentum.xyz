@@ -3,16 +3,19 @@
 import type React from "react";
 import { useState, useEffect, useCallback, useRef, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandList,
+  CommandItem,
+} from "@/components/ui/command";
 import { CategoryPicker } from "@/components/category-picker";
 import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils";
@@ -34,24 +37,33 @@ function formatSelectedCategoriesLabel(
   return selectedNames.join(", ");
 }
 
+const STATUS_LABELS: Record<CompletionStatus, string> = {
+  completed: "Completed",
+  incomplete: "Incomplete",
+};
+
+function formatSelectedStatusesLabel(selectedStatuses: CompletionStatus[]): string {
+  if (selectedStatuses.length === 0 || selectedStatuses.length === 2) {
+    return "All activities";
+  }
+  return STATUS_LABELS[selectedStatuses[0]];
+}
+
 type ActivityFiltersProps = {
   categories: CategoryOption[];
   selectedCategoryIds: string[];
+  selectedStatuses: CompletionStatus[];
 };
 
-export function ActivityFilters({ categories, selectedCategoryIds }: ActivityFiltersProps) {
+export function ActivityFilters({ categories, selectedCategoryIds, selectedStatuses }: ActivityFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
   const initialSearchQuery = searchParams.get("search") ?? "";
-  const initialCompletionStatus =
-    (searchParams.get("status") as CompletionStatus) ?? "all";
 
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
-  const [completionStatus, setCompletionStatus] = useState<CompletionStatus>(
-    initialCompletionStatus
-  );
+  const [statusOpen, setStatusOpen] = useState(false);
 
   const debouncedSearchQuery = useDebounce(
     searchQuery,
@@ -96,6 +108,15 @@ export function ActivityFilters({ categories, selectedCategoryIds }: ActivityFil
     [updateFilters]
   );
 
+  const handleStatusesChange = useCallback(
+    (statuses: CompletionStatus[]) => {
+      // When both statuses are selected, that's equivalent to "all" — clear the param
+      const allSelected = statuses.length === 2;
+      updateFilters({ status: allSelected ? "" : statuses.join(",") });
+    },
+    [updateFilters]
+  );
+
   // Track previous debounced value to avoid unnecessary updates
   const prevDebouncedSearchRef = useRef(debouncedSearchQuery);
   useEffect(() => {
@@ -113,16 +134,8 @@ export function ActivityFilters({ categories, selectedCategoryIds }: ActivityFil
     setSearchQuery(e.target.value);
   };
 
-  const handleStatusChange = (value: CompletionStatus) => {
-    setCompletionStatus(value);
-    updateFilters({ status: value });
-  };
-
   useEffect(() => {
     setSearchQuery(searchParams.get("search") ?? "");
-    setCompletionStatus(
-      (searchParams.get("status") as CompletionStatus) ?? "all"
-    );
   }, [searchParams]);
 
   return (
@@ -147,16 +160,48 @@ export function ActivityFilters({ categories, selectedCategoryIds }: ActivityFil
         </div>
       </div>
       <div className="w-full sm:w-[180px] p-[3px]">
-        <Select value={completionStatus} onValueChange={handleStatusChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All activities</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="incomplete">Incomplete</SelectItem>
-          </SelectContent>
-        </Select>
+        <Popover open={statusOpen} onOpenChange={setStatusOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full sm:w-[180px] justify-between font-normal hover:bg-background hover:text-foreground"
+            >
+              <span className="truncate">
+                {formatSelectedStatusesLabel(selectedStatuses)}
+              </span>
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            className="w-auto min-w-[var(--radix-popover-trigger-width)] p-0"
+            align="start"
+          >
+            <Command>
+              <CommandList className="p-1">
+                {(["completed", "incomplete"] as CompletionStatus[]).map((status) => (
+                  <CommandItem
+                    key={status}
+                    value={status}
+                    className="py-1.5 pl-2 pr-8"
+                    onSelect={() => {
+                      const next = selectedStatuses.includes(status)
+                        ? selectedStatuses.filter((s) => s !== status)
+                        : [...selectedStatuses, status];
+                      handleStatusesChange(next);
+                    }}
+                  >
+                    {selectedStatuses.includes(status) && (
+                      <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+                        <Check className="h-4 w-4" />
+                      </span>
+                    )}
+                    {STATUS_LABELS[status]}
+                  </CommandItem>
+                ))}
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
       <div className="w-full sm:w-auto p-[3px]">
         <CategoryPicker

@@ -48,4 +48,4 @@ export type ActivityContribution = {
   count: number;
 };
 
-export type CompletionStatus = "all" | "completed" | "incomplete";
+export type CompletionStatus = "completed" | "incomplete";

@@ -43,7 +43,12 @@ export async function ActivitiesSection({
 }: ActivitiesSectionProps) {
   const page = searchParams.page ? Number.parseInt(searchParams.page, 10) : 1;
   const searchQuery = searchParams.search;
-  const completionStatus = searchParams.status as CompletionStatus | undefined;
+
+  const validStatuses: CompletionStatus[] = ["completed", "incomplete"];
+  const requestedStatuses = searchParams.status?.split(",").filter(Boolean) ?? [];
+  const selectedStatuses = requestedStatuses.filter(
+    (s): s is CompletionStatus => validStatuses.includes(s as CompletionStatus)
+  );
 
   const categories = await getCategories({ userId });
   const requestedCategoryIds =
@@ -59,7 +64,7 @@ export async function ActivitiesSection({
       page,
       limit: 10,
       searchQuery,
-      completionStatus,
+      completionStatuses: selectedStatuses,
       categoryIds: selectedCategoryIds,
     });
 
@@ -79,6 +84,7 @@ export async function ActivitiesSection({
       <ActivityFilters
         categories={categories}
         selectedCategoryIds={selectedCategoryIds}
+        selectedStatuses={selectedStatuses}
       />
       <ActivitiesList activities={activities} categories={categories} />
       <Pagination totalPages={totalPages} currentPage={currentPage} />
