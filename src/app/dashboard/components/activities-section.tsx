@@ -3,6 +3,7 @@ import { getCategories } from "@/lib/services/get-categories";
 import { ActivityFilters } from "@/app/dashboard/components/activity-filters";
 import { ActivitiesList } from "@/app/dashboard/components/activities-list";
 import { Pagination } from "@/app/dashboard/components/pagination";
+import { CollapsibleSection } from "@/components/collapsible-section";
 
 import type { CompletionStatus } from "@/types";
 
@@ -69,14 +70,18 @@ export async function ActivitiesSection({
   });
 
   return (
-    <>
-      <p className="text-sm text-foreground mb-4">{description}</p>
+    <CollapsibleSection
+      id="activities"
+      title="Activities"
+      iconName="activity"
+      description={description}
+    >
       <ActivityFilters
         categories={categories}
         selectedCategoryIds={selectedCategoryIds}
       />
       <ActivitiesList activities={activities} categories={categories} />
       <Pagination totalPages={totalPages} currentPage={currentPage} />
-    </>
+    </CollapsibleSection>
   );
 }

@@ -59,15 +59,19 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         </Suspense>
       </CollapsibleSection>
 
-      <CollapsibleSection
-        id="activities"
-        title="Activities"
-        iconName="activity"
+      <Suspense
+        fallback={
+          <CollapsibleSection
+            id="activities"
+            title="Activities"
+            iconName="activity"
+          >
+            <ActivitiesSkeleton />
+          </CollapsibleSection>
+        }
       >
-        <Suspense fallback={<ActivitiesSkeleton />}>
-          <ActivitiesSection userId={userId} searchParams={params} />
-        </Suspense>
-      </CollapsibleSection>
+        <ActivitiesSection userId={userId} searchParams={params} />
+      </Suspense>
     </div>
   );
 }
