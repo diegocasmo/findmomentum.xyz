@@ -3,7 +3,6 @@
 import { useState, useEffect, type ReactNode } from "react";
 import {
   ChevronDown,
-  ChevronUp,
   CheckSquare,
   FileText,
   ActivityIcon,
@@ -11,6 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 // Define the icons we'll support
 const ICONS: Record<string, LucideIcon> = {
@@ -61,19 +61,7 @@ export function CollapsibleSection({
 
   return (
     <div className="space-y-4">
-      <div
-        className="flex items-center justify-between cursor-pointer group"
-        onClick={toggleExpanded}
-        role="button"
-        aria-expanded={isExpanded}
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            toggleExpanded();
-          }
-        }}
-      >
+      <div className="flex items-center justify-between">
         <div className="flex items-center">
           {IconComponent && (
             <IconComponent className="w-5 h-5 mr-2 text-primary" />
@@ -87,18 +75,29 @@ export function CollapsibleSection({
             </span>
           ) : null}
         </div>
-        <div className="text-muted-foreground transition-transform">
-          {isExpanded ? (
-            <ChevronUp className="w-4 h-4" />
-          ) : (
-            <ChevronDown className="w-4 h-4" />
-          )}
-        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          type="button"
+          onClick={toggleExpanded}
+          aria-expanded={isExpanded}
+          aria-controls={`${id}-content`}
+          aria-label={title}
+        >
+          <ChevronDown
+            className={cn(
+              "text-muted-foreground transition-transform duration-200 motion-reduce:transition-none",
+              isExpanded && "rotate-180"
+            )}
+          />
+        </Button>
       </div>
 
       <div
+        id={`${id}-content`}
+        inert={!isExpanded}
         className={cn(
-          "transition-all duration-200 overflow-hidden",
+          "transition-all duration-200 motion-reduce:transition-none overflow-hidden",
           isExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
         )}
       >
