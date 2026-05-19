@@ -25,6 +25,7 @@ import { setFormErrors } from "@/lib/utils/form";
 import { useRouter } from "next/navigation";
 import type { CreateTaskSchema } from "@/app/schemas/create-task-schema";
 import { DurationInput } from "@/components/duration-input";
+import { DurationPresetPicker } from "@/components/duration-preset-picker";
 import { RootFormError } from "@/components/root-form-error";
 import { getUpdateTaskSchema } from "@/app/schemas/update-task-schema";
 import { formatTimeMMss, getTaskElapsedTime } from "@/lib/utils/time";
@@ -149,6 +150,11 @@ export function UpsertTaskForm({
                     <ClockIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   </div>
                 </FormControl>
+                <DurationPresetPicker
+                  value={field.value}
+                  onChange={field.onChange}
+                  minMs={task ? elapsedMs : undefined}
+                />
                 {task && elapsedMs > 0 ? (
                   <FormDescription>
                     Current elapsed time {formatTimeMMss(elapsedMs)}
