@@ -153,7 +153,7 @@ export function UpsertTaskForm({
                 <DurationPresetPicker
                   value={field.value}
                   onChange={field.onChange}
-                  minMs={task ? elapsedMs : undefined}
+                  elapsedMs={task ? elapsedMs : undefined}
                 />
                 {task && elapsedMs > 0 ? (
                   <FormDescription>
