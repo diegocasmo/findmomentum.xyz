@@ -220,6 +220,7 @@ export function CategoryPicker({
         >
           <Command shouldFilter={false}>
             <CommandInput
+              autoFocus
               value={search}
               onValueChange={setSearch}
               maxLength={CATEGORY_NAME_MAX_LENGTH}
