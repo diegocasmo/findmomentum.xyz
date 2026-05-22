@@ -11,23 +11,18 @@ export async function createCategory({
   name,
   userId,
 }: CreateCategoryParams): Promise<Category> {
-  try {
-    return await prisma.$transaction(async (tx) => {
-      const teamMembership = await tx.teamMembership.findFirstOrThrow({
-        where: { userId, role: TeamMembershipRole.OWNER },
-        select: { teamId: true },
-      });
-
-      return tx.category.create({
-        data: {
-          name,
-          teamId: teamMembership.teamId,
-          userId,
-        },
-      });
+  return await prisma.$transaction(async (tx) => {
+    const teamMembership = await tx.teamMembership.findFirstOrThrow({
+      where: { userId, role: TeamMembershipRole.OWNER },
+      select: { teamId: true },
     });
-  } catch (error) {
-    console.error("Error creating category:", error);
-    throw error;
-  }
+
+    return tx.category.create({
+      data: {
+        name,
+        teamId: teamMembership.teamId,
+        userId,
+      },
+    });
+  });
 }

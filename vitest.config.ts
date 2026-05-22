@@ -1,0 +1,17 @@
+import { defineConfig } from "vitest/config";
+import path from "path";
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  test: {
+    environment: "node",
+    setupFiles: ["./vitest.setup.ts"],
+    pool: "forks",
+    maxWorkers: 1,
+    fileParallelism: false,
+  },
+});

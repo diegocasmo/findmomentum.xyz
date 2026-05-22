@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: momentum_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      # prisma migrate deploy reads DATABASE_URL.
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/momentum_test?schema=public
+      # src/lib/prisma/index.ts:9-15 reads DATABASE_TEST_URL when NODE_ENV=test.
+      # Set to the same connection string so app code resolves the same DB.
+      # The "test" substring in the database name passes the vitest.setup.ts guard.
+      DATABASE_TEST_URL: postgresql://postgres:postgres@localhost:5432/momentum_test?schema=public
+      AUTH_SECRET: ci-secret-not-for-production
+      NEXTAUTH_URL: http://localhost:3000
+      AUTH_RESEND_KEY: re_dummy_key
+      EMAIL_FROM: noreply@example.com
+      NODE_ENV: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Apply migrations to test database
+        run: npx prisma migrate deploy
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # Use npx vitest run directly to bypass the npm `pretest` hook,
+      # which would re-apply migrations and rely on dotenv-cli + bash.
+      # All required env vars are already set in the job env above.
+      - name: Test
+        run: npx vitest run

@@ -15,7 +15,7 @@ const getDatabaseUrl = () => {
 };
 
 const connectionString = getDatabaseUrl();
-const pool = new Pool({ connectionString });
+export const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 
 export const prisma =

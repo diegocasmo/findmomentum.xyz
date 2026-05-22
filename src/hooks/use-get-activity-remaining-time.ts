@@ -24,6 +24,7 @@ export function useGetActivityRemainingTime({ activity }: ActivityTimerProps) {
 
       return () => clearInterval(timerId);
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: syncs remainingTime to latest activity snapshot when activity stops or updates externally
       setRemainingTime(getActivityRemainingTime(activity));
     }
   }, [isRunning, activity]);

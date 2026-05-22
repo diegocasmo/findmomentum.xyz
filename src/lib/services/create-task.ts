@@ -15,47 +15,42 @@ export async function createTask({
   activityId,
   durationMs,
 }: CreateTaskParams): Promise<Task> {
-  try {
-    return await prisma.$transaction(async (tx) => {
-      const activity = await tx.activity.findFirstOrThrow({
-        where: {
-          id: activityId,
-          userId,
-          deletedAt: null,
-          completedAt: null,
-          team: {
-            teamMemberships: {
-              some: {
-                userId,
-                role: TeamMembershipRole.OWNER,
-              },
+  return await prisma.$transaction(async (tx) => {
+    const activity = await tx.activity.findFirstOrThrow({
+      where: {
+        id: activityId,
+        userId,
+        deletedAt: null,
+        completedAt: null,
+        team: {
+          teamMemberships: {
+            some: {
+              userId,
+              role: TeamMembershipRole.OWNER,
             },
           },
         },
-        include: {
-          tasks: {
-            orderBy: {
-              position: "desc",
-            },
-            take: 1,
+      },
+      include: {
+        tasks: {
+          orderBy: {
+            position: "desc",
           },
+          take: 1,
         },
-      });
-
-      const lastTask = activity.tasks[0];
-      const newPosition = lastTask ? lastTask.position + 1 : 0;
-
-      return await tx.task.create({
-        data: {
-          name,
-          activityId: activity.id,
-          durationMs,
-          position: newPosition,
-        },
-      });
+      },
     });
-  } catch (error) {
-    console.error("Error creating task:", error);
-    throw error;
-  }
+
+    const lastTask = activity.tasks[0];
+    const newPosition = lastTask ? lastTask.position + 1 : 0;
+
+    return await tx.task.create({
+      data: {
+        name,
+        activityId: activity.id,
+        durationMs,
+        position: newPosition,
+      },
+    });
+  });
 }

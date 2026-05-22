@@ -29,7 +29,7 @@ export function DurationInput({
 
   useEffect(() => {
     setInputValue(formatValue(value));
-  }, [value, onChange]);
+  }, [value]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let newValue = e.target.value.replace(/[^\d:]/g, "");
