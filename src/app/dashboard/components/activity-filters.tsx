@@ -135,6 +135,7 @@ export function ActivityFilters({ categories, selectedCategoryIds, selectedStatu
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: syncs local searchQuery state when URL searchParams change externally (e.g., browser back/forward); local state buffers keystrokes for debounced URL updates
     setSearchQuery(searchParams.get("search") ?? "");
   }, [searchParams]);
 

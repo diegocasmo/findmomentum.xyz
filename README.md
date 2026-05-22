@@ -47,3 +47,33 @@ These commands will set up your database schema, apply all existing migrations, 
 npm install
 npm run dev
 ```
+
+## Testing
+
+1. Create the test database:
+
+```bash
+createdb momentum_test
+```
+
+2. Add `DATABASE_TEST_URL` to your `.env` file pointing at it:
+
+```
+DATABASE_TEST_URL=postgresql://localhost/momentum_test
+```
+
+The database name **must** contain the word "test" — the test setup file refuses to truncate any database that doesn't, protecting your development data.
+
+3. Run the full suite once:
+
+```bash
+npm test
+```
+
+Or run in watch mode during development:
+
+```bash
+npm run test:watch
+```
+
+**Note:** `npm test` and `npm run test:watch` require `bash` (the `test:setup` script uses bash variable expansion to re-export `DATABASE_TEST_URL` as `DATABASE_URL` before migrating). macOS and Linux users have this by default. Windows users should use WSL2 or Git Bash.

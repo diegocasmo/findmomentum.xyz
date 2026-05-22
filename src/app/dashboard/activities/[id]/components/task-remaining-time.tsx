@@ -59,6 +59,7 @@ export function TaskRemainingTime({ task }: TaskRemainingTimeProps) {
   }, [task.id, task.name, router, toast]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: prop-sync of displayTime when task changes; running branch (below) drives a 1-second tick countdown
     if (!isTaskRunning(task)) return setDisplayTime(getTaskRemainingTime(task));
 
     const timerId = setInterval(() => {

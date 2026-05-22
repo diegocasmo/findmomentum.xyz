@@ -9,7 +9,15 @@
     "dev": "prisma generate && prisma migrate deploy && next dev --turbopack",
     "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test:setup": "prisma generate && NODE_ENV=test dotenv -e .env -- bash -c 'export DATABASE_URL=\"$DATABASE_TEST_URL\" && prisma migrate deploy'",
+    "pretest": "npm run test:setup",
+    "pretest:watch": "npm run test:setup",
+    "pretest:coverage": "npm run test:setup",
+    "test": "NODE_ENV=test dotenv -e .env -- vitest run",
+    "test:watch": "NODE_ENV=test dotenv -e .env -- vitest",
+    "test:coverage": "NODE_ENV=test dotenv -e .env -- vitest run --coverage"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} -r tsconfig-paths/register prisma/seed.ts"
@@ -61,12 +69,15 @@
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^10",
+    "@vitest/coverage-v8": "^4.1.7",
+    "dotenv-cli": "^11.0.0",
+    "eslint": "^9.39.4",
     "eslint-config-next": "16.2.6",
     "postcss": "^8",
     "prisma": "^7.8.0",
     "tailwindcss": "^4.2.1",
     "ts-node": "^10.9.2",
-    "typescript": "^6"
+    "typescript": "^6",
+    "vitest": "^4.1.7"
   }
 }
