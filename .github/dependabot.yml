@@ -9,6 +9,5 @@ updates:
       - dependency-type: 'direct'
     cooldown:
       default-days: 2
-      semver-major-days: 7
     commit-message:
       prefix: 'chore(package.json):'
