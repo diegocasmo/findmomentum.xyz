@@ -11,52 +11,47 @@ export async function completeTask({
   taskId,
   userId,
 }: CompleteTaskParams): Promise<Task> {
-  try {
-    return await prisma.$transaction(async (tx) => {
-      const now = new Date();
+  return await prisma.$transaction(async (tx) => {
+    const now = new Date();
 
-      // Ensure user is the owner of the task's activity team
-      await tx.task.findFirstOrThrow({
-        where: {
-          id: taskId,
+    // Ensure user is the owner of the task's activity team
+    await tx.task.findFirstOrThrow({
+      where: {
+        id: taskId,
+        deletedAt: null,
+        completedAt: null,
+        activity: {
+          userId,
           deletedAt: null,
-          completedAt: null,
-          activity: {
-            userId,
-            deletedAt: null,
-            team: {
-              teamMemberships: {
-                some: {
-                  userId,
-                  role: TeamMembershipRole.OWNER,
-                },
+          team: {
+            teamMemberships: {
+              some: {
+                userId,
+                role: TeamMembershipRole.OWNER,
               },
             },
           },
         },
-      });
-
-      // Update the task to mark it as completed
-      const completedTask = await tx.task.update({
-        where: { id: taskId },
-        data: { completedAt: now },
-      });
-
-      // Find and stop the ongoing time entry for this task
-      await tx.timeEntry.updateMany({
-        where: {
-          taskId,
-          stoppedAt: null,
-        },
-        data: {
-          stoppedAt: now,
-        },
-      });
-
-      return completedTask;
+      },
     });
-  } catch (error) {
-    console.error("Error completing task:", error);
-    throw error;
-  }
+
+    // Update the task to mark it as completed
+    const completedTask = await tx.task.update({
+      where: { id: taskId },
+      data: { completedAt: now },
+    });
+
+    // Find and stop the ongoing time entry for this task
+    await tx.timeEntry.updateMany({
+      where: {
+        taskId,
+        stoppedAt: null,
+      },
+      data: {
+        stoppedAt: now,
+      },
+    });
+
+    return completedTask;
+  });
 }
