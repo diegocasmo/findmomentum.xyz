@@ -16,6 +16,7 @@ This document provides AI agents (like Claude Code) with comprehensive context a
 - [Forms & Validation](#forms--validation)
 - [State Management](#state-management)
 - [Best Practices](#best-practices)
+- [Testing](#testing)
 - [Development Workflow](#development-workflow)
 
 ---
@@ -336,8 +337,8 @@ export async function completeTask({ taskId, userId }: CompleteTaskParams) {
 
     // 2. Stop any running time entries
     await tx.timeEntry.updateMany({
-      where: { taskId, endedAt: null },
-      data: { endedAt: new Date() }
+      where: { taskId, stoppedAt: null },
+      data: { stoppedAt: new Date() }
     });
 
     // 3. Mark task complete
@@ -391,130 +392,9 @@ export async function getActivity(
 
 ### Database Schema
 
-**Core Models**:
+The canonical schema lives in `prisma/schema.prisma`. Migration history is under `prisma/migrations/`. Read those files when you need exact field names, types, indexes, or `@map`/`@@map` directives — this doc deliberately does not duplicate them, since hand-maintained mirrors drift.
 
-```prisma
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  createdAt DateTime @default(now()) @db.Timestamptz
-  updatedAt DateTime @updatedAt @db.Timestamptz
-
-  teamMemberships TeamMembership[]
-  activities      Activity[]
-}
-
-model Team {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now()) @db.Timestamptz
-  updatedAt DateTime @updatedAt @db.Timestamptz
-
-  memberships TeamMembership[]
-}
-
-model TeamMembership {
-  id        String   @id @default(cuid())
-  userId    String
-  teamId    String
-  role      Role     @default(OWNER)
-  createdAt DateTime @default(now()) @db.Timestamptz
-  updatedAt DateTime @updatedAt @db.Timestamptz
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, teamId])
-}
-
-model Activity {
-  id          String    @id @default(cuid())
-  userId      String
-  name        String    @db.VarChar(255)
-  description String?   @db.VarChar(500)
-  completedAt DateTime? @db.Timestamptz
-  deletedAt   DateTime? @db.Timestamptz
-  createdAt   DateTime  @default(now()) @db.Timestamptz
-  updatedAt   DateTime  @updatedAt @db.Timestamptz
-
-  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tasks              Task[]
-  activityCategories ActivityCategory[]
-
-  @@index([userId, deletedAt, completedAt])
-}
-
-model Task {
-  id                   String    @id @default(cuid())
-  activityId           String
-  name                 String    @db.VarChar(255)
-  estimatedDuration    BigInt    // Milliseconds
-  completedAt          DateTime? @db.Timestamptz
-  orderIndex           Int       @default(0)
-  deletedAt            DateTime? @db.Timestamptz
-  createdAt            DateTime  @default(now()) @db.Timestamptz
-  updatedAt            DateTime  @updatedAt @db.Timestamptz
-
-  activity    Activity     @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  timeEntries TimeEntry[]
-
-  @@index([activityId, deletedAt, completedAt])
-}
-
-model TimeEntry {
-  id        String    @id @default(cuid())
-  taskId    String
-  startedAt DateTime  @default(now()) @db.Timestamptz
-  endedAt   DateTime? @db.Timestamptz
-  createdAt DateTime  @default(now()) @db.Timestamptz
-  updatedAt DateTime  @updatedAt @db.Timestamptz
-
-  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
-
-  @@index([taskId, endedAt])
-}
-
-model Category {
-  id        String    @id @default(cuid())
-  name      String
-  teamId    String    @map("team_id")
-  userId    String    @map("user_id")
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime? @updatedAt @map("updated_at") @db.Timestamptz
-
-  team       Team               @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  activities ActivityCategory[]
-
-  /// Case-insensitive uniqueness on (team_id, name) is enforced by the
-  /// raw-SQL functional unique index `categories_team_id_lower_name_key`.
-  /// Prisma cannot model functional indexes (prisma/prisma#12914), so it is
-  /// unrepresented here. IMPORTANT: every future `prisma migrate dev` run
-  /// that touches `categories` MUST be inspected — Prisma will propose
-  /// `DROP INDEX categories_team_id_lower_name_key`. That line MUST be
-  /// removed before the migration is committed, or case-insensitive
-  /// uniqueness is silently lost.
-  @@index([userId, teamId])
-  @@map("categories")
-}
-
-model ActivityCategory {
-  id         String    @id @default(cuid())
-  activityId String    @map("activity_id")
-  categoryId String    @map("category_id")
-  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt  DateTime? @updatedAt @map("updated_at") @db.Timestamptz
-
-  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@unique([activityId, categoryId])
-  @@index([activityId, categoryId])
-  @@map("activity_categories")
-}
-```
-
-> Case-insensitive uniqueness on `(team_id, name)` is enforced by a Postgres functional unique index, NOT a Prisma `@@unique`. See `prisma/migrations/20260430204410_categories_case_insensitive_unique/`.
+One non-obvious invariant worth knowing inline: case-insensitive uniqueness on `(team_id, name)` for `Category` is enforced by a Postgres functional unique index, NOT a Prisma `@@unique`. See `prisma/migrations/20260430204410_categories_case_insensitive_unique/`. Prisma cannot model functional indexes ([prisma/prisma#12914](https://github.com/prisma/prisma/issues/12914)), so every future `prisma migrate dev` run that touches `categories` MUST be inspected — Prisma will propose `DROP INDEX categories_team_id_lower_name_key`, and that line MUST be removed before the migration is committed.
 
 ### Database Conventions
 
@@ -539,29 +419,7 @@ model ActivityCategory {
 
 ### Service Layer Functions
 
-**Location**: `lib/services/`
-
-**Common Services** (28+ functions):
-- `getActivities()` - Fetch user activities with filters
-- `getActivity()` - Single activity with tasks and time entries
-- `createActivity({ name, description, userId, categoryIds? })` - Create new activity; when `categoryIds` provided, dedupes and validates ownership, then bulk-inserts `ActivityCategory` rows
-- `updateActivity({ activityId, name?, description?, userId, categoryIds? })` - Update activity details; passing `categoryIds: []` triggers full replace (deleteMany + createMany); `categoryIds` omitted leaves existing links untouched
-- `deleteActivity()` - Soft delete activity
-- `completeActivity()` - Mark activity complete
-- `uncompleteActivity()` - Revert completion
-- `createTask()` - Add task to activity
-- `updateTask()` - Update task details
-- `deleteTask()` - Soft delete task
-- `completeTask()` - Mark task complete + stop timers
-- `uncompleteTask()` - Revert task completion
-- `startTask()` - Create TimeEntry with `startedAt`
-- `stopTask()` - Set TimeEntry `endedAt`
-- `reorderTasks()` - Update task order indexes
-- `getCategories({ userId })` - Categories where the user is also OWNER of the parent team; returns `Pick<Category, "id" | "name">[]`, sorted by name
-- `createCategory({ name, userId })` - Create category scoped to the user's OWNER team membership (`src/lib/services/create-category.ts`)
-- `updateCategory({ categoryId, name, userId })` - Rename category; team-membership-OWNER-scoped (`src/lib/services/update-category.ts`)
-- `deleteCategory({ categoryId, userId })` - Delete category, returns `{ id, affectedActivitiesCount }` (`src/lib/services/delete-category.ts`)
-- `getActivityContributions()` - Contribution graph data
+**Location**: `src/lib/services/`. The directory listing is the canonical inventory — read filenames there rather than relying on this doc. Each file exports one async function. Naming convention: file `kebab-case.ts` → exported `camelCaseFunction`. Auth-flow services (`request-otp`, `find-user-by-email-and-otp`, `find-or-create-default-team`), activity/task/category CRUD, bookmarking (`toggle-bookmark-activity`, `get-bookmarked-activities`), task time tracking (`play-task`, `pause-task`), and helpers like `create-activity-from-template`, `duplicate-task`, `update-task-position` all live there.
 
 **Service Function Pattern**:
 
@@ -972,7 +830,7 @@ function TaskCard({ task }: TaskCardProps) {
 
       <div className="flex gap-2 order-1 sm:order-none">
         {/* Badge order changes on mobile */}
-        <Badge>{formatDuration(task.estimatedDuration)}</Badge>
+        <Badge>{formatTimeMMss(task.durationMs)}</Badge>
       </div>
     </div>
   );
@@ -1204,16 +1062,15 @@ export async function createTaskAction(
   try {
     const task = await createTask({
       ...parsed.data,
-      estimatedDuration:
+      durationMs:
         (parsed.data.estimatedMinutes * 60 + parsed.data.estimatedSeconds) * 1000,
       userId: session.user.id
     });
     return { success: true, data: task };
   } catch (error) {
-    const zodError = transformPrismaErrorToZodError(error);
     return {
       success: false,
-      errors: parseZodErrors(zodError ?? createZodError("Failed to create task"))
+      errors: parseZodErrors(createZodError("Failed to create task"))
     };
   }
 }
@@ -1228,7 +1085,7 @@ export type ActionResult<T = void> =
   | { success: false; errors: FieldErrors };
 ```
 
-`FieldErrors` is `import type { FieldErrors } from "react-hook-form"`. In this codebase the runtime shape produced by the canonical helpers is `Record<string, { type: string; message: string }>` (see `parseZodErrors` and `createZodError` in `src/lib/utils/form.ts`). Errors are forwarded directly to `form.setError` via the `setFormErrors` helper.
+`FieldErrors` is `import type { FieldErrors } from "react-hook-form"`. In this codebase `parseZodErrors` (in `src/lib/utils/form.ts:22-36`) constructs a flat record by joining each Zod issue path with `"."` (form.ts:27), so the runtime shape is effectively `Record<DottedPath, { type: "manual"; message: string }>` — keys like `"items.0.name"` rather than nested objects. Errors are forwarded directly to `form.setError` via the `setFormErrors` helper.
 
 **Discriminating on the result**:
 ```typescript
@@ -1240,18 +1097,7 @@ if (result.success) {
 }
 ```
 
-**Transforming Prisma errors** (`src/lib/utils/form.ts`):
-```typescript
-import { Prisma } from "@prisma/client";
-
-export function transformPrismaErrorToZodError(error: unknown) {
-  if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    if (error.code === "P2002") return createZodError("A record with this value already exists");
-    if (error.code === "P2025") return createZodError("Record not found");
-  }
-  return null;
-}
-```
+**Prisma error handling**: This codebase does not map Prisma errors to per-field Zod errors. The canonical pattern in Server Actions is to wrap service calls in `try/catch` and return `parseZodErrors(createZodError("..."))` from the catch branch (see the Server Action example above).
 
 ### Server actions / cache invalidation
 
@@ -1543,7 +1389,7 @@ export function formatTimeMMss(milliseconds: number): string {
 }
 
 // Used across multiple components
-<Badge>{formatTimeMMss(task.estimatedDuration)}</Badge>
+<Badge>{formatTimeMMss(task.durationMs)}</Badge>
 ```
 
 ### 10. Testing Data
@@ -1565,6 +1411,25 @@ const user = await prisma.user.create({
   }
 });
 ```
+
+---
+
+## Testing
+
+**Runner**: Vitest. Config at `vitest.config.ts` — Node environment, `@` alias resolves to `./src`, single-fork pool (`pool: "forks"`, `maxWorkers: 1`, `fileParallelism: false`) because every test shares the same Postgres database.
+
+**Test files** live next to the service they cover: `src/lib/services/<name>.test.ts`.
+
+**DB safety invariant**: `vitest.setup.ts` (line 14) refuses to TRUNCATE unless the database name in `DATABASE_TEST_URL` contains the substring `"test"` (case-insensitive). This guard exists to prevent accidentally wiping a dev or prod database — don't bypass it. The DB name is parsed from the URL pathname via `new URL(url).pathname.slice(1)`.
+
+**npm scripts** (`package.json:14-20`):
+- `npm test` — runs `pretest` (which calls `test:setup`: re-exports `DATABASE_TEST_URL` as `DATABASE_URL` inside a `bash -c` subshell and runs `prisma migrate deploy`), then `vitest run`.
+- `npm run test:watch` — same setup, then `vitest` in watch mode.
+- `npm run test:coverage` — vitest run with `--coverage` (v8 provider).
+
+`bash` is required because `test:setup` uses bash variable expansion. macOS/Linux have it by default; Windows users need WSL2 or Git Bash.
+
+**CI**: `.github/workflows/ci.yml` runs on every push and PR to `main` — spins up a Postgres 16 service container, installs Node 22 (matches `.nvmrc`), runs `prisma generate` + `prisma migrate deploy`, then `npm run lint`, `npm run typecheck`, and `npx vitest run` (bypasses the `pretest` hook because CI's own setup step has already migrated the DB).
 
 ---
 
