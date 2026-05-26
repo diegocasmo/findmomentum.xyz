@@ -23,20 +23,6 @@ import type { CompletionStatus, CategoryOption } from "@/types";
 
 const SEARCH_DEBOUNCE_DELAY_MS = 300;
 
-function formatSelectedCategoriesLabel(
-  categories: CategoryOption[],
-  selectedCategoryIds: string[]
-): string {
-  const count = selectedCategoryIds.length;
-  if (count === 0) return "All categories";
-  if (count >= 3) return `${count} selected`;
-  const selectedNames = categories
-    .filter((c) => selectedCategoryIds.includes(c.id))
-    .map((c) => c.name)
-    .sort((a, b) => a.localeCompare(b));
-  return selectedNames.join(", ");
-}
-
 const STATUS_LABELS: Record<CompletionStatus, string> = {
   completed: "Completed",
   incomplete: "Incomplete",
@@ -204,23 +190,13 @@ export function ActivityFilters({ categories, selectedCategoryIds, selectedStatu
           </PopoverContent>
         </Popover>
       </div>
-      <div className="w-full sm:w-auto p-[3px]">
+      <div className="w-full sm:w-[200px] p-[3px]">
         <CategoryPicker
           mode="filter"
           categories={categories}
           selectedIds={selectedCategoryIds}
           onChange={handleCategoriesChange}
-          trigger={
-            <Button
-              variant="outline"
-              className="w-full sm:w-[200px] justify-between font-normal hover:bg-background hover:text-foreground"
-            >
-              <span className="truncate">
-                {formatSelectedCategoriesLabel(categories, selectedCategoryIds)}
-              </span>
-              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          }
+          className="w-full"
         />
       </div>
     </div>
