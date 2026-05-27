@@ -95,8 +95,8 @@ export function UpsertTaskForm({
           : await createTaskAction(formData);
 
         if (result.success) {
-          router.refresh();
           onSuccess();
+          router.refresh();
         } else {
           setFormErrors(form.setError, result.errors);
         }
