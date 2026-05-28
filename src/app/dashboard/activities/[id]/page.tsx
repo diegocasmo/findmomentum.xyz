@@ -6,13 +6,11 @@ import { getActivity } from "@/lib/services/get-activity";
 import { getCategories } from "@/lib/services/get-categories";
 import { TasksList } from "@/app/dashboard/activities/[id]/components/tasks-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ListTodoIcon, PlusCircleIcon } from "lucide-react";
+import { ListTodoIcon } from "lucide-react";
 import { ActivityTimer } from "@/app/dashboard/activities/[id]/components/activity-timer";
 import { CompleteActivity } from "@/components/complete-activity";
-import { UpsertTaskDialog } from "@/components/upsert-task-dialog";
 import { ActivityPageSkeleton } from "@/components/activity-page-skeleton";
 import { ActivityHeader } from "@/app/dashboard/activities/[id]/components/activity-header";
-import { Button } from "@/components/ui/button";
 
 const ActivityCompletedCard = dynamic(() =>
   import("@/components/activity-completed-card").then((m) => ({
@@ -58,26 +56,15 @@ export default async function ActivityPage({ params }: ActivityPageProps) {
                   <ActivityTimer activity={activity} />
                   <CompleteActivity activity={activity} />
                 </div>
-                <CardTitle className="text-2xl font-semibold flex justify-between items-center">
+                <CardTitle className="text-2xl font-semibold flex items-center">
                   <div className="flex items-center">
                     <ListTodoIcon className="w-6 h-6 mr-2 text-primary" />
                     Tasks
                   </div>
-                  <div>
-                    <UpsertTaskDialog
-                      activityId={activity.id}
-                      aria-label="Create new task"
-                    >
-                      <Button variant="outline" className="w-full">
-                        <PlusCircleIcon className="mr-2 h-4 w-4" />
-                        Create Task
-                      </Button>
-                    </UpsertTaskDialog>
-                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex-grow overflow-auto p-4">
-                <TasksList tasks={activity.tasks} />
+                <TasksList activityId={activity.id} tasks={activity.tasks} />
               </CardContent>
             </Card>
           </div>

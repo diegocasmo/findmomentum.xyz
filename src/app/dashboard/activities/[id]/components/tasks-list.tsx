@@ -22,7 +22,9 @@ import { NoTasks } from "@/app/dashboard/activities/[id]/components/no-tasks";
 import type { TaskWithTimeEntries } from "@/types";
 import { updateTaskPositionAction } from "@/app/actions/update-task-position-action";
 import { toast } from "@/hooks/use-toast";
-import { Loader2Icon } from "lucide-react";
+import { Loader2Icon, PlusCircleIcon } from "lucide-react";
+import { UpsertTaskDialog } from "@/components/upsert-task-dialog";
+import { Button } from "@/components/ui/button";
 
 const findTaskIndex = (tasks: TaskWithTimeEntries[], id: string) =>
   tasks.findIndex((item) => item.id === id);
@@ -44,10 +46,22 @@ const ERROR_MESSAGE_CONFIG: Parameters<typeof toast>[0] = {
 };
 
 type TasksListProps = {
+  activityId: string;
   tasks: TaskWithTimeEntries[];
 };
 
-export function TasksList({ tasks: initialTasks }: TasksListProps) {
+function CreateTaskControl({ activityId }: { activityId: string }) {
+  return (
+    <UpsertTaskDialog activityId={activityId}>
+      <Button variant="outline" className="w-full sm:w-auto">
+        <PlusCircleIcon className="mr-2 h-4 w-4" />
+        Create Task
+      </Button>
+    </UpsertTaskDialog>
+  );
+}
+
+export function TasksList({ activityId, tasks: initialTasks }: TasksListProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [localTasks, setLocalTasks] =
@@ -106,30 +120,38 @@ export function TasksList({ tasks: initialTasks }: TasksListProps) {
   );
 
   if (localTasks.length === 0) {
-    return <NoTasks />;
+    return (
+      <div className="space-y-4">
+        <CreateTaskControl activityId={activityId} />
+        <NoTasks />
+      </div>
+    );
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-    >
-      <SortableContext
-        items={localTasks}
-        strategy={verticalListSortingStrategy}
+    <div className="space-y-4">
+      <CreateTaskControl activityId={activityId} />
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
       >
-        <ul className="space-y-4 relative">
-          {localTasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
-          ))}
-          {isPending && (
-            <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
-              <Loader2Icon className="w-8 h-8 animate-spin text-primary" />
-            </div>
-          )}
-        </ul>
-      </SortableContext>
-    </DndContext>
+        <SortableContext
+          items={localTasks}
+          strategy={verticalListSortingStrategy}
+        >
+          <ul className="space-y-4 relative">
+            {localTasks.map((task) => (
+              <TaskCard key={task.id} task={task} />
+            ))}
+            {isPending && (
+              <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+                <Loader2Icon className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            )}
+          </ul>
+        </SortableContext>
+      </DndContext>
+    </div>
   );
 }
