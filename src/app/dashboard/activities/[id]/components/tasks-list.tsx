@@ -22,7 +22,7 @@ import { NoTasks } from "@/app/dashboard/activities/[id]/components/no-tasks";
 import type { TaskWithTimeEntries } from "@/types";
 import { updateTaskPositionAction } from "@/app/actions/update-task-position-action";
 import { toast } from "@/hooks/use-toast";
-import { Loader2Icon, PlusCircleIcon } from "lucide-react";
+import { ListTodoIcon, Loader2Icon, PlusCircleIcon } from "lucide-react";
 import { UpsertTaskDialog } from "@/components/upsert-task-dialog";
 import { Button } from "@/components/ui/button";
 
@@ -58,6 +58,18 @@ function CreateTaskControl({ activityId }: { activityId: string }) {
         Create Task
       </Button>
     </UpsertTaskDialog>
+  );
+}
+
+export function TasksListHeader({ activityId }: { activityId: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center">
+        <ListTodoIcon className="w-6 h-6 mr-2 text-primary" />
+        Tasks
+      </div>
+      <CreateTaskControl activityId={activityId} />
+    </div>
   );
 }
 
@@ -120,38 +132,30 @@ export function TasksList({ activityId, tasks: initialTasks }: TasksListProps) {
   );
 
   if (localTasks.length === 0) {
-    return (
-      <div className="space-y-4">
-        <CreateTaskControl activityId={activityId} />
-        <NoTasks />
-      </div>
-    );
+    return <NoTasks />;
   }
 
   return (
-    <div className="space-y-4">
-      <CreateTaskControl activityId={activityId} />
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext
+        items={localTasks}
+        strategy={verticalListSortingStrategy}
       >
-        <SortableContext
-          items={localTasks}
-          strategy={verticalListSortingStrategy}
-        >
-          <ul className="space-y-4 relative">
-            {localTasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
-            ))}
-            {isPending && (
-              <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
-                <Loader2Icon className="w-8 h-8 animate-spin text-primary" />
-              </div>
-            )}
-          </ul>
-        </SortableContext>
-      </DndContext>
-    </div>
+        <ul className="space-y-4 relative">
+          {localTasks.map((task) => (
+            <TaskCard key={task.id} task={task} />
+          ))}
+          {isPending && (
+            <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+              <Loader2Icon className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          )}
+        </ul>
+      </SortableContext>
+    </DndContext>
   );
 }

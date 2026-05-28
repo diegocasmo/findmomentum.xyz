@@ -4,9 +4,11 @@ import { auth } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 import { getActivity } from "@/lib/services/get-activity";
 import { getCategories } from "@/lib/services/get-categories";
-import { TasksList } from "@/app/dashboard/activities/[id]/components/tasks-list";
+import {
+  TasksList,
+  TasksListHeader,
+} from "@/app/dashboard/activities/[id]/components/tasks-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ListTodoIcon } from "lucide-react";
 import { ActivityTimer } from "@/app/dashboard/activities/[id]/components/activity-timer";
 import { CompleteActivity } from "@/components/complete-activity";
 import { ActivityPageSkeleton } from "@/components/activity-page-skeleton";
@@ -56,11 +58,8 @@ export default async function ActivityPage({ params }: ActivityPageProps) {
                   <ActivityTimer activity={activity} />
                   <CompleteActivity activity={activity} />
                 </div>
-                <CardTitle className="text-2xl font-semibold flex items-center">
-                  <div className="flex items-center">
-                    <ListTodoIcon className="w-6 h-6 mr-2 text-primary" />
-                    Tasks
-                  </div>
+                <CardTitle className="text-2xl font-semibold">
+                  <TasksListHeader activityId={activity.id} />
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex-grow overflow-auto p-4">
