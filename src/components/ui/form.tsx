@@ -9,6 +9,7 @@ import {
   FieldPath,
   FieldValues,
   FormProvider,
+  type Control,
   useFormContext,
 } from "react-hook-form"
 
@@ -30,10 +31,13 @@ const FormFieldContext = React.createContext<FormFieldContextValue>(
 
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+  TTransformedValues = TFieldValues
 >({
   ...props
-}: ControllerProps<TFieldValues, TName>) => {
+}: Omit<ControllerProps<TFieldValues, TName>, "control"> & {
+  control?: Control<TFieldValues, any, TTransformedValues>
+}) => {
   return (
     <FormFieldContext.Provider value={{ name: props.name }}>
       <Controller {...props} />

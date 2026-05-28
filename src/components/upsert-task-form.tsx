@@ -23,20 +23,20 @@ import { createTaskAction } from "@/app/actions/create-task-action";
 import { updateTaskAction } from "@/app/actions/update-task-action";
 import { setFormErrors } from "@/lib/utils/form";
 import { useRouter } from "next/navigation";
-import type { CreateTaskSchema } from "@/app/schemas/create-task-schema";
 import { DurationInput } from "@/components/duration-input";
 import { DurationPresetPicker } from "@/components/duration-preset-picker";
 import { RootFormError } from "@/components/root-form-error";
 import { getUpdateTaskSchema } from "@/app/schemas/update-task-schema";
 import { formatTimeMMss, getTaskElapsedTime } from "@/lib/utils/time";
 import type { TaskWithTimeEntries } from "@/types";
+import type { z } from "zod";
 
-type FormData = {
-  taskId?: string;
-  activityId?: string;
-  name: string;
-  durationMs: number;
-};
+type TaskFormInput =
+  | z.input<typeof createTaskSchema>
+  | z.input<ReturnType<typeof getUpdateTaskSchema>>;
+type TaskFormOutput =
+  | z.output<typeof createTaskSchema>
+  | z.output<ReturnType<typeof getUpdateTaskSchema>>;
 
 type UpsertTaskFormProps = {
   activityId?: string;
@@ -56,7 +56,7 @@ export function UpsertTaskForm({
   const nameInputRef = useRef<HTMLInputElement>(null);
   const elapsedMs = task ? getTaskElapsedTime(task) : 0;
 
-  const form = useForm<CreateTaskSchema>({
+  const form = useForm<TaskFormInput, unknown, TaskFormOutput>({
     resolver: zodResolver(
       task ? getUpdateTaskSchema(elapsedMs) : createTaskSchema
     ),
@@ -75,7 +75,7 @@ export function UpsertTaskForm({
     },
   });
 
-  async function onSubmit(data: FormData) {
+  async function onSubmit(data: TaskFormOutput) {
     startTransition(async () => {
       try {
         const formData = new FormData();
