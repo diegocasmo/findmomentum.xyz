@@ -23,13 +23,14 @@ import { updateActivityAction } from "@/app/actions/update-activity-action";
 import { setFormErrors } from "@/lib/utils/form";
 import { useRouter } from "next/navigation";
 import { RootFormError } from "@/components/root-form-error";
+import type { z } from "zod";
 
-type FormData = {
-  activityId?: string;
-  name: string;
-  description: string;
-  categoryIds: string[];
-};
+type ActivityFormInput =
+  | z.input<typeof createActivitySchema>
+  | z.input<typeof updateActivitySchema>;
+type ActivityFormOutput =
+  | z.output<typeof createActivitySchema>
+  | z.output<typeof updateActivitySchema>;
 
 type UpsertActivityFormProps = {
   activity?: ActivityWithCategories;
@@ -60,7 +61,7 @@ export function UpsertActivityForm({
     setOptimisticCategories((prev) => [...prev, cat]);
   };
 
-  const form = useForm<FormData>({
+  const form = useForm<ActivityFormInput, unknown, ActivityFormOutput>({
     resolver: zodResolver(
       activity ? updateActivitySchema : createActivitySchema,
     ),
@@ -72,7 +73,7 @@ export function UpsertActivityForm({
     },
   });
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = (data: ActivityFormOutput) => {
     startTransition(async () => {
       try {
         const formData = new FormData();
@@ -153,7 +154,7 @@ export function UpsertActivityForm({
                 <FormControl>
                   <CategoryPicker
                     categories={augmentedCategories}
-                    selectedIds={field.value}
+                    selectedIds={field.value ?? []}
                     onChange={field.onChange}
                     onCategoryCreated={handleCategoryCreated}
                     onPendingChange={setIsCategoryPending}
