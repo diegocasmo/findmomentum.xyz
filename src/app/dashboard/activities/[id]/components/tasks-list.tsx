@@ -53,7 +53,7 @@ type TasksListProps = {
 function CreateTaskControl({ activityId }: { activityId: string }) {
   return (
     <UpsertTaskDialog activityId={activityId}>
-      <Button variant="outline" className="w-full sm:w-auto">
+      <Button variant="outline">
         <PlusCircleIcon className="mr-2 h-4 w-4" />
         Create Task
       </Button>
