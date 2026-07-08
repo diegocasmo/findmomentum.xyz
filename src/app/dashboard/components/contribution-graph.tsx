@@ -105,7 +105,7 @@ export function ContributionGraph({
     const handleTouchStart = (e: TouchEvent) => {
       if (
         touchedDate &&
-        e.target instanceof Element && // Change Node to Element
+        e.target instanceof Element &&
         !e.target.closest(".contribution-cell")
       ) {
         setTouchedDate(null);
