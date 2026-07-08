@@ -1,0 +1,98 @@
+name: 'Code Improver'
+
+on:
+  schedule:
+    # GitHub delays scheduled runs (~3h observed), so we schedule early. Staggered
+    # one minute after tonebuilder (03:07) and one before pocket-ledger (03:09)
+    # so the shared Claude token is not driven by all three at once.
+    - cron: '8 3 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: code-improver
+  cancel-in-progress: false
+
+permissions:
+  contents: write # push the feature branch
+  pull-requests: write # open the PR
+  actions: read # read CI results
+  id-token: write # OAuth flow for the Claude action
+
+jobs:
+  improve:
+    runs-on: ubuntu-latest
+    # Headroom for a full survey plus up to 100 turns at max effort
+    timeout-minutes: 60
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: momentum_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/momentum_test?schema=public
+      DATABASE_TEST_URL: postgresql://postgres:postgres@localhost:5432/momentum_test?schema=public
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Write CI .env (gitignored; real DB URLs, dummies for the rest)
+        run: |
+          cat > .env <<EOF
+          DATABASE_URL=postgresql://postgres:postgres@localhost:5432/momentum_test?schema=public
+          DATABASE_TEST_URL=postgresql://postgres:postgres@localhost:5432/momentum_test?schema=public
+          AUTH_SECRET=ci-secret-not-for-production
+          NEXTAUTH_URL=http://localhost:3000
+          AUTH_RESEND_KEY=re_dummy_key
+          EMAIL_FROM=noreply@example.com
+          EOF
+
+      - name: Prepare database (generate client, migrate)
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+
+      - name: Run Code Improver
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          show_full_output: false
+          prompt: |
+            Read .github/code-improver/PROMPT.md and follow it EXACTLY.
+          # --tools locks the available built-in set (no Agent/subagent or
+          # background tools); --allowed-tools only auto-approves prompts.
+          claude_args: '--model claude-opus-4-8 --effort xhigh --max-turns 100 --tools "Bash,Edit,Write,Read,Grep,Glob" --allowed-tools "Bash,Edit,Write,Read,Grep,Glob"'
+
+      # A silently-stranded run still reports success, so require the agent to
+      # have written a terminal marker. Absence means it never reached a PR or a
+      # no-op decision (stranded, crashed, or hit the turn limit): fail loudly.
+      - name: Verify the run reached a terminal decision
+        run: |
+          if [ -f .code-improver-result ] && grep -qE '^[[:space:]]*(PR|NOOP)[[:space:]]*$' .code-improver-result; then
+            echo "Terminal decision: $(cat .code-improver-result)"
+          else
+            echo "::error::Code Improver wrote no terminal marker (expected PR or NOOP). It likely stranded, crashed, or hit the turn limit instead of finishing."
+            exit 1
+          fi
