@@ -26,7 +26,7 @@ export function NotificationManager() {
       }
     };
 
-    requestNotificationPermission();
+    void requestNotificationPermission();
   }, [toast]);
 
   return null;

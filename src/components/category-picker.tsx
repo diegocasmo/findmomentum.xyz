@@ -59,7 +59,7 @@ function mergeRefs<T>(...refs: Array<React.Ref<T> | undefined>): React.RefCallba
   return (value) => {
     for (const ref of refs) {
       if (typeof ref === "function") ref(value);
-      else if (ref != null) (ref as React.MutableRefObject<T | null>).current = value;
+      else if (ref != null) ref.current = value;
     }
   };
 }
@@ -106,7 +106,7 @@ function CategoryPickerInner({
     selectedIdsRef.current = selectedIds;
   });
 
-  const highlightedItemId = useCommandState((s) => s.selectedItemId) as string | undefined;
+  const highlightedItemId = useCommandState((s) => s.selectedItemId);
 
   const sortedCategories = useMemo(
     () => [...categories].sort((a, b) => a.name.localeCompare(b.name)),
