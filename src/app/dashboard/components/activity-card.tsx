@@ -122,7 +122,7 @@ export function ActivityCard({
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {formatDateWithTime(activity.completedAt!)}
+                    {formatDateWithTime(activity.completedAt)}
                   </TooltipContent>
                 </Tooltip>
               </div>
