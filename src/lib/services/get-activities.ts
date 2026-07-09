@@ -5,7 +5,7 @@ import type {
 } from "@/types";
 import { type Prisma, TeamMembershipRole } from "@prisma/client";
 
-export type GetActivitiesParams = {
+type GetActivitiesParams = {
   userId: string;
   page?: number;
   limit?: number;

@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { TeamMembershipRole } from "@prisma/client";
 import type { ActivityWithTasksAndTimeEntries } from "@/types";
 
-export type GetActivityParams = {
+type GetActivityParams = {
   id: string;
   userId: string;
 };
