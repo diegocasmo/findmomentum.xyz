@@ -24,7 +24,7 @@ type DeleteActivityDialogProps = {
 const ERROR_MESSAGE_CONFIG: Parameters<typeof toast>[0] = {
   title: "Error",
   description: "Failed to delete the activity. Please try again.",
-  variant: "destructive" as const,
+  variant: "destructive",
 };
 
 export function DeleteActivityDialog({
