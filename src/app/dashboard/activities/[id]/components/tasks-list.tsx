@@ -42,7 +42,7 @@ const getNewPosition = (
 const ERROR_MESSAGE_CONFIG: Parameters<typeof toast>[0] = {
   title: "Error",
   description: "Failed to update task position. Please try again.",
-  variant: "destructive" as const,
+  variant: "destructive",
 };
 
 type TasksListProps = {

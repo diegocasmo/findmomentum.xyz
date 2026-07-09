@@ -25,7 +25,7 @@ type DeleteTaskDialogProps = {
 const ERROR_MESSAGE_CONFIG: Parameters<typeof toast>[0] = {
   title: "Error",
   description: "Failed to delete the task. Please try again.",
-  variant: "destructive" as const,
+  variant: "destructive",
 };
 
 export function DeleteTaskDialog({ task, redirectUrl }: DeleteTaskDialogProps) {

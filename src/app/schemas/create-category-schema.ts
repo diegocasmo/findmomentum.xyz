@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const CATEGORY_NAME_MAX_LENGTH = 30 as const;
+export const CATEGORY_NAME_MAX_LENGTH = 30;
 
 export const createCategorySchema = z.object({
   name: z
