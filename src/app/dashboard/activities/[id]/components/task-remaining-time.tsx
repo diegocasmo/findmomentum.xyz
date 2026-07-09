@@ -68,7 +68,7 @@ export function TaskRemainingTime({ task }: TaskRemainingTimeProps) {
 
       if (newRemainingTime <= 0) {
         clearInterval(timerId);
-        handleCompleteTask();
+        void handleCompleteTask();
       }
     }, MS_PER_SECOND);
 
