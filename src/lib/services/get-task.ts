@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { TaskWithTimeEntries } from "@/types";
 import { TeamMembershipRole } from "@prisma/client";
 
-export type GetTaskParams = {
+type GetTaskParams = {
   userId: string;
   taskId: string;
 };

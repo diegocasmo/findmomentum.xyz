@@ -5,7 +5,7 @@ import type { ActivityContribution } from "@/types";
 import { isValidTimezone } from "@/lib/utils/timezone";
 import { formatInTimeZone, toZonedTime, fromZonedTime } from "@/lib/utils/time";
 
-export type GetActivityContributionsParams = {
+type GetActivityContributionsParams = {
   userId: string;
   startDate?: Date;
   endDate?: Date;
