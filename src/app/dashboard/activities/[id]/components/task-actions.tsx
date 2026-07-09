@@ -18,7 +18,6 @@ import { duplicateTaskAction } from "@/app/actions/duplicate-task-action";
 
 type TaskActionsProps = {
   task: TaskWithTimeEntries;
-  redirectUrl?: string;
 };
 
 export function TaskActions({ task }: TaskActionsProps) {
