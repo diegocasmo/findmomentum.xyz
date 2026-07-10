@@ -10,6 +10,7 @@ The code is the source of truth for every fact it can express. This file records
 - Never restate a fact derivable from a single file: dependency versions (`package.json`), prop lists (the component's `Props` type), schema fields (`prisma/schema.prisma`), directory inventories, npm script bodies.
 - No code samples. Name the canonical exemplar file for a pattern instead; a real file cannot drift.
 - When a claim here no longer matches the code, delete the claim or convert it to a pointer. Never re-sync a copied detail.
+- An orientation map of top-level directories is allowed; keep it to stable structure and intent, with no file counts or per-file enumerations.
 
 ## Project Overview
 
@@ -21,7 +22,7 @@ Core features: activity tracking, tasks with duration tracking, time entries for
 
 ## Technology Stack
 
-See `package.json` for the authoritative list of dependencies and versions. Do not list dependency versions in docs; `package.json` is the single source of truth.
+See `package.json` for dependencies and versions.
 
 ## Architecture
 
@@ -38,7 +39,7 @@ Next.js App Router. Key decisions:
 ```
 src/
 ├── app/                  # Next.js App Router
-│   ├── actions/          # Server Actions, one per mutation
+│   ├── actions/          # Server Actions
 │   ├── api/auth/         # NextAuth route handler
 │   ├── schemas/          # Zod validation schemas
 │   ├── auth/sign-in/     # OTP sign-in flow
@@ -49,7 +50,7 @@ src/
 │   ├── auth/             # NextAuth config + Resend email sending
 │   ├── prisma/           # Prisma client singleton
 │   ├── rate-limiter/     # Custom in-memory rate limiting (withRateLimit wrapper)
-│   ├── services/         # Data access layer, one exported async function per file
+│   ├── services/         # Data access layer (all Prisma access lives here)
 │   ├── test-utils.ts     # create* factories for tests
 │   └── utils/            # Shared helpers (form errors, prisma-error-handler, time)
 └── types.ts              # Shared types: ActionResult, Prisma GetPayload query shapes
@@ -68,7 +69,7 @@ src/
 Every mutation flows through three layers. Canonical exemplar chain: `src/app/schemas/create-activity-schema.ts` → `src/app/actions/create-activity-action.ts` → `src/lib/services/create-activity.ts`.
 
 1. **Action** (`src/app/actions/`): checks `await auth()` first, validates input against the Zod schema, calls exactly one service, returns `ActionResult<T>`.
-2. **Service** (`src/lib/services/`): owns all Prisma access and business logic. Application code reaches the database only through services; the only other Prisma imports are the NextAuth adapter (`src/lib/auth/index.ts`) and the test factories (`src/lib/test-utils.ts`).
+2. **Service** (`src/lib/services/`): owns all Prisma access and business logic. Application code reaches the database only through services; the only non-service Prisma imports are the NextAuth adapter (`src/lib/auth/index.ts`) and test code (`src/lib/test-utils.ts` and a few colocated `*.test.ts` files that assert on DB state).
 3. **Prisma** (`prisma/schema.prisma`): schema, constraints, migrations.
 
 Why: validation, authorization, and business logic stay separated; services are reusable across actions and testable in isolation; types flow from Zod through the action to the service.
@@ -97,7 +98,7 @@ Flow:
 1. `requestOtpAction` generates an OTP, stores it in the `verificationToken` table (replacing any prior token for that email, inside a transaction), and emails it. See `src/lib/services/request-otp.ts`.
 2. `verifyOtpAction` signs in through NextAuth; the provider's `authorize` calls `findUserByEmailAndOtp`, which consumes the token.
 3. Sessions are JWT-based; the `session` callback copies the user id onto `session.user.id`.
-4. The `signIn` callback calls `findOrCreateDefaultTeam`, so every user always has a team.
+4. The `signIn` event (NextAuth `events.signIn`, not a callback) calls `findOrCreateDefaultTeam`, so every user always has a team.
 
 Both OTP actions are wrapped with `withRateLimit` (`src/lib/rate-limiter/with-rate-limit.ts`). The limiter is a custom in-memory store keyed by client IP (`src/lib/rate-limiter/index.ts`), not an external package.
 
@@ -128,7 +129,7 @@ Authorization pattern: Server Actions check `await auth()` first and return a fa
 React Hook Form + `zodResolver`, schema from `src/app/schemas/`. Canonical exemplar to read before writing any form: `src/components/upsert-activity-form.tsx`.
 
 - Actions return `ActionResult<T>` (`src/types.ts`), a discriminated union on `success`. Client code branches on it; there is no throwing across the action boundary.
-- Field errors: `parseZodErrors` (`src/lib/utils/form.ts`) flattens Zod issues into a record keyed by dotted paths (`"items.0.name"`, not nested objects), each `{ type: "manual", message }`. `setFormErrors` forwards them to `form.setError`. Failed service calls in actions return `parseZodErrors(createZodError("..."))` from the catch branch.
+- Field errors: `parseZodErrors` (`src/lib/utils/form.ts`) flattens Zod issues into a record keyed by dotted paths (`"items.0.name"`, not nested objects), each a manual-type field error. `setFormErrors` forwards them to `form.setError`. A failed service call in an action returns the errors built by `createZodError`/`parseZodErrors` from its catch branch.
 - Known Prisma constraint violations are mapped to per-field errors by `src/lib/utils/prisma-error-handler.ts` (e.g. the case-insensitive category-name index maps to a `name` field error).
 
 ## Cache Invalidation
@@ -152,8 +153,8 @@ Optimistic updates: update local state immediately, then call the action; on fai
 - Runner: Vitest. Config in `vitest.config.ts`: Node environment, `@` alias to `./src`, single-fork pool (no file parallelism) because every test shares the same Postgres database.
 - Tests are colocated (`src/lib/services/<name>.test.ts`) and use the `create*` factories in `src/lib/test-utils.ts`.
 - **DB safety invariant**: `vitest.setup.ts` refuses to TRUNCATE unless the database name in `DATABASE_TEST_URL` contains `"test"` (case-insensitive). This guard prevents wiping a dev or prod database. Never bypass it.
-- `npm test` runs the `pretest` hook (`test:setup` re-exports `DATABASE_TEST_URL` as `DATABASE_URL` in a bash subshell and runs `prisma migrate deploy`), then `vitest run`. bash is required for the variable expansion; Windows needs WSL2 or Git Bash. Watch and coverage variants exist; see `package.json` scripts.
-- CI (`.github/workflows/ci.yml`) runs on every push and PR to `main`: Postgres service container, Node version from `.nvmrc`, `prisma generate` + `migrate deploy`, then lint, typecheck, and `npx vitest run` directly (bypassing `pretest`, since CI already migrated the DB).
+- `npm test` migrates the test database before running Vitest (the `pretest`/`test:setup` scripts in `package.json` handle this). Those scripts need bash for variable expansion, so Windows requires WSL2 or Git Bash.
+- CI (`.github/workflows/ci.yml`) runs lint, typecheck, and tests against a Postgres service container on every push and PR to `main`. It invokes `npx vitest run` directly, bypassing the `pretest` hook, because it has already migrated the DB in an earlier step. Note: the workflow pins the Node version literally rather than reading `.nvmrc`, so keep the two in sync when bumping.
 
 ## Repo-Specific Rules
 
@@ -169,7 +170,7 @@ Optimistic updates: update local state immediately, then call the action; on fai
 
 Setup: `nvm install && nvm use`, `npm install`, `cp .env.example .env` and fill in values, then `npm run dev` (the dev script runs `prisma generate` and `prisma migrate deploy` itself).
 
-Day-to-day scripts (see `package.json` for the full list): `dev`, `lint`, `typecheck`, `test`, `build`. Database: `npx prisma migrate dev --name <name>`, `npx prisma studio`, `npx prisma db seed`, and `npx prisma migrate reset` (destructive: drops all data).
+Day-to-day work (dev server, lint, typecheck, tests, production build) runs through the npm scripts in `package.json`. Database: `npx prisma migrate dev --name <name>`, `npx prisma studio`, `npx prisma db seed`, and `npx prisma migrate reset` (destructive: drops all data).
 
 Git:
 
