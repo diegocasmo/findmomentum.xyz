@@ -17,5 +17,3 @@ export const getUpdateTaskSchema = (elapsedMs: number) =>
       }
     ),
   });
-
-export type UpdateTaskSchema = z.infer<ReturnType<typeof getUpdateTaskSchema>>;

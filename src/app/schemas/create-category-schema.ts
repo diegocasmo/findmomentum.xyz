@@ -9,5 +9,3 @@ export const createCategorySchema = z.object({
     .max(CATEGORY_NAME_MAX_LENGTH, "Category name must be 30 characters or less")
     .transform((v) => v.trim()),
 });
-
-export type CreateCategorySchema = z.infer<typeof createCategorySchema>;

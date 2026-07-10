@@ -14,5 +14,3 @@ export const createActivitySchema = z.object({
     .transform((v) => v?.trim() || ""),
   categoryIds: z.array(z.string().cuid()).default([]),
 });
-
-export type CreateActivitySchema = z.infer<typeof createActivitySchema>;

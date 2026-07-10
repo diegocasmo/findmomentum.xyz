@@ -18,5 +18,3 @@ export const createTaskSchema = z.object({
     .positive("Duration must be in MM:ss format (e.g., 25:00)")
     .max(MAX_DURATION_MS, "Duration must be 59:59 or less"),
 });
-
-export type CreateTaskSchema = z.infer<typeof createTaskSchema>;
