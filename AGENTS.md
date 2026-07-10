@@ -40,29 +40,28 @@ This document provides AI agents (like Claude Code) with comprehensive context a
 ## Technology Stack
 
 ### Frontend
-- **Next.js 16.1.6** - App Router (not Pages Router)
+- **Next.js 16.2.10** - App Router (not Pages Router)
 - **React 19.2.3** - With Server Components
-- **TypeScript 5** - Strict mode enabled
-- **Tailwind CSS 4.1** - Mobile-first utility framework
+- **TypeScript 6** - Strict mode enabled
+- **Tailwind CSS 4.3** - Mobile-first utility framework
 - **shadcn/ui** - Component library built on Radix UI
 - **Lucide React** - Icon library
 
 ### State & Forms
-- **React Hook Form 7.7** - Form state management
-- **Zod 4.3** - Runtime validation and type inference
+- **React Hook Form 7.81** - Form state management
+- **Zod 4.4** - Runtime validation and type inference
 - **@dnd-kit** - Drag-and-drop interactions
 
 ### Backend & Data
 - **NextAuth.js 5 (beta)** - Authentication with OTP email flow
-- **Prisma 7.3** - ORM with PostgreSQL adapter
+- **Prisma 7.8** - ORM with PostgreSQL adapter
 - **PostgreSQL** - Primary database (via `pg` client)
 - **Resend** - Email delivery service
 
 ### Additional Libraries
-- **date-fns 4.1** + **date-fns-tz** - Date manipulation and timezone support
+- **date-fns 4.4** + **date-fns-tz** - Date manipulation and timezone support
 - **react-circular-progressbar** - Progress visualization
 - **react-confetti** - Celebration animations
-- **next-themes** - Dark mode support
 
 ---
 
