@@ -694,10 +694,10 @@ function BottomNav() {
 **Props**: see `CategoryPickerProps` in `src/components/category-picker.tsx`, the source of truth for the current prop list.
 
 **Usage**:
-- `src/components/upsert-activity-form.tsx:160` — `mode` omitted (defaults to `"manage"`); merges server-passed `categories` with locally optimistic additions via `onCategoryCreated`.
-- `src/app/dashboard/components/activity-filters.tsx:162` — `mode="filter"`; `onChange` drives URL via `?categories=id1,id2`.
+- `src/components/upsert-activity-form.tsx:155` — `mode` omitted (defaults to `"manage"`); merges server-passed `categories` with locally optimistic additions via `onCategoryCreated`.
+- `src/app/dashboard/components/activity-filters.tsx:194` — `mode="filter"`; `onChange` drives URL via `?categories=id1,id2`.
 
-**Prefetch convention**: `getCategories({ userId })` is called in async RSCs (`src/app/dashboard/layout.tsx:19`, `src/app/dashboard/components/activities-section.tsx:48`, `src/app/dashboard/activities/[id]/page.tsx:36–39`). The function is wrapped in React's `cache()` so multiple RSCs in the same request share one DB round-trip.
+**Prefetch convention**: `getCategories({ userId })` is called in async RSCs (`src/app/dashboard/layout.tsx:19`, `src/app/dashboard/components/activities-section.tsx:53`, `src/app/dashboard/activities/[id]/page.tsx:36–39`). The function is wrapped in React's `cache()` so multiple RSCs in the same request share one DB round-trip.
 
 ---
 
@@ -1077,7 +1077,7 @@ if (result.success) {
   Both cause Next.js to re-execute the route's RSCs against the fresh DB.
 - Server components fetch fresh data on every navigation because the routes touched by activity/category mutations don't opt into caching (no `export const revalidate`, no `fetch(..., { next: { revalidate } })`).
 
-**Representative client mutation handler** (`src/components/upsert-activity-form.tsx:82–119`):
+**Representative client mutation handler** (`src/components/upsert-activity-form.tsx:76–113`):
 ```typescript
 const result = await createActivityAction(formData);
 if (result.success) {
