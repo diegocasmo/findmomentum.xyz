@@ -8,5 +8,3 @@ export const updateTaskPositionSchema = z.object({
     z.string().cuid("Invalid task ID for afterTaskId"),
   ]),
 });
-
-export type UpdateTaskPositionSchema = z.infer<typeof updateTaskPositionSchema>;
