@@ -14,7 +14,7 @@ type GetActivitiesParams = {
   categoryIds?: string[];
 };
 
-export type PaginatedActivities = {
+type PaginatedActivities = {
   activities: ActivityWithTasksAndTimeEntries[];
   totalCount: number;
   totalPages: number;
