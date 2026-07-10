@@ -39,30 +39,7 @@ This document provides AI agents (like Claude Code) with comprehensive context a
 
 ## Technology Stack
 
-### Frontend
-- **Next.js 16.1.6** - App Router (not Pages Router)
-- **React 19.2.3** - With Server Components
-- **TypeScript 5** - Strict mode enabled
-- **Tailwind CSS 4.1** - Mobile-first utility framework
-- **shadcn/ui** - Component library built on Radix UI
-- **Lucide React** - Icon library
-
-### State & Forms
-- **React Hook Form 7.7** - Form state management
-- **Zod 4.3** - Runtime validation and type inference
-- **@dnd-kit** - Drag-and-drop interactions
-
-### Backend & Data
-- **NextAuth.js 5 (beta)** - Authentication with OTP email flow
-- **Prisma 7.3** - ORM with PostgreSQL adapter
-- **PostgreSQL** - Primary database (via `pg` client)
-- **Resend** - Email delivery service
-
-### Additional Libraries
-- **date-fns 4.1** + **date-fns-tz** - Date manipulation and timezone support
-- **react-circular-progressbar** - Progress visualization
-- **react-confetti** - Celebration animations
-- **next-themes** - Dark mode support
+See `package.json` for the authoritative list of dependencies and versions. Do not list dependency versions in docs; `package.json` is the single source of truth.
 
 ---
 
@@ -714,18 +691,7 @@ function BottomNav() {
 - `"manage"` — full inline CRUD: create via a `Create '…'` row, rename/delete via pencil+trash icons. Popover width matches trigger width. Used in `UpsertActivityForm`.
 - `"filter"` — read-only multi-select; no create/edit/delete UI; popover sized to content. Used in `ActivityFilters` to push `?categories=id1,id2` URL params.
 
-**Core props** (`src/components/category-picker.tsx:44–52`):
-```typescript
-type CategoryPickerProps = {
-  categories: Pick<Category, "id" | "name">[];
-  selectedIds: string[];
-  onChange: (ids: string[]) => void;
-  onCategoryCreated?: (cat: Pick<Category, "id" | "name">) => void;
-  onPendingChange?: (pending: boolean) => void;
-  mode?: "manage" | "filter";
-  trigger?: React.ReactNode;
-};
-```
+**Props**: see `CategoryPickerProps` in `src/components/category-picker.tsx`, the source of truth for the current prop list.
 
 **Usage**:
 - `src/components/upsert-activity-form.tsx:160` — `mode` omitted (defaults to `"manage"`); merges server-passed `categories` with locally optimistic additions via `onCategoryCreated`.
