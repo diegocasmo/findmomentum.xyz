@@ -32,7 +32,7 @@ export function SignOutForm() {
       onClick={handleSignOut}
       disabled={isPending}
       variant="ghost"
-      className="flex w-full justify-start py-1\.5 px-2"
+      className="flex w-full justify-start py-1.5 px-2"
     >
       <LogOut className="h-4 w-4 mr-2" />
       <span>{isPending ? "Signing out..." : "Sign out"}</span>
