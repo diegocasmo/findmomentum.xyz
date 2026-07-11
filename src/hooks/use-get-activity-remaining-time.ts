@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ActivityWithTasksAndTimeEntries } from "@/types";
-import { MS_PER_SECOND } from "@/lib/utils/time";
-import { getActivityRemainingTime } from "@/lib/utils/time";
+import { MS_PER_SECOND, getActivityRemainingTime } from "@/lib/utils/time";
 import { isActivityRunning } from "@/lib/utils/is-activity-running";
 
 type ActivityTimerProps = {

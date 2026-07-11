@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState, useTransition } from "react";
-import { formatTimeMMss } from "@/lib/utils/time";
+import {
+  formatTimeMMss,
+  MS_PER_SECOND,
+  getTaskRemainingTime,
+} from "@/lib/utils/time";
 import type { TaskWithTimeEntries } from "@/types";
 import { isTaskRunning } from "@/lib/utils/is-task-running";
-import { MS_PER_SECOND } from "@/lib/utils/time";
 import { completeTaskAction } from "@/app/actions/complete-task-action";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2Icon } from "lucide-react";
-import { getTaskRemainingTime } from "@/lib/utils/time";
 import { sendNotification } from "@/components/notification-manager";
 
 type TaskRemainingTimeProps = {

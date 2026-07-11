@@ -3,9 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircleIcon, ClockIcon, TrophyIcon, StarIcon } from "lucide-react";
-import { formatMsAsDuration } from "@/lib/utils/time";
+import { formatMsAsDuration, getActivityTotalDuration } from "@/lib/utils/time";
 import type { ActivityWithTasksAndTimeEntries } from "@/types";
-import { getActivityTotalDuration } from "@/lib/utils/time";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useWindowSize } from "@/hooks/use-window-size";
