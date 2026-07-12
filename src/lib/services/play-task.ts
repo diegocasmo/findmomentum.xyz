@@ -52,7 +52,6 @@ export async function playTask({
         },
       });
 
-      // Create a new time entry
       return await tx.timeEntry.create({
         data: {
           taskId,
