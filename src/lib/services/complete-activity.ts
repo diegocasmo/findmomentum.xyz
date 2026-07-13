@@ -49,7 +49,6 @@ export async function completeActivity({
         },
       });
 
-      // Check if there is at least one non-deleted completed task
       if (activity.tasks.length === 0) {
         throw new Error(
           "Activity must have at least one non-deleted completed task"

@@ -75,7 +75,6 @@ export async function updateTaskPosition({
         }
       }
 
-      // Update the task position
       return tx.task.update({
         where: { id: taskId },
         data: { position: newPositionValue },

@@ -48,7 +48,6 @@ export async function duplicateTask({
         ? highestPositionTask.position + 1
         : sourceTask.position + 1;
 
-      // Create the duplicated task
       return await tx.task.create({
         data: {
           name: sourceTask.name,
