@@ -55,7 +55,6 @@ export async function completeActivity({
         );
       }
 
-      // Update the activity to mark it as completed
       return await tx.activity.update({
         where: { id: activityId },
         data: { completedAt: new Date() },

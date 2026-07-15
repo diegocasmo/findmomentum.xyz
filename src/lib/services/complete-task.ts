@@ -35,13 +35,11 @@ export async function completeTask({
       },
     });
 
-    // Update the task to mark it as completed
     const completedTask = await tx.task.update({
       where: { id: taskId },
       data: { completedAt: now },
     });
 
-    // Find and stop the ongoing time entry for this task
     await tx.timeEntry.updateMany({
       where: {
         taskId,

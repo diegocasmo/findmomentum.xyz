@@ -35,7 +35,6 @@ export async function pauseTask({
         },
       });
 
-      // Find the ongoing time entry for this task
       const timeEntry = await tx.timeEntry.findFirstOrThrow({
         where: {
           taskId,
@@ -43,7 +42,6 @@ export async function pauseTask({
         },
       });
 
-      // Pause the ongoing time entry
       return await tx.timeEntry.update({
         where: {
           id: timeEntry.id,
