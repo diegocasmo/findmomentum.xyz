@@ -13,6 +13,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2Icon, CheckIcon } from "lucide-react";
 import { ActivityWithTasksAndTimeEntries } from "@/types";
+import { isTaskCompleted } from "@/lib/utils/is-task-completed";
 
 type CompleteActivityProps = {
   activity: ActivityWithTasksAndTimeEntries;
@@ -26,8 +27,7 @@ export function CompleteActivity({ activity }: CompleteActivityProps) {
   const pathname = usePathname();
 
   const allTasksCompleted =
-    activity.tasks.length > 0 &&
-    activity.tasks.every((task) => task.completedAt !== null);
+    activity.tasks.length > 0 && activity.tasks.every(isTaskCompleted);
 
   const handleCompleteActivity = async () => {
     if (!allTasksCompleted) return;
