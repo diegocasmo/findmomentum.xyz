@@ -11,6 +11,7 @@ import {
 import { DeleteTaskDialog } from "@/app/dashboard/activities/[id]/components/delete-task-dialog";
 import { UpsertTaskDialog } from "@/components/upsert-task-dialog";
 import type { TaskWithTimeEntries } from "@/types";
+import { isTaskCompleted } from "@/lib/utils/is-task-completed";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
@@ -100,7 +101,7 @@ export function TaskActions({ task }: TaskActionsProps) {
               {isPending ? "Duplicating..." : "Duplicate"}
             </Button>
           </DropdownMenuItem>
-          {task.completedAt ? null : (
+          {isTaskCompleted(task) ? null : (
             <>
               <DropdownMenuItem asChild>
                 <UpsertTaskDialog task={task} aria-label="Update task">
