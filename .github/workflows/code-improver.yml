@@ -2,10 +2,11 @@ name: 'Code Improver'
 
 on:
   schedule:
-    # GitHub delays scheduled runs (~3h observed), so we schedule early. Staggered
-    # one minute after tonebuilder (03:07) and one before pocket-ledger (03:09)
-    # so the shared Claude token is not driven by all three at once.
-    - cron: '8 3 * * *'
+    # Every other day. GitHub delays scheduled runs (~3h observed), so we schedule
+    # early. The odd minute offset keeps this from starting alongside the other
+    # routines that share the same Claude token. Day-of-month stepping restarts at
+    # the 1st, so a 31-day month is followed by two runs on consecutive days.
+    - cron: '8 3 */2 * *'
   workflow_dispatch:
 
 concurrency:
