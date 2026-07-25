@@ -84,7 +84,7 @@ jobs:
             Read .github/code-improver/PROMPT.md and follow it EXACTLY.
           # --tools locks the available built-in set (no Agent/subagent or
           # background tools); --allowed-tools only auto-approves prompts.
-          claude_args: '--model claude-opus-4-8 --effort xhigh --max-turns 100 --tools "Bash,Edit,Write,Read,Grep,Glob" --allowed-tools "Bash,Edit,Write,Read,Grep,Glob"'
+          claude_args: '--model claude-opus-5 --effort xhigh --max-turns 100 --tools "Bash,Edit,Write,Read,Grep,Glob" --allowed-tools "Bash,Edit,Write,Read,Grep,Glob"'
 
       # A silently-stranded run still reports success, so require the agent to
       # have written a terminal marker. Absence means it never reached a PR or a
