@@ -12,7 +12,6 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-// Define the icons we'll support
 const ICONS: Record<string, LucideIcon> = {
   "check-square": CheckSquare,
   "file-text": FileText,
