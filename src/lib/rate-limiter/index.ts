@@ -24,7 +24,6 @@ export async function rateLimit(
   const windowData = rateLimitStore.get(key) || { count: 0, startTime: now };
 
   if (now - windowData.startTime > config.window) {
-    // Reset the window if it's expired
     windowData.count = 0;
     windowData.startTime = now;
   }

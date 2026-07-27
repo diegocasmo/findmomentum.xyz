@@ -308,7 +308,6 @@ function CategoryPickerInner({
     }
   };
 
-  // Build a lookup map for selected category names
   const categoryById = useMemo(
     () => new Map(categories.map((c) => [c.id, c])),
     [categories]

@@ -10,7 +10,6 @@ export function isValidTimezone(timezone: string | undefined): boolean {
     return false;
   }
 
-  // Basic format validation using regex
   // IANA timezones typically follow patterns like:
   // - Continent/City (e.g., "America/New_York")
   // - Area/Location (e.g., "Europe/London")
@@ -22,7 +21,6 @@ export function isValidTimezone(timezone: string | undefined): boolean {
     return false;
   }
 
-  // Try to use the timezone with date-fns-tz
   try {
     // If this works, the timezone is valid
     formatInTimeZone(new Date(), timezone, "yyyy-MM-dd");
@@ -45,7 +43,6 @@ export async function getUserTimezone(): Promise<string> {
       return "UTC";
     }
 
-    // Return the user's timezone from cookie or fallback to UTC
     return userTimezone || "UTC";
   }
 

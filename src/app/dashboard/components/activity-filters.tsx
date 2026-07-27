@@ -106,7 +106,6 @@ export function ActivityFilters({ categories, selectedCategoryIds, selectedStatu
   // Track previous debounced value to avoid unnecessary updates
   const prevDebouncedSearchRef = useRef(debouncedSearchQuery);
   useEffect(() => {
-    // Only update if the debounced value actually changed
     if (prevDebouncedSearchRef.current !== debouncedSearchQuery) {
       prevDebouncedSearchRef.current = debouncedSearchQuery;
       const currentSearch = searchParamsRef.current.get("search") ?? "";

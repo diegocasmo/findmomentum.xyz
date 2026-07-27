@@ -23,7 +23,6 @@ export async function getActivityContributions({
     timezone = "UTC";
   }
 
-  // Convert endDate to the user's timezone
   const zonedEndDate = toZonedTime(endDate, timezone);
 
   let actualStartDate = startDate
@@ -73,7 +72,6 @@ export async function getActivityContributions({
 
   const contributionMap = new Map<string, number>();
   allDatesInRange.forEach((date) => {
-    // Format date in user's timezone
     const dateString = formatInTimeZone(date, timezone, "yyyy-MM-dd");
     contributionMap.set(dateString, 0);
   });
