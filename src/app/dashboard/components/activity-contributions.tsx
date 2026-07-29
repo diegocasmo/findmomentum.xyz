@@ -4,7 +4,6 @@ import { getUserTimezone } from "@/lib/utils/timezone";
 
 type ActivityContributionsProps = {
   userId: string;
-  timezone?: string;
 };
 
 export async function ActivityContributions({

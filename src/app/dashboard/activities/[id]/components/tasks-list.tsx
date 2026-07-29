@@ -46,7 +46,6 @@ const ERROR_MESSAGE_CONFIG: Parameters<typeof toast>[0] = {
 };
 
 type TasksListProps = {
-  activityId: string;
   tasks: TaskWithTimeEntries[];
 };
 
@@ -73,7 +72,7 @@ export function TasksListHeader({ activityId }: { activityId: string }) {
   );
 }
 
-export function TasksList({ activityId, tasks: initialTasks }: TasksListProps) {
+export function TasksList({ tasks: initialTasks }: TasksListProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [localTasks, setLocalTasks] =

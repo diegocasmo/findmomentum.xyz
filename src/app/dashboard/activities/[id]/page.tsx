@@ -63,7 +63,7 @@ export default async function ActivityPage({ params }: ActivityPageProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex-grow overflow-auto p-4">
-                <TasksList activityId={activity.id} tasks={activity.tasks} />
+                <TasksList tasks={activity.tasks} />
               </CardContent>
             </Card>
           </div>
