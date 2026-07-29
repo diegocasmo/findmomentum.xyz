@@ -7,7 +7,7 @@ export const getUpdateTaskSchema = (elapsedMs: number) =>
     name: createTaskSchema.shape.name,
     durationMs: createTaskSchema.shape.durationMs.refine(
       (durationMs) => {
-        if (elapsedMs !== undefined && durationMs < elapsedMs) {
+        if (durationMs < elapsedMs) {
           return false;
         }
         return true;
