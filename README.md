@@ -33,13 +33,13 @@ cp .env.example .env
 npx prisma generate
 ```
 
-- Run migrations and seed initial data:
+- Run migrations:
 
 ```bash
 npx prisma migrate dev
 ```
 
-These commands will set up your database schema, apply all existing migrations, and populate the database with seed data.
+These commands will set up your database schema and apply all existing migrations.
 
 6. Install dependencies and start the development server
 

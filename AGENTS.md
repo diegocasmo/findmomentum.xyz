@@ -170,7 +170,7 @@ Optimistic updates: update local state immediately, then call the action; on fai
 
 Setup: `nvm install && nvm use`, `npm install`, `cp .env.example .env` and fill in values, then `npm run dev` (the dev script runs `prisma generate` and `prisma migrate deploy` itself).
 
-Day-to-day work (dev server, lint, typecheck, tests, production build) runs through the npm scripts in `package.json`. Database: `npx prisma migrate dev --name <name>`, `npx prisma studio`, `npx prisma db seed`, and `npx prisma migrate reset` (destructive: drops all data).
+Day-to-day work (dev server, lint, typecheck, tests, production build) runs through the npm scripts in `package.json`. Database: `npx prisma migrate dev --name <name>`, `npx prisma studio`, and `npx prisma migrate reset` (destructive: drops all data).
 
 Git:
 
