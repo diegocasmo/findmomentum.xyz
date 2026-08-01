@@ -65,13 +65,13 @@ export function getActivityRemainingTime(
 
 export function getTaskRemainingTime(task: TaskWithTimeEntries): number {
   const now = Date.now();
-  const elpasedMs = task.timeEntries.reduce((total, entry) => {
+  const elapsedMs = task.timeEntries.reduce((total, entry) => {
     const start = new Date(entry.startedAt).getTime();
     const end = entry.stoppedAt ? new Date(entry.stoppedAt).getTime() : now;
     return total + (end - start);
   }, 0);
 
-  return Math.max(0, task.durationMs - elpasedMs);
+  return Math.max(0, task.durationMs - elapsedMs);
 }
 
 export function getTaskElapsedTime(task: TaskWithTimeEntries): number {
