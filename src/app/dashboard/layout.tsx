@@ -1,4 +1,4 @@
-import { TopBav } from "@/components/top-nav";
+import { TopNav } from "@/components/top-nav";
 import { auth } from "@/lib/auth";
 import { SessionProvider } from "next-auth/react";
 import { NotificationManager } from "@/components/notification-manager";
@@ -22,7 +22,7 @@ export default async function DashboardLayout({
     <SessionProvider session={session}>
       <NotificationManager />
       <div className="flex flex-col min-h-screen">
-        <TopBav />
+        <TopNav />
         <main className="flex-grow pt-6 mb-[82px]">
           <div className="container max-w-7xl mx-auto px-2">{children}</div>
         </main>
