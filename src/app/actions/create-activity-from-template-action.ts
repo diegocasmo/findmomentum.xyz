@@ -10,7 +10,7 @@ import type { ActionResult } from "@/types";
 
 export async function createActivityFromTemplateAction(
   formData: FormData
-): Promise<ActionResult<Activity | null>> {
+): Promise<ActionResult<Activity>> {
   const session = await auth();
   if (!session?.user?.id) {
     return {
