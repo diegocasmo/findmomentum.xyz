@@ -43,7 +43,7 @@ export function ActivityActions({
 
         if (result.success) {
           router.push(
-            `/dashboard/activities/${result.data?.id}${
+            `/dashboard/activities/${result.data.id}${
               returnUrl ? `?returnUrl=${returnUrl}` : ""
             }`
           );

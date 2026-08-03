@@ -10,7 +10,7 @@ import type { ActionResult } from "@/types";
 
 export async function completeTaskAction(
   formData: FormData
-): Promise<ActionResult<Task | null>> {
+): Promise<ActionResult<Task>> {
   const session = await auth();
   if (!session?.user?.id) {
     return {
