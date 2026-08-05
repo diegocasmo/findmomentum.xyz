@@ -4,7 +4,10 @@ import { auth } from "@/lib/auth";
 import { Home } from "lucide-react";
 import { ActivityContributions } from "@/app/dashboard/components/activity-contributions";
 import { BookmarkedActivitiesList } from "@/app/dashboard/components/bookmarked-activities-list";
-import { ActivitiesSection } from "@/app/dashboard/components/activities-section";
+import {
+  ActivitiesSection,
+  type ActivitiesSearchParams,
+} from "@/app/dashboard/components/activities-section";
 import {
   ContributionGraphSkeleton,
   BookmarkedActivitiesSkeleton,
@@ -12,14 +15,8 @@ import {
 } from "@/app/dashboard/components/page-skeleton";
 import { CollapsibleSection } from "@/components/collapsible-section";
 
-type SearchParams = {
-  page?: string;
-  search?: string;
-  status?: string;
-};
-
 type DashboardProps = {
-  searchParams: Promise<SearchParams>;
+  searchParams: Promise<ActivitiesSearchParams>;
 };
 
 export default async function DashboardPage({ searchParams }: DashboardProps) {
