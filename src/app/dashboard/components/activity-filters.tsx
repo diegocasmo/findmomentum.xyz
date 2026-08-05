@@ -28,6 +28,8 @@ const STATUS_LABELS: Record<CompletionStatus, string> = {
   incomplete: "Incomplete",
 };
 
+const STATUS_OPTIONS: CompletionStatus[] = ["completed", "incomplete"];
+
 function formatSelectedStatusesLabel(selectedStatuses: CompletionStatus[]): string {
   if (selectedStatuses.length === 0) return "All activities";
   return selectedStatuses
@@ -164,7 +166,7 @@ export function ActivityFilters({ categories, selectedCategoryIds, selectedStatu
           >
             <Command>
               <CommandList className="p-1">
-                {(["completed", "incomplete"] as CompletionStatus[]).map((status) => (
+                {STATUS_OPTIONS.map((status) => (
                   <CommandItem
                     key={status}
                     value={status}

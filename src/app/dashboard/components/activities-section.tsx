@@ -7,7 +7,7 @@ import { CollapsibleSection } from "@/components/collapsible-section";
 
 import type { CompletionStatus } from "@/types";
 
-type SearchParams = {
+export type ActivitiesSearchParams = {
   page?: string;
   search?: string;
   status?: string;
@@ -16,7 +16,7 @@ type SearchParams = {
 
 type ActivitiesSectionProps = {
   userId: string;
-  searchParams: SearchParams;
+  searchParams: ActivitiesSearchParams;
 };
 
 function getActivityDescription({
@@ -47,7 +47,7 @@ export async function ActivitiesSection({
   const validStatuses: CompletionStatus[] = ["completed", "incomplete"];
   const requestedStatuses = searchParams.status?.split(",").filter(Boolean) ?? [];
   const selectedStatuses = requestedStatuses.filter(
-    (s): s is CompletionStatus => validStatuses.includes(s as CompletionStatus)
+    (s): s is CompletionStatus => validStatuses.some((status) => status === s)
   );
 
   const categories = await getCategories({ userId });

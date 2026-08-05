@@ -12,18 +12,18 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-const ICONS: Record<string, LucideIcon> = {
+const ICONS = {
   "check-square": CheckSquare,
   "file-text": FileText,
   activity: ActivityIcon,
   star: Star,
-};
+} satisfies Record<string, LucideIcon>;
 
 interface CollapsibleSectionProps {
   id: string;
   title: string;
   description?: string;
-  iconName?: string;
+  iconName?: keyof typeof ICONS;
   children: ReactNode;
   defaultExpanded?: boolean;
   titleClassName?: string;
