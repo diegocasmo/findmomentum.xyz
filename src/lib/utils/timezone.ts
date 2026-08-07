@@ -6,7 +6,7 @@ import { formatInTimeZone } from "date-fns-tz";
  * by attempting to use it with date-fns-tz
  */
 export function isValidTimezone(timezone: string | undefined): boolean {
-  if (!timezone || typeof timezone !== "string") {
+  if (!timezone) {
     return false;
   }
 

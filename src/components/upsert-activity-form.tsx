@@ -69,7 +69,7 @@ export function UpsertActivityForm({
       ...(activity && { activityId: activity.id }),
       name: activity?.name || "",
       description: activity?.description || "",
-      categoryIds: activity?.categories?.map((ac) => ac.categoryId) ?? [],
+      categoryIds: activity?.categories.map((ac) => ac.categoryId) ?? [],
     },
   });
 
