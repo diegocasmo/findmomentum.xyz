@@ -12,7 +12,7 @@ export function setFormErrors<T extends FieldValues>(
   errors: FieldErrors<T>
 ) {
   Object.entries(errors).forEach(([field, error]) => {
-    if (error && typeof field === "string") {
+    if (error) {
       const path = field as Path<T>;
       setError(path, error as FieldError);
     }
