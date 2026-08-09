@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast, toast as _toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import type { Category } from "@prisma/client";
+import type { CategoryOption } from "@/types";
 import { createCategoryAction } from "@/app/actions/create-category-action";
 import { updateCategoryAction } from "@/app/actions/update-category-action";
 import { deleteCategoryAction } from "@/app/actions/delete-category-action";
@@ -42,10 +42,10 @@ const GENERIC_ERROR_CONFIG: Parameters<typeof _toast>[0] = {
 };
 
 type CategoryPickerProps = {
-  categories: Pick<Category, "id" | "name">[];
+  categories: CategoryOption[];
   selectedIds: string[];
   onChange: (ids: string[]) => void;
-  onCategoryCreated?: (cat: Pick<Category, "id" | "name">) => void;
+  onCategoryCreated?: (cat: CategoryOption) => void;
   onPendingChange?: (pending: boolean) => void;
   mode?: "manage" | "filter";
   className?: string;
@@ -88,7 +88,7 @@ function CategoryPickerInner({
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState<Pick<Category, "id" | "name"> | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<CategoryOption | null>(null);
   const [chipPendingRemoval, setChipPendingRemoval] = useState<string | null>(null);
   const [listId, setListId] = useState<string | undefined>(undefined);
 
@@ -183,7 +183,7 @@ function CategoryPickerInner({
     });
   };
 
-  const handleDelete = (category: Pick<Category, "id" | "name">) => {
+  const handleDelete = (category: CategoryOption) => {
     if (isPending) return;
     startTransition(async () => {
       try {
