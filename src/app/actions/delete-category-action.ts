@@ -1,16 +1,14 @@
 "use server";
 
 import { deleteCategorySchema } from "@/app/schemas/delete-category-schema";
-import { deleteCategory } from "@/lib/services/delete-category";
+import {
+  deleteCategory,
+  type DeleteCategoryResult,
+} from "@/lib/services/delete-category";
 import { parseZodErrors, createZodError } from "@/lib/utils/form";
 import { auth } from "@/lib/auth";
 import { transformPrismaErrorToZodError } from "@/lib/utils/prisma-error-handler";
 import type { ActionResult } from "@/types";
-
-type DeleteCategoryResult = {
-  id: string;
-  affectedActivitiesCount: number;
-};
 
 export async function deleteCategoryAction(
   formData: FormData

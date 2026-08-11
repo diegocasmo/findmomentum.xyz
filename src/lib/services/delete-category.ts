@@ -6,7 +6,7 @@ type DeleteCategoryParams = {
   userId: string;
 };
 
-type DeleteCategoryResult = {
+export type DeleteCategoryResult = {
   id: string;
   affectedActivitiesCount: number;
 };
