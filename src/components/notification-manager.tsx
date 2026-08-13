@@ -1,19 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { playCompletionSound } from "@/lib/utils/sound";
 
 export function NotificationManager() {
-  const [, setNotificationPermission] =
-    useState<NotificationPermission>("default");
   const { toast } = useToast();
 
   useEffect(() => {
     const requestNotificationPermission = async () => {
       if ("Notification" in window) {
         const permission = await Notification.requestPermission();
-        setNotificationPermission(permission);
 
         if (permission === "granted") return;
 
