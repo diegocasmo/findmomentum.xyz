@@ -2,10 +2,10 @@
 
 import { createActivityFromTemplate } from "@/lib/services/create-activity-from-template";
 import { createActivityFromTemplateSchema } from "@/app/schemas/create-activity-from-template-schema";
-import { parseZodErrors, createZodError } from "@/lib/utils/form";
+import { parseZodErrors, createRootErrors } from "@/lib/utils/form";
 import { auth } from "@/lib/auth";
 import type { Activity } from "@prisma/client";
-import { transformPrismaErrorToZodError } from "@/lib/utils/prisma-error-handler";
+import { transformErrorToFieldErrors } from "@/lib/utils/prisma-error-handler";
 import type { ActionResult } from "@/types";
 
 export async function createActivityFromTemplateAction(
@@ -15,9 +15,7 @@ export async function createActivityFromTemplateAction(
   if (!session?.user?.id) {
     return {
       success: false,
-      errors: parseZodErrors(
-        createZodError("User not authenticated", ["root"])
-      ),
+      errors: createRootErrors("User not authenticated"),
     };
   }
 
@@ -37,14 +35,6 @@ export async function createActivityFromTemplateAction(
     return { success: true, data: activity };
   } catch (error) {
     console.error("Error creating activity from template:", error);
-    const zodError =
-      transformPrismaErrorToZodError(error) ||
-      createZodError("An unexpected error occurred. Please try again.", [
-        "root",
-      ]);
-    return {
-      success: false,
-      errors: parseZodErrors(zodError),
-    };
+    return { success: false, errors: transformErrorToFieldErrors(error) };
   }
 }

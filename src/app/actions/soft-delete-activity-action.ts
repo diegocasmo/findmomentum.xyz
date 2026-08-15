@@ -3,8 +3,8 @@
 import { softDeleteActivity } from "@/lib/services/soft-delete-activity";
 import { auth } from "@/lib/auth";
 import type { Activity } from "@prisma/client";
-import { createZodError, parseZodErrors } from "@/lib/utils/form";
-import { transformPrismaErrorToZodError } from "@/lib/utils/prisma-error-handler";
+import { createRootErrors } from "@/lib/utils/form";
+import { transformErrorToFieldErrors } from "@/lib/utils/prisma-error-handler";
 import type { ActionResult } from "@/types";
 
 export async function softDeleteActivityAction(
@@ -14,9 +14,7 @@ export async function softDeleteActivityAction(
   if (!session?.user?.id) {
     return {
       success: false,
-      errors: parseZodErrors(
-        createZodError("User not authenticated", ["root"])
-      ),
+      errors: createRootErrors("User not authenticated"),
     };
   }
 
@@ -28,14 +26,6 @@ export async function softDeleteActivityAction(
     return { success: true, data: deletedActivity };
   } catch (error) {
     console.error("Error soft deleting activity:", error);
-    const zodError =
-      transformPrismaErrorToZodError(error) ||
-      createZodError("An unexpected error occurred. Please try again.", [
-        "root",
-      ]);
-    return {
-      success: false,
-      errors: parseZodErrors(zodError),
-    };
+    return { success: false, errors: transformErrorToFieldErrors(error) };
   }
 }

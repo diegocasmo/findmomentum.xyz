@@ -2,9 +2,9 @@
 
 import { updateActivitySchema } from "@/app/schemas/update-activity-schema";
 import { updateActivity } from "@/lib/services/update-activity";
-import { parseZodErrors, createZodError } from "@/lib/utils/form";
+import { parseZodErrors, createRootErrors } from "@/lib/utils/form";
 import { auth } from "@/lib/auth";
-import { transformPrismaErrorToZodError } from "@/lib/utils/prisma-error-handler";
+import { transformErrorToFieldErrors } from "@/lib/utils/prisma-error-handler";
 import type { ActionResult, ActivityWithCategories } from "@/types";
 
 export async function updateActivityAction(
@@ -14,9 +14,7 @@ export async function updateActivityAction(
   if (!session?.user?.id) {
     return {
       success: false,
-      errors: parseZodErrors(
-        createZodError("User not authenticated", ["root"])
-      ),
+      errors: createRootErrors("User not authenticated"),
     };
   }
 
@@ -41,14 +39,6 @@ export async function updateActivityAction(
     return { success: true, data: activity };
   } catch (error) {
     console.error("Error updating activity:", error);
-    const zodError =
-      transformPrismaErrorToZodError(error) ||
-      createZodError("An unexpected error occurred. Please try again.", [
-        "root",
-      ]);
-    return {
-      success: false,
-      errors: parseZodErrors(zodError),
-    };
+    return { success: false, errors: transformErrorToFieldErrors(error) };
   }
 }
