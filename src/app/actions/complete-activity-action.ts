@@ -2,10 +2,10 @@
 
 import { completeActivity } from "@/lib/services/complete-activity";
 import { completeActivitySchema } from "@/app/schemas/complete-activity-schema";
-import { parseZodErrors, createZodError } from "@/lib/utils/form";
+import { parseZodErrors, createRootErrors } from "@/lib/utils/form";
 import { auth } from "@/lib/auth";
 import type { Activity } from "@prisma/client";
-import { transformPrismaErrorToZodError } from "@/lib/utils/prisma-error-handler";
+import { transformErrorToFieldErrors } from "@/lib/utils/prisma-error-handler";
 import type { ActionResult } from "@/types";
 
 export async function completeActivityAction(
@@ -15,9 +15,7 @@ export async function completeActivityAction(
   if (!session?.user?.id) {
     return {
       success: false,
-      errors: parseZodErrors(
-        createZodError("User not authenticated", ["root"])
-      ),
+      errors: createRootErrors("User not authenticated"),
     };
   }
 
@@ -37,14 +35,6 @@ export async function completeActivityAction(
     return { success: true, data: activity };
   } catch (error) {
     console.error("Error completing activity:", error);
-    const zodError =
-      transformPrismaErrorToZodError(error) ||
-      createZodError("An unexpected error occurred. Please try again.", [
-        "root",
-      ]);
-    return {
-      success: false,
-      errors: parseZodErrors(zodError),
-    };
+    return { success: false, errors: transformErrorToFieldErrors(error) };
   }
 }

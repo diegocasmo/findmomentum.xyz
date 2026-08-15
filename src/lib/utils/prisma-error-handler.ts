@@ -1,6 +1,11 @@
 import { PrismaClientKnownRequestError } from "@prisma/client-runtime-utils";
 import { z } from "zod";
-import { createZodError } from "@/lib/utils/form";
+import type { FieldErrors } from "react-hook-form";
+import {
+  createRootErrors,
+  createZodError,
+  parseZodErrors,
+} from "@/lib/utils/form";
 
 type PrismaErrorMapping = {
   [key: string]: (error: PrismaClientKnownRequestError) => z.ZodError;
@@ -60,12 +65,20 @@ const defaultPrismaErrorMapping: PrismaErrorMapping = {
   },
 };
 
-export function transformPrismaErrorToZodError(
-  error: unknown
-): z.ZodError | null {
+function transformPrismaErrorToZodError(error: unknown): z.ZodError | null {
   if (error instanceof PrismaClientKnownRequestError) {
     const errorHandler = defaultPrismaErrorMapping[error.code];
     return errorHandler ? errorHandler(error) : null;
   }
   return null;
+}
+
+const UNEXPECTED_ERROR_MESSAGE =
+  "An unexpected error occurred. Please try again.";
+
+export function transformErrorToFieldErrors(error: unknown): FieldErrors {
+  const zodError = transformPrismaErrorToZodError(error);
+  return zodError
+    ? parseZodErrors(zodError)
+    : createRootErrors(UNEXPECTED_ERROR_MESSAGE);
 }

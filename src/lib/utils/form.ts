@@ -47,3 +47,7 @@ export function createZodError(
     },
   ]);
 }
+
+export function createRootErrors(message: string): FieldErrors {
+  return parseZodErrors(createZodError(message, ["root"]));
+}

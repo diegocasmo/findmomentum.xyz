@@ -2,10 +2,10 @@
 
 import { createTaskSchema } from "@/app/schemas/create-task-schema";
 import { createTask } from "@/lib/services/create-task";
-import { parseZodErrors, createZodError } from "@/lib/utils/form";
+import { parseZodErrors, createRootErrors } from "@/lib/utils/form";
 import { auth } from "@/lib/auth";
 import type { Task } from "@prisma/client";
-import { transformPrismaErrorToZodError } from "@/lib/utils/prisma-error-handler";
+import { transformErrorToFieldErrors } from "@/lib/utils/prisma-error-handler";
 import type { ActionResult } from "@/types";
 
 export async function createTaskAction(
@@ -15,9 +15,7 @@ export async function createTaskAction(
   if (!session?.user?.id) {
     return {
       success: false,
-      errors: parseZodErrors(
-        createZodError("User not authenticated", ["root"])
-      ),
+      errors: createRootErrors("User not authenticated"),
     };
   }
 
@@ -41,14 +39,6 @@ export async function createTaskAction(
     return { success: true, data: task };
   } catch (error) {
     console.error("Error creating task:", error);
-    const zodError =
-      transformPrismaErrorToZodError(error) ||
-      createZodError("An unexpected error occurred. Please try again.", [
-        "root",
-      ]);
-    return {
-      success: false,
-      errors: parseZodErrors(zodError),
-    };
+    return { success: false, errors: transformErrorToFieldErrors(error) };
   }
 }

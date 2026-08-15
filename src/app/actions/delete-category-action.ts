@@ -5,9 +5,9 @@ import {
   deleteCategory,
   type DeleteCategoryResult,
 } from "@/lib/services/delete-category";
-import { parseZodErrors, createZodError } from "@/lib/utils/form";
+import { parseZodErrors, createRootErrors } from "@/lib/utils/form";
 import { auth } from "@/lib/auth";
-import { transformPrismaErrorToZodError } from "@/lib/utils/prisma-error-handler";
+import { transformErrorToFieldErrors } from "@/lib/utils/prisma-error-handler";
 import type { ActionResult } from "@/types";
 
 export async function deleteCategoryAction(
@@ -17,9 +17,7 @@ export async function deleteCategoryAction(
   if (!session?.user?.id) {
     return {
       success: false,
-      errors: parseZodErrors(
-        createZodError("User not authenticated", ["root"])
-      ),
+      errors: createRootErrors("User not authenticated"),
     };
   }
 
@@ -39,14 +37,6 @@ export async function deleteCategoryAction(
     return { success: true, data: deleteResult };
   } catch (error) {
     console.error("Error deleting category:", error);
-    const zodError =
-      transformPrismaErrorToZodError(error) ||
-      createZodError("An unexpected error occurred. Please try again.", [
-        "root",
-      ]);
-    return {
-      success: false,
-      errors: parseZodErrors(zodError),
-    };
+    return { success: false, errors: transformErrorToFieldErrors(error) };
   }
 }

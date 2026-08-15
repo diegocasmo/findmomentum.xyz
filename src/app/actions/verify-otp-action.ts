@@ -1,8 +1,8 @@
 "use server";
 
 import { signInSchema } from "@/app/schemas/sign-in-schema";
-import { parseZodErrors, createZodError } from "@/lib/utils/form";
-import { transformPrismaErrorToZodError } from "@/lib/utils/prisma-error-handler";
+import { parseZodErrors } from "@/lib/utils/form";
+import { transformErrorToFieldErrors } from "@/lib/utils/prisma-error-handler";
 import { signIn } from "@/lib/auth";
 import { withRateLimit } from "@/lib/rate-limiter/with-rate-limit";
 import type { ActionResult } from "@/types";
@@ -30,15 +30,7 @@ export const verifyOtpAction = withRateLimit(
     } catch (error) {
       console.error("Failed to verify OTP:", error);
 
-      const zodError =
-        transformPrismaErrorToZodError(error) ||
-        createZodError("An unexpected error occurred. Please try again.", [
-          "root",
-        ]);
-      return {
-        success: false,
-        errors: parseZodErrors(zodError),
-      };
+      return { success: false, errors: transformErrorToFieldErrors(error) };
     }
   },
   "verify-otp",

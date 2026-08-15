@@ -2,10 +2,10 @@
 
 import { updateCategorySchema } from "@/app/schemas/update-category-schema";
 import { updateCategory } from "@/lib/services/update-category";
-import { parseZodErrors, createZodError } from "@/lib/utils/form";
+import { parseZodErrors, createRootErrors } from "@/lib/utils/form";
 import { auth } from "@/lib/auth";
 import type { Category } from "@prisma/client";
-import { transformPrismaErrorToZodError } from "@/lib/utils/prisma-error-handler";
+import { transformErrorToFieldErrors } from "@/lib/utils/prisma-error-handler";
 import type { ActionResult } from "@/types";
 
 export async function updateCategoryAction(
@@ -15,9 +15,7 @@ export async function updateCategoryAction(
   if (!session?.user?.id) {
     return {
       success: false,
-      errors: parseZodErrors(
-        createZodError("User not authenticated", ["root"])
-      ),
+      errors: createRootErrors("User not authenticated"),
     };
   }
 
@@ -39,14 +37,6 @@ export async function updateCategoryAction(
     return { success: true, data: category };
   } catch (error) {
     console.error("Error updating category:", error);
-    const zodError =
-      transformPrismaErrorToZodError(error) ||
-      createZodError("An unexpected error occurred. Please try again.", [
-        "root",
-      ]);
-    return {
-      success: false,
-      errors: parseZodErrors(zodError),
-    };
+    return { success: false, errors: transformErrorToFieldErrors(error) };
   }
 }
