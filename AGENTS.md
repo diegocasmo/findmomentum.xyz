@@ -84,7 +84,7 @@ Conventions:
 
 - All models carry `createdAt` and `updatedAt`, timezone-aware via `@db.Timestamptz`.
 - Primary keys are `cuid()`.
-- Deletions are soft deletes via a `deletedAt` timestamp. Every read query must filter `deletedAt: null`.
+- Activity and Task are soft-deleted via a `deletedAt` timestamp; every read query for them must filter `deletedAt: null`. Other models are hard-deleted (exemplar: `deleteCategory` in `src/lib/services/delete-category.ts`).
 - Parent-child relations use `onDelete: Cascade` (deleting an Activity cascades to Tasks, then TimeEntries).
 - Multi-step operations run inside `prisma.$transaction`. Exemplars: `src/lib/services/play-task.ts`, `src/lib/services/update-task-position.ts`.
 - Query result shapes are typed with Prisma `GetPayload` in `src/types.ts` (e.g. `ActivityWithTasksAndTimeEntries`), never hand-written.
@@ -138,13 +138,14 @@ React Hook Form + `zodResolver`, schema from `src/app/schemas/`. Canonical exemp
 
 ## State Management
 
-No global state library (no Redux/Zustand/app-wide Context), deliberately. State lives in:
+No global state library (no Redux/Zustand), deliberately. State lives in:
 
 1. Server state: fetched in Server Components, passed down as props.
 2. Form state: React Hook Form.
 3. UI state: local `useState`.
 4. Filters/pagination/search: URL search params.
 5. Toasts: `src/hooks/use-toast.ts` (custom reducer-based system).
+6. Theme: `ThemeProvider` / `useTheme` (`src/components/theme-provider.tsx`), an app-wide Context mounted in `src/app/layout.tsx`.
 
 Optimistic updates: update local state immediately, then call the action; on failure, revert and show a destructive toast. Exemplar: `src/components/bookmark-button.tsx`.
 
