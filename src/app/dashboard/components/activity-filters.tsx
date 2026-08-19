@@ -30,6 +30,8 @@ const STATUS_LABELS: Record<CompletionStatus, string> = {
 
 const STATUS_OPTIONS: CompletionStatus[] = ["completed", "incomplete"];
 
+type FilterParams = Partial<Record<"search" | "status" | "categories", string>>;
+
 function formatSelectedStatusesLabel(selectedStatuses: CompletionStatus[]): string {
   if (selectedStatuses.length === 0) return "All activities";
   return selectedStatuses
@@ -67,7 +69,7 @@ export function ActivityFilters({ categories, selectedCategoryIds, selectedStatu
   }, [searchParams]);
 
   const updateFilters = useCallback(
-    (newParams: Record<string, string>) => {
+    (newParams: FilterParams) => {
       const params = new URLSearchParams(searchParamsRef.current.toString());
       Object.entries(newParams).forEach(([key, value]) => {
         if (value) {
