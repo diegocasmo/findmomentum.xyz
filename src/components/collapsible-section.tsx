@@ -96,11 +96,11 @@ export function CollapsibleSection({
         id={`${id}-content`}
         inert={!isExpanded}
         className={cn(
-          "transition-all duration-200 motion-reduce:transition-none overflow-hidden",
-          isExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+          "grid transition-[grid-template-rows,opacity] duration-200 motion-reduce:transition-none",
+          isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
         )}
       >
-        {children}
+        <div className="overflow-hidden">{children}</div>
       </div>
     </div>
   );
