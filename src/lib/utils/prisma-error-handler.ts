@@ -7,17 +7,18 @@ import {
   parseZodErrors,
 } from "@/lib/utils/form";
 
-type PrismaErrorMapping = {
-  [key: string]: (error: PrismaClientKnownRequestError) => z.ZodError;
-};
+type PrismaErrorMapping = Partial<
+  Record<string, (error: PrismaClientKnownRequestError) => z.ZodError>
+>;
 
-const CONSTRAINT_MAPPING: Record<string, { field: string; message: string }> =
-  {
-    categories_team_id_lower_name_key: {
-      field: "name",
-      message: "A category with this name already exists",
-    },
-  };
+const CONSTRAINT_MAPPING: Partial<
+  Record<string, { field: string; message: string }>
+> = {
+  categories_team_id_lower_name_key: {
+    field: "name",
+    message: "A category with this name already exists",
+  },
+};
 
 // Prisma 7.x with the PrismaPg driver adapter doesn't surface the violated
 // constraint directly on `error.meta.target` — it's nested as a Postgres
