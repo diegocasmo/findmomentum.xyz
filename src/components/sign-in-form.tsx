@@ -125,6 +125,7 @@ export function SignInForm() {
                 <FormControl>
                   <Input
                     type="text"
+                    autoComplete="one-time-code"
                     placeholder="Enter your OTP"
                     autoFocus
                     {...field}
