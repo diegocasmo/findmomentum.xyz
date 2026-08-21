@@ -2,8 +2,8 @@
 
 import { createActivityFromTemplate } from "@/lib/services/create-activity-from-template";
 import { createActivityFromTemplateSchema } from "@/app/schemas/create-activity-from-template-schema";
-import { parseZodErrors, createRootErrors } from "@/lib/utils/form";
-import { auth } from "@/lib/auth";
+import { parseZodErrors } from "@/lib/utils/form";
+import { requireUserId } from "@/lib/utils/require-user-id";
 import type { Activity } from "@prisma/client";
 import { transformErrorToFieldErrors } from "@/lib/utils/prisma-error-handler";
 import type { ActionResult } from "@/types";
@@ -11,13 +11,9 @@ import type { ActionResult } from "@/types";
 export async function createActivityFromTemplateAction(
   formData: FormData
 ): Promise<ActionResult<Activity>> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return {
-      success: false,
-      errors: createRootErrors("User not authenticated"),
-    };
-  }
+  const authResult = await requireUserId();
+  if (!authResult.success) return authResult;
+  const userId = authResult.data;
 
   const result = createActivityFromTemplateSchema.safeParse({
     activityId: formData.get("activityId"),
@@ -30,7 +26,7 @@ export async function createActivityFromTemplateAction(
   try {
     const activity = await createActivityFromTemplate({
       activityId: result.data.activityId,
-      userId: session.user.id,
+      userId,
     });
     return { success: true, data: activity };
   } catch (error) {

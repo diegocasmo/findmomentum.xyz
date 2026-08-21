@@ -5,21 +5,17 @@ import {
   deleteCategory,
   type DeleteCategoryResult,
 } from "@/lib/services/delete-category";
-import { parseZodErrors, createRootErrors } from "@/lib/utils/form";
-import { auth } from "@/lib/auth";
+import { parseZodErrors } from "@/lib/utils/form";
+import { requireUserId } from "@/lib/utils/require-user-id";
 import { transformErrorToFieldErrors } from "@/lib/utils/prisma-error-handler";
 import type { ActionResult } from "@/types";
 
 export async function deleteCategoryAction(
   formData: FormData
 ): Promise<ActionResult<DeleteCategoryResult>> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return {
-      success: false,
-      errors: createRootErrors("User not authenticated"),
-    };
-  }
+  const authResult = await requireUserId();
+  if (!authResult.success) return authResult;
+  const userId = authResult.data;
 
   const result = deleteCategorySchema.safeParse({
     categoryId: formData.get("categoryId"),
@@ -32,7 +28,7 @@ export async function deleteCategoryAction(
   try {
     const deleteResult = await deleteCategory({
       categoryId: result.data.categoryId,
-      userId: session.user.id,
+      userId,
     });
     return { success: true, data: deleteResult };
   } catch (error) {

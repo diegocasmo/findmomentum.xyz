@@ -2,8 +2,8 @@
 
 import { updateTaskPositionSchema } from "@/app/schemas/update-task-position-schema";
 import { updateTaskPosition } from "@/lib/services/update-task-position";
-import { parseZodErrors, createRootErrors } from "@/lib/utils/form";
-import { auth } from "@/lib/auth";
+import { parseZodErrors } from "@/lib/utils/form";
+import { requireUserId } from "@/lib/utils/require-user-id";
 import type { Task } from "@prisma/client";
 import { transformErrorToFieldErrors } from "@/lib/utils/prisma-error-handler";
 import type { ActionResult } from "@/types";
@@ -11,13 +11,9 @@ import type { ActionResult } from "@/types";
 export async function updateTaskPositionAction(
   formData: FormData
 ): Promise<ActionResult<Task>> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return {
-      success: false,
-      errors: createRootErrors("User not authenticated"),
-    };
-  }
+  const authResult = await requireUserId();
+  if (!authResult.success) return authResult;
+  const userId = authResult.data;
 
   const result = updateTaskPositionSchema.safeParse({
     taskId: formData.get("taskId"),
@@ -31,7 +27,7 @@ export async function updateTaskPositionAction(
   try {
     const task = await updateTaskPosition({
       taskId: result.data.taskId,
-      userId: session.user.id,
+      userId,
       newPosition: result.data.newPosition,
     });
     return { success: true, data: task };

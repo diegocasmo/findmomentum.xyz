@@ -2,21 +2,17 @@
 
 import { createActivitySchema } from "@/app/schemas/create-activity-schema";
 import { createActivity } from "@/lib/services/create-activity";
-import { parseZodErrors, createRootErrors } from "@/lib/utils/form";
-import { auth } from "@/lib/auth";
+import { parseZodErrors } from "@/lib/utils/form";
+import { requireUserId } from "@/lib/utils/require-user-id";
 import { transformErrorToFieldErrors } from "@/lib/utils/prisma-error-handler";
 import type { ActionResult, ActivityWithCategories } from "@/types";
 
 export async function createActivityAction(
   formData: FormData
 ): Promise<ActionResult<ActivityWithCategories>> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return {
-      success: false,
-      errors: createRootErrors("User not authenticated"),
-    };
-  }
+  const authResult = await requireUserId();
+  if (!authResult.success) return authResult;
+  const userId = authResult.data;
 
   const result = createActivitySchema.safeParse({
     name: formData.get("name"),
@@ -31,7 +27,7 @@ export async function createActivityAction(
     const activity = await createActivity({
       name: result.data.name,
       description: result.data.description,
-      userId: session.user.id,
+      userId,
       categoryIds: result.data.categoryIds,
     });
     return { success: true, data: activity };

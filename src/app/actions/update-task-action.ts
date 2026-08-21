@@ -3,8 +3,8 @@
 import { z } from "zod";
 import { getUpdateTaskSchema } from "@/app/schemas/update-task-schema";
 import { updateTask } from "@/lib/services/update-task";
-import { parseZodErrors, createRootErrors } from "@/lib/utils/form";
-import { auth } from "@/lib/auth";
+import { parseZodErrors } from "@/lib/utils/form";
+import { requireUserId } from "@/lib/utils/require-user-id";
 import type { Task } from "@prisma/client";
 import { transformErrorToFieldErrors } from "@/lib/utils/prisma-error-handler";
 import type { ActionResult } from "@/types";
@@ -15,15 +15,9 @@ export async function updateTaskAction(
   formData: FormData
 ): Promise<ActionResult<Task>> {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
-
-    if (!userId) {
-      return {
-        success: false,
-        errors: createRootErrors("User not authenticated"),
-      };
-    }
+    const authResult = await requireUserId();
+    if (!authResult.success) return authResult;
+    const userId = authResult.data;
 
     const taskIdResult = z
       .object({ taskId: z.string().cuid("Invalid task ID") })
