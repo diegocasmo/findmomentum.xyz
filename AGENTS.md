@@ -176,4 +176,6 @@ Day-to-day work (dev server, lint, typecheck, tests, production build) runs thro
 Git:
 
 - Branches: `feature/<description>`, `fix/<description>`, `chore/<description>`.
-- Commits: conventional style, `type(scope): imperative summary` (types: feat, fix, docs, refactor, test, chore).
+- Keep each pull request at or below the added-line limit that [the Dangerfile](./dangerfile.mts) defines and enforces. The check counts tests like other files. Split the work instead.
+- `.gitattributes` marks generated files that the size check excludes.
+- Commit messages and pull request titles use the conventional style, `type(scope): imperative summary` (types: feat, fix, docs, refactor, test, chore).
