@@ -6,6 +6,7 @@
     "node": "22"
   },
   "scripts": {
+    "danger": "danger ci --failOnErrors",
     "dev": "prisma generate && prisma migrate deploy && next dev --turbopack",
     "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
@@ -61,6 +62,9 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@commitlint/config-conventional": "21.2.2",
+    "@commitlint/lint": "21.2.2",
+    "@commitlint/load": "21.2.2",
     "@eslint/eslintrc": "^3",
     "@faker-js/faker": "^10.6.0",
     "@shadcn/ui": "^0.0.4",
@@ -70,6 +74,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^4.1.11",
+    "danger": "13.0.10",
     "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.3.1",
