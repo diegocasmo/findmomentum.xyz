@@ -68,7 +68,7 @@ src/
 
 Every mutation flows through three layers. Canonical exemplar chain: `src/app/schemas/create-activity-schema.ts` → `src/app/actions/create-activity-action.ts` → `src/lib/services/create-activity.ts`.
 
-1. **Action** (`src/app/actions/`): checks `await auth()` first, validates input against the Zod schema, calls exactly one service, returns `ActionResult<T>`.
+1. **Action** (`src/app/actions/`): calls the shared auth guard `requireUserId` (`src/lib/utils/require-user-id.ts`) first, validates input against the Zod schema, calls exactly one service, returns `ActionResult<T>`.
 2. **Service** (`src/lib/services/`): owns all Prisma access and business logic. Application code reaches the database only through services; the only non-service Prisma imports are the NextAuth adapter (`src/lib/auth/index.ts`) and test code (`src/lib/test-utils.ts` and a few colocated `*.test.ts` files that assert on DB state).
 3. **Prisma** (`prisma/schema.prisma`): schema, constraints, migrations.
 
@@ -102,7 +102,7 @@ Flow:
 
 Both OTP actions are wrapped with `withRateLimit` (`src/lib/rate-limiter/with-rate-limit.ts`). The limiter is a custom in-memory store keyed by client IP (`src/lib/rate-limiter/index.ts`), not an external package.
 
-Authorization pattern: Server Actions check `await auth()` first and return a failed `ActionResult` when there is no session; protected pages and layouts `redirect("/auth/sign-in")`.
+Authorization pattern: Server Actions start with `requireUserId`, which returns a failed `ActionResult` when there is no session; protected pages and layouts `redirect("/auth/sign-in")`.
 
 ## UI & Component Patterns
 
@@ -162,7 +162,7 @@ Optimistic updates: update local state immediately, then call the action; on fai
 - Strict TypeScript, no `any`; use `unknown` and narrow. Infer types from Zod schemas; use `GetPayload` for query shapes.
 - Server Components first; add `"use client"` only when the component needs interactivity.
 - Validate at all three layers: React Hook Form on the client, Zod in the action, Prisma constraints in the database.
-- Every Server Action starts with an auth check; every protected page redirects unauthenticated users.
+- Every Server Action except the sign-in OTP pair starts with `requireUserId`; every protected page redirects unauthenticated users.
 - Comments are terse and explain a durable why, never narration of what the code does.
 - Never use an em dash anywhere (code, comments, commits, PR text); recast with periods, commas, or parentheses.
 - Seed data uses Faker: `prisma/seed.ts`.
