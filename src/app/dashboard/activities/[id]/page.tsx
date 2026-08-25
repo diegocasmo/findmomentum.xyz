@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
 import { auth } from "@/lib/auth";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { getActivity } from "@/lib/services/get-activity";
 import { getCategories } from "@/lib/services/get-categories";
 import {
@@ -37,10 +37,6 @@ export default async function ActivityPage({ params }: ActivityPageProps) {
     getActivity({ id: activityId, userId }),
     getCategories({ userId }),
   ]);
-
-  if (!activity) {
-    notFound();
-  }
 
   return (
     <Suspense fallback={<ActivityPageSkeleton />}>
