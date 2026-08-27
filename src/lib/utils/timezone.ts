@@ -22,7 +22,6 @@ export function isValidTimezone(timezone: string | undefined): boolean {
   }
 
   try {
-    // If this works, the timezone is valid
     formatInTimeZone(new Date(), timezone, "yyyy-MM-dd");
     return true;
   } catch {

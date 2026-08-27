@@ -19,7 +19,7 @@ export async function requestOtp(email: string) {
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("")
     .slice(0, 6);
-  const expires = new Date(Date.now() + 10 * MS_PER_MIN); // 10 minutes from now
+  const expires = new Date(Date.now() + 10 * MS_PER_MIN);
   const { host } = new URL(nextAuthUrl);
 
   await prisma.$transaction(async (tx) => {

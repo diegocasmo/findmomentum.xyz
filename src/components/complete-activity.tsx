@@ -44,7 +44,6 @@ export function CompleteActivity({ activity }: CompleteActivityProps) {
             variant: "default",
           });
 
-          // Push the new URL with all parameters preserved
           const params = new URLSearchParams(searchParams);
           params.set("celebrate", "true");
           router.push(`${pathname}?${params.toString()}`);

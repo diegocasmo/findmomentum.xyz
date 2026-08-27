@@ -29,7 +29,6 @@ export async function completeActivity({
               },
             },
           },
-          // Tasks are either deleted or completed
           tasks: {
             every: {
               OR: [
