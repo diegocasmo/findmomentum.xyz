@@ -57,7 +57,6 @@ const generateWeeks = (startDate: Date, endDate: Date) => {
 const getCellColor = (count: number, maxCount: number) => {
   if (count === 0) return "bg-gray-100 dark:bg-gray-800";
 
-  // Calculate intensity (0-4) based on the count relative to max
   const intensity = Math.min(4, Math.ceil((count / Math.max(maxCount, 1)) * 4));
 
   switch (intensity) {
@@ -85,7 +84,6 @@ export function ContributionGraph({
   const contributionMap = createContributionMap(contributions);
   const maxCount = getMaxCount(contributions);
 
-  // Calculate the date range for the graph (last 12 months, ending today)
   const endDate = toZonedTime(new Date(), timezone);
   const startDate = startOfMonth(subMonths(endDate, 12));
 

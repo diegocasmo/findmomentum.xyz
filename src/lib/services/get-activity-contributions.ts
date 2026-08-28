@@ -35,7 +35,6 @@ export async function getActivityContributions({
     actualStartDate = oneYearBeforeEndDate;
   }
 
-  // Convert dates back to UTC for database query
   const utcStartDate = fromZonedTime(actualStartDate, timezone);
   const utcEndDate = fromZonedTime(zonedEndDate, timezone);
 
@@ -78,7 +77,6 @@ export async function getActivityContributions({
 
   activities.forEach((activity) => {
     if (activity.completedAt) {
-      // Convert UTC database date to user's timezone before formatting
       const zonedDate = toZonedTime(activity.completedAt, timezone);
       const dateString = formatInTimeZone(zonedDate, timezone, "yyyy-MM-dd");
       const currentCount = contributionMap.get(dateString) || 0;
