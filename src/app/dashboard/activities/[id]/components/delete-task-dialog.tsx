@@ -19,7 +19,6 @@ import type { Task } from "@prisma/client";
 
 type DeleteTaskDialogProps = {
   task: Task;
-  redirectUrl?: string;
 };
 
 const ERROR_MESSAGE_CONFIG: Parameters<typeof toast>[0] = {
@@ -28,7 +27,7 @@ const ERROR_MESSAGE_CONFIG: Parameters<typeof toast>[0] = {
   variant: "destructive",
 };
 
-export function DeleteTaskDialog({ task, redirectUrl }: DeleteTaskDialogProps) {
+export function DeleteTaskDialog({ task }: DeleteTaskDialogProps) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
@@ -43,12 +42,8 @@ export function DeleteTaskDialog({ task, redirectUrl }: DeleteTaskDialogProps) {
             description: `"${task.name}" has been successfully deleted.`,
           });
 
-          if (redirectUrl) {
-            router.push(redirectUrl);
-          } else {
-            router.refresh();
-            setIsOpen(false);
-          }
+          router.refresh();
+          setIsOpen(false);
         } else {
           toast(ERROR_MESSAGE_CONFIG);
         }
