@@ -104,7 +104,7 @@ export function TaskActions({ task }: TaskActionsProps) {
           {isTaskCompleted(task) ? null : (
             <>
               <DropdownMenuItem asChild>
-                <UpsertTaskDialog task={task} aria-label="Update task">
+                <UpsertTaskDialog task={task}>
                   <Button
                     variant="ghost"
                     className="w-full cursor-pointer justify-start"
