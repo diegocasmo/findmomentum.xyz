@@ -4,7 +4,6 @@ import { useState, useEffect, type ReactNode } from "react";
 import {
   ChevronDown,
   CheckSquare,
-  FileText,
   ActivityIcon,
   Star,
   type LucideIcon,
@@ -14,7 +13,6 @@ import { Button } from "@/components/ui/button";
 
 const ICONS = {
   "check-square": CheckSquare,
-  "file-text": FileText,
   activity: ActivityIcon,
   star: Star,
 } satisfies Record<string, LucideIcon>;
