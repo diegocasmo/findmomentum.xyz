@@ -77,7 +77,7 @@
     "danger": "14.0.7",
     "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.4",
-    "eslint-config-next": "16.3.2",
+    "eslint-config-next": "16.3.4",
     "postcss": "^8",
     "prisma": "^7.9.1",
     "tailwindcss": "^4.3.3",
