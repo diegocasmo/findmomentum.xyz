@@ -16,6 +16,7 @@ import type { ActivityWithTasksAndTimeEntries, CategoryOption } from "@/types";
 import { useRouter } from "next/navigation";
 import { createActivityFromTemplateAction } from "@/app/actions/create-activity-from-template-action";
 import { useToast } from "@/hooks/use-toast";
+import { isolateActionMenuClick } from "@/lib/utils/isolate-action-menu-click";
 
 type ActivityActionsProps = {
   activity: ActivityWithTasksAndTimeEntries;
@@ -67,21 +68,7 @@ export function ActivityActions({
   };
 
   return (
-    <div
-      onClick={(e) => {
-        // Prevent click event from bubbling and causing a side-effects like
-        // opening an activity details page
-        e.stopPropagation();
-
-        const isFormSubmit =
-          (e.target as HTMLElement)?.getAttribute?.("type") === "submit";
-
-        // Make sure form submission is not prevented
-        if (!isFormSubmit) {
-          e.preventDefault();
-        }
-      }}
-    >
+    <div onClick={isolateActionMenuClick}>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm">
