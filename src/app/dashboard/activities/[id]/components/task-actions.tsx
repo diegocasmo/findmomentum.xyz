@@ -12,6 +12,7 @@ import { DeleteTaskDialog } from "@/app/dashboard/activities/[id]/components/del
 import { UpsertTaskDialog } from "@/components/upsert-task-dialog";
 import type { TaskWithTimeEntries } from "@/types";
 import { isTaskCompleted } from "@/lib/utils/is-task-completed";
+import { isolateActionMenuClick } from "@/lib/utils/isolate-action-menu-click";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
@@ -59,21 +60,7 @@ export function TaskActions({ task }: TaskActionsProps) {
   };
 
   return (
-    <div
-      onClick={(e) => {
-        // Prevent click event from bubbling up and causing a side-effects
-        // like toggling a task being started/paused
-        e.stopPropagation();
-
-        const isFormSubmit =
-          (e.target as HTMLElement)?.getAttribute?.("type") === "submit";
-
-        // Make sure form submission is not prevented
-        if (!isFormSubmit) {
-          e.preventDefault();
-        }
-      }}
-    >
+    <div onClick={isolateActionMenuClick}>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm">
