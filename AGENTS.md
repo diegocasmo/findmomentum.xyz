@@ -68,7 +68,7 @@ src/
 
 Every mutation flows through three layers. Canonical exemplar chain: `src/app/schemas/create-activity-schema.ts` → `src/app/actions/create-activity-action.ts` → `src/lib/services/create-activity.ts`.
 
-1. **Action** (`src/app/actions/`): calls the shared auth guard `requireUserId` (`src/lib/utils/require-user-id.ts`) first, validates input against the Zod schema, calls exactly one service, returns `ActionResult<T>`.
+1. **Action** (`src/app/actions/`): calls the shared auth guard `requireUserId` (`src/lib/utils/require-user-id.ts`) first, validates input against the Zod schema, delegates to the service layer, returns `ActionResult<T>`.
 2. **Service** (`src/lib/services/`): owns all Prisma access and business logic. Application code reaches the database only through services; the only non-service Prisma imports are the NextAuth adapter (`src/lib/auth/index.ts`) and test code (`src/lib/test-utils.ts` and a few colocated `*.test.ts` files that assert on DB state).
 3. **Prisma** (`prisma/schema.prisma`): schema, constraints, migrations.
 
@@ -147,7 +147,7 @@ No global state library (no Redux/Zustand), deliberately. State lives in:
 5. Toasts: `src/hooks/use-toast.ts` (custom reducer-based system).
 6. Theme: `ThemeProvider` / `useTheme` (`src/components/theme-provider.tsx`), an app-wide Context mounted in `src/app/layout.tsx`.
 
-Optimistic updates: update local state immediately, then call the action; on failure, revert and show a destructive toast. Exemplar: `src/components/bookmark-button.tsx`.
+Optimistic updates: React's `useOptimistic`, which reverts on its own once the transition settles; a failed `ActionResult` also raises a destructive toast. Exemplar: `src/components/bookmark-button.tsx`.
 
 ## Testing
 
