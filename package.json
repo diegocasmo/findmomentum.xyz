@@ -76,7 +76,7 @@
     "@vitest/coverage-v8": "^4.1.11",
     "danger": "14.0.7",
     "dotenv-cli": "^11.0.0",
-    "eslint": "^9.39.4",
+    "eslint": "^10.10.0",
     "eslint-config-next": "16.3.4",
     "postcss": "^8",
     "prisma": "^7.10.0",
