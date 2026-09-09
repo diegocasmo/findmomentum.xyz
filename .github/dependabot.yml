@@ -17,3 +17,15 @@ updates:
         patterns:
           - 'vitest'
           - '@vitest/*'
+      # react-dom peers on a matching react minor; a split major bump conflicts.
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+      # Both are pinned to the same exact version and drift if bumped alone.
+      next:
+        patterns:
+          - 'next'
+          - 'eslint-config-next'
