@@ -31,7 +31,7 @@ export function BookmarkedActivitiesSkeleton() {
   return (
     <div className="mb-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[...Array(3)].map((_, index) => (
+        {Array.from({ length: 3 }).map((_, index) => (
           <ActivityCardSkeleton key={index} />
         ))}
       </div>
@@ -43,7 +43,7 @@ export function ActivitiesSkeleton() {
   return (
     <>
       <ul className="space-y-4">
-        {[...Array(5)].map((_, index) => (
+        {Array.from({ length: 5 }).map((_, index) => (
           <li key={index}>
             <ActivityCardSkeleton />
           </li>
@@ -54,7 +54,7 @@ export function ActivitiesSkeleton() {
       <div className="flex items-center justify-center space-x-2 mt-6">
         <Skeleton className="h-9 w-9 rounded-md" />
         <div className="flex items-center space-x-1">
-          {[...Array(3)].map((_, i) => (
+          {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-8 w-8 rounded-md" />
           ))}
         </div>

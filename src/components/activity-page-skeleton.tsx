@@ -28,7 +28,7 @@ export function ActivityPageSkeleton() {
           </CardHeader>
           <CardContent className="flex-grow overflow-auto p-4">
             <div className="space-y-4">
-              {[...Array(5)].map((_, index) => (
+              {Array.from({ length: 5 }).map((_, index) => (
                 <Skeleton key={index} className="h-12 w-full" />
               ))}
             </div>
