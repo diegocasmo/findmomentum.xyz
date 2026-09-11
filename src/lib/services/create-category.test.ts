@@ -42,7 +42,7 @@ describe("createCategory", () => {
     const { user, team } = await createOwner();
     await insertCategory({ userId: user.id, teamId: team.id, name: "Work" });
     const err = await createCategory({ name: "work", userId: user.id }).catch(
-      (e) => e
+      (e: unknown) => e
     );
     expect((err as { code?: string }).code).toBe("P2002");
   });
@@ -57,7 +57,7 @@ describe("createCategory", () => {
     const err = await createCategory({
       name: "Learning",
       userId: user.id,
-    }).catch((e) => e);
+    }).catch((e: unknown) => e);
     expect((err as { code?: string }).code).toBe("P2002");
   });
 });

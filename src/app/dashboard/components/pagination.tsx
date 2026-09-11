@@ -52,7 +52,7 @@ export function Pagination({ totalPages, currentPage }: PaginationProps) {
       <div className="flex items-center space-x-1">
         {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
           // Show pages around current page
-          let pageNumber;
+          let pageNumber: number;
           if (totalPages <= 5) {
             pageNumber = i + 1;
           } else if (optimisticPage <= 3) {
