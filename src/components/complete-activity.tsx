@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { completeActivityAction } from "@/app/actions/complete-activity-action";
@@ -68,29 +67,27 @@ export function CompleteActivity({ activity }: CompleteActivityProps) {
   };
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div>
-            <Button
-              onClick={handleCompleteActivity}
-              disabled={!allTasksCompleted || isPending}
-            >
-              {isPending ? (
-                <Loader2Icon className="h-4 w-4 animate-spin" />
-              ) : (
-                <CheckIcon className="h-4 w-4" />
-              )}
-              Complete Activity
-            </Button>
-          </div>
-        </TooltipTrigger>
-        {allTasksCompleted ? null : (
-          <TooltipContent>
-            <p>Complete all tasks before completing the activity</p>
-          </TooltipContent>
-        )}
-      </Tooltip>
-    </TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div>
+          <Button
+            onClick={handleCompleteActivity}
+            disabled={!allTasksCompleted || isPending}
+          >
+            {isPending ? (
+              <Loader2Icon className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckIcon className="h-4 w-4" />
+            )}
+            Complete Activity
+          </Button>
+        </div>
+      </TooltipTrigger>
+      {allTasksCompleted ? null : (
+        <TooltipContent>
+          <p>Complete all tasks before completing the activity</p>
+        </TooltipContent>
+      )}
+    </Tooltip>
   );
 }
