@@ -14,7 +14,6 @@ import { formatInTimeZone, toZonedTime } from "@/lib/utils/time";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { ActivityContribution } from "@/types";
@@ -156,46 +155,41 @@ export function ContributionGraph({
                     const count = contributionMap.get(dateString) || 0;
 
                     return (
-                      <TooltipProvider key={dateString}>
-                        <Tooltip
-                          open={
-                            hoveredDate === dateString ||
-                            touchedDate === dateString
-                          }
-                        >
-                          <TooltipTrigger asChild>
-                            <div
-                              className={`contribution-cell h-2 w-2 sm:h-3 sm:w-3 rounded-sm ${getCellColor(
-                                count,
-                                maxCount
-                              )} cursor-pointer transition-colors active:opacity-75`}
-                              onPointerEnter={() => setHoveredDate(dateString)}
-                              onPointerLeave={() => setHoveredDate(null)}
-                              onTouchStart={() => {
-                                setTouchedDate(dateString);
-                              }}
-                            />
-                          </TooltipTrigger>
-                          <TooltipContent side="top" align="center">
-                            <div className="text-xs">
-                              <p className="font-medium">
-                                {formatInTimeZone(
-                                  date,
-                                  timezone,
-                                  "MMM d, yyyy"
-                                )}
-                              </p>
-                              <p>
-                                {count > 0
-                                  ? `${count} completed ${
-                                      count === 1 ? "activity" : "activities"
-                                    }`
-                                  : `No completed activities`}
-                              </p>
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <Tooltip
+                        key={dateString}
+                        open={
+                          hoveredDate === dateString ||
+                          touchedDate === dateString
+                        }
+                      >
+                        <TooltipTrigger asChild>
+                          <div
+                            className={`contribution-cell h-2 w-2 sm:h-3 sm:w-3 rounded-sm ${getCellColor(
+                              count,
+                              maxCount
+                            )} cursor-pointer transition-colors active:opacity-75`}
+                            onPointerEnter={() => setHoveredDate(dateString)}
+                            onPointerLeave={() => setHoveredDate(null)}
+                            onTouchStart={() => {
+                              setTouchedDate(dateString);
+                            }}
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" align="center">
+                          <div className="text-xs">
+                            <p className="font-medium">
+                              {formatInTimeZone(date, timezone, "MMM d, yyyy")}
+                            </p>
+                            <p>
+                              {count > 0
+                                ? `${count} completed ${
+                                    count === 1 ? "activity" : "activities"
+                                  }`
+                                : `No completed activities`}
+                            </p>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
                     );
                   })}
                 </div>
