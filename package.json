@@ -59,7 +59,7 @@
     "resend": "^6.28.0",
     "tailwind-merge": "^3.7.0",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^4.6.0"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "21.2.2",
