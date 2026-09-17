@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
-import { TeamMembershipRole } from "@prisma/client";
 import type { CategoryOption } from "@/types";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type GetCategoriesParams = {
   userId: string;
@@ -15,14 +15,7 @@ export const getCategories = cache(
       return prisma.category.findMany({
         where: {
           userId,
-          team: {
-            teamMemberships: {
-              some: {
-                userId,
-                role: TeamMembershipRole.OWNER,
-              },
-            },
-          },
+          team: teamOwnedBy(userId),
         },
         orderBy: [
           { name: "asc" },

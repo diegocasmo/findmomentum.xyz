@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { Activity } from "@prisma/client";
-import { TeamMembershipRole } from "@prisma/client";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type CompleteActivityParams = {
   activityId: string;
@@ -21,14 +21,7 @@ export async function completeActivity({
           id: activityId,
           deletedAt: null,
           completedAt: null,
-          team: {
-            teamMemberships: {
-              some: {
-                userId,
-                role: TeamMembershipRole.OWNER,
-              },
-            },
-          },
+          team: teamOwnedBy(userId),
           tasks: {
             every: {
               OR: [

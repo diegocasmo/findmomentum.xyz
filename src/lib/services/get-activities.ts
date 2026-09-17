@@ -3,7 +3,8 @@ import type {
   ActivityWithTasksAndTimeEntries,
   CompletionStatus,
 } from "@/types";
-import { type Prisma, TeamMembershipRole } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type GetActivitiesParams = {
   userId: string;
@@ -34,14 +35,7 @@ export async function getActivities({
   const where: Prisma.ActivityWhereInput = {
     userId,
     deletedAt: null,
-    team: {
-      teamMemberships: {
-        some: {
-          userId,
-          role: TeamMembershipRole.OWNER,
-        },
-      },
-    },
+    team: teamOwnedBy(userId),
     ...(searchQuery
       ? {
           name: {

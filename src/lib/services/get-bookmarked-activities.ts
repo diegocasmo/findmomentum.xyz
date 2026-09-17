@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { ActivityWithTasksAndTimeEntries } from "@/types";
-import { TeamMembershipRole } from "@prisma/client";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type GetBookmarkedActivitiesParams = {
   userId: string;
@@ -14,14 +14,7 @@ export async function getBookmarkedActivities({
       userId,
       bookmarkedAt: { not: null },
       deletedAt: null,
-      team: {
-        teamMemberships: {
-          some: {
-            userId,
-            role: TeamMembershipRole.OWNER,
-          },
-        },
-      },
+      team: teamOwnedBy(userId),
     },
     orderBy: {
       bookmarkedAt: "desc",

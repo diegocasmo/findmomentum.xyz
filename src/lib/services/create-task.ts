@@ -1,6 +1,6 @@
 import type { Task } from "@prisma/client";
-import { TeamMembershipRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type CreateTaskParams = {
   name: string;
@@ -22,14 +22,7 @@ export async function createTask({
         userId,
         deletedAt: null,
         completedAt: null,
-        team: {
-          teamMemberships: {
-            some: {
-              userId,
-              role: TeamMembershipRole.OWNER,
-            },
-          },
-        },
+        team: teamOwnedBy(userId),
       },
       include: {
         tasks: {

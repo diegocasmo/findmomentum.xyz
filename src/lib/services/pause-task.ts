@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { TimeEntry } from "@prisma/client";
-import { TeamMembershipRole } from "@prisma/client";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type PauseTaskParams = {
   taskId: string;
@@ -23,14 +23,7 @@ export async function pauseTask({
             userId,
             deletedAt: null,
             completedAt: null,
-            team: {
-              teamMemberships: {
-                some: {
-                  userId,
-                  role: TeamMembershipRole.OWNER,
-                },
-              },
-            },
+            team: teamOwnedBy(userId),
           },
         },
       });
