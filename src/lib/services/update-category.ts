@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { TeamMembershipRole } from "@prisma/client";
 import type { Category } from "@prisma/client";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type UpdateCategoryParams = {
   categoryId: string;
@@ -17,11 +17,7 @@ export async function updateCategory({
     return await prisma.category.update({
       where: {
         id: categoryId,
-        team: {
-          teamMemberships: {
-            some: { userId, role: TeamMembershipRole.OWNER },
-          },
-        },
+        team: teamOwnedBy(userId),
       },
       data: { name },
     });

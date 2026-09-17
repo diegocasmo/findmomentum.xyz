@@ -1,6 +1,6 @@
 import type { Activity } from "@prisma/client";
-import { TeamMembershipRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type CreateActivityFromTemplateParams = {
   activityId: string;
@@ -18,14 +18,7 @@ export async function createActivityFromTemplate({
           id: activityId,
           userId,
           deletedAt: null,
-          team: {
-            teamMemberships: {
-              some: {
-                userId,
-                role: TeamMembershipRole.OWNER,
-              },
-            },
-          },
+          team: teamOwnedBy(userId),
         },
         include: {
           tasks: {

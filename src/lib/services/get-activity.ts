@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { TeamMembershipRole } from "@prisma/client";
 import type { ActivityWithTasksAndTimeEntries } from "@/types";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type GetActivityParams = {
   id: string;
@@ -17,14 +17,7 @@ export async function getActivity({
         id,
         userId,
         deletedAt: null,
-        team: {
-          teamMemberships: {
-            some: {
-              userId,
-              role: TeamMembershipRole.OWNER,
-            },
-          },
-        },
+        team: teamOwnedBy(userId),
       },
       include: {
         tasks: {

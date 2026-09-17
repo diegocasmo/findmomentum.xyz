@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { type Task, TeamMembershipRole } from "@prisma/client";
+import type { Task } from "@prisma/client";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type UpdateTaskParams = {
   userId: string;
@@ -26,14 +27,7 @@ export async function updateTask({
             userId,
             deletedAt: null,
             completedAt: null,
-            team: {
-              teamMemberships: {
-                some: {
-                  userId,
-                  role: TeamMembershipRole.OWNER,
-                },
-              },
-            },
+            team: teamOwnedBy(userId),
           },
         },
       });

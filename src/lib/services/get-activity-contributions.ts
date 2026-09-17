@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { TeamMembershipRole } from "@prisma/client";
 import { subYears, eachDayOfInterval } from "date-fns";
 import type { ActivityContribution } from "@/types";
 import { isValidTimezone } from "@/lib/utils/timezone";
 import { formatInTimeZone, toZonedTime, fromZonedTime } from "@/lib/utils/time";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type GetActivityContributionsParams = {
   userId: string;
@@ -47,14 +47,7 @@ export async function getActivityContributions({
         gte: utcStartDate,
         lte: utcEndDate,
       },
-      team: {
-        teamMemberships: {
-          some: {
-            userId,
-            role: TeamMembershipRole.OWNER,
-          },
-        },
-      },
+      team: teamOwnedBy(userId),
     },
     select: {
       completedAt: true,

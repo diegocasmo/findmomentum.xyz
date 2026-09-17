@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { Task } from "@prisma/client";
-import { TeamMembershipRole } from "@prisma/client";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type SoftDeleteTaskParams = {
   userId: string;
@@ -20,14 +20,7 @@ export async function softDeleteTask({
           userId,
           deletedAt: null,
           completedAt: null,
-          team: {
-            teamMemberships: {
-              some: {
-                userId: userId,
-                role: TeamMembershipRole.OWNER,
-              },
-            },
-          },
+          team: teamOwnedBy(userId),
         },
       },
       data: {

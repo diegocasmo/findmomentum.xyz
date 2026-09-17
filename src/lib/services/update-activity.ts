@@ -1,6 +1,6 @@
 import type { ActivityWithCategories } from "@/types";
-import { TeamMembershipRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type UpdateActivityParams = {
   activityId: string;
@@ -24,14 +24,7 @@ export async function updateActivity({
           id: activityId,
           userId,
           deletedAt: null,
-          team: {
-            teamMemberships: {
-              some: {
-                userId,
-                role: TeamMembershipRole.OWNER,
-              },
-            },
-          },
+          team: teamOwnedBy(userId),
         },
       });
 

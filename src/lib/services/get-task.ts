@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { TaskWithTimeEntries } from "@/types";
-import { TeamMembershipRole } from "@prisma/client";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type GetTaskParams = {
   userId: string;
@@ -18,14 +18,7 @@ export async function getTask({
       activity: {
         userId,
         deletedAt: null,
-        team: {
-          teamMemberships: {
-            some: {
-              userId,
-              role: TeamMembershipRole.OWNER,
-            },
-          },
-        },
+        team: teamOwnedBy(userId),
       },
     },
     include: {

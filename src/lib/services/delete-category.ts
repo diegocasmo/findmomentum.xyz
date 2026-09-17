@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { TeamMembershipRole } from "@prisma/client";
+import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type DeleteCategoryParams = {
   categoryId: string;
@@ -20,11 +20,7 @@ export async function deleteCategory({
       await tx.category.findFirstOrThrow({
         where: {
           id: categoryId,
-          team: {
-            teamMemberships: {
-              some: { userId, role: TeamMembershipRole.OWNER },
-            },
-          },
+          team: teamOwnedBy(userId),
         },
       });
 
