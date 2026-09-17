@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .tile{fill:#171717}.step{fill:#fafafa}
+    @media (prefers-color-scheme:dark){.tile{fill:#fafafa}.step{fill:#171717}}
+  </style>
+  <rect class="tile" width="64" height="64" rx="14"/>
+  <rect class="step" x="8" y="40" width="48" height="12" rx="4"/>
+  <rect class="step" x="24" y="28" width="20" height="20" rx="4"/>
+  <rect class="step" x="40" y="16" width="16" height="36" rx="4"/>
+</svg>
