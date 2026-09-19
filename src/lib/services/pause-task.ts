@@ -13,7 +13,6 @@ export async function pauseTask({
 }: PauseTaskParams): Promise<TimeEntry | null> {
   try {
     return await prisma.$transaction(async (tx) => {
-      // Ensure user is the owner of the task's activity team
       await tx.task.findFirstOrThrow({
         where: {
           id: taskId,

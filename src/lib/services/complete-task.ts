@@ -14,7 +14,6 @@ export async function completeTask({
   return await prisma.$transaction(async (tx) => {
     const now = new Date();
 
-    // Ensure user is the owner of the task's activity team
     await tx.task.findFirstOrThrow({
       where: {
         id: taskId,
