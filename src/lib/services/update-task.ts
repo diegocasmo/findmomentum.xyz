@@ -17,7 +17,6 @@ export async function updateTask({
 }: UpdateTaskParams): Promise<Task> {
   try {
     return await prisma.$transaction(async (tx) => {
-      // Find the task and ensure the user has permission to update it
       const task = await tx.task.findFirstOrThrow({
         where: {
           id: taskId,

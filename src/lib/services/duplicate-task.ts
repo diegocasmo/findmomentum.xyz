@@ -12,7 +12,6 @@ export async function duplicateTask({
   userId,
 }: DuplicateTaskParams): Promise<Task> {
   return await prisma.$transaction(async (tx) => {
-    // Find the source task and ensure the user has permission to access it
     const sourceTask = await tx.task.findFirstOrThrow({
       where: {
         id: taskId,

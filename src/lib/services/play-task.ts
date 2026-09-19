@@ -13,7 +13,6 @@ export async function playTask({
 }: PlayTaskParams): Promise<TimeEntry> {
   try {
     return await prisma.$transaction(async (tx) => {
-      // Ensure user is the owner of the task's activity team and get the activityId
       const task = await tx.task.findFirstOrThrow({
         where: {
           id: taskId,
