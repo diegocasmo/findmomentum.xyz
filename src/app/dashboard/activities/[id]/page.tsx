@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { requireSession } from "@/lib/utils/require-session";
 import { getActivity } from "@/lib/services/get-activity";
 import { getCategories } from "@/lib/services/get-categories";
 import {
@@ -25,13 +24,9 @@ type ActivityPageProps = {
 };
 
 export default async function ActivityPage({ params }: ActivityPageProps) {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const session = await requireSession();
+  const userId = session.user.id;
   const activityId = (await params).id;
-
-  if (!userId) {
-    redirect("/auth/sign-in");
-  }
 
   const [activity, categories] = await Promise.all([
     getActivity({ id: activityId, userId }),
