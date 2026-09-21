@@ -1,10 +1,9 @@
 import { TopNav } from "@/components/top-nav";
-import { auth } from "@/lib/auth";
 import { SessionProvider } from "next-auth/react";
 import { NotificationManager } from "@/components/notification-manager";
 import { BottomNav } from "@/components/bottom-nav";
-import { redirect } from "next/navigation";
 import { getCategories } from "@/lib/services/get-categories";
+import { requireSession } from "@/lib/utils/require-session";
 import type React from "react";
 
 export default async function DashboardLayout({
@@ -12,9 +11,7 @@ export default async function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-
-  if (!session?.user?.id) redirect("/auth/sign-in");
+  const session = await requireSession();
   const userId = session.user.id;
   const categories = await getCategories({ userId });
 

@@ -1,6 +1,4 @@
 import { Suspense } from "react";
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
 import { Home } from "lucide-react";
 import { ActivityContributions } from "@/app/dashboard/components/activity-contributions";
 import { BookmarkedActivitiesList } from "@/app/dashboard/components/bookmarked-activities-list";
@@ -14,18 +12,15 @@ import {
   ActivitiesSkeleton,
 } from "@/app/dashboard/components/page-skeleton";
 import { CollapsibleSection } from "@/components/collapsible-section";
+import { requireSession } from "@/lib/utils/require-session";
 
 type DashboardProps = {
   searchParams: Promise<ActivitiesSearchParams>;
 };
 
 export default async function DashboardPage({ searchParams }: DashboardProps) {
-  const session = await auth();
-  const userId = session?.user?.id;
-
-  if (!userId) {
-    redirect("/auth/sign-in");
-  }
+  const session = await requireSession();
+  const userId = session.user.id;
 
   const params = await searchParams;
 
