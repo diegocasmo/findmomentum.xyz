@@ -97,7 +97,6 @@ export function ContributionGraph({
     }
   }, []);
 
-  // Close tooltip when touching outside
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
       if (

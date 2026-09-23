@@ -30,7 +30,6 @@ export async function playTask({
         },
       });
 
-      // Stop any ongoing time entries for all tasks in the activity
       await tx.timeEntry.updateMany({
         where: {
           task: {

@@ -60,10 +60,8 @@ export async function updateTaskPosition({
         const afterTask = tasks[afterTaskIndex];
         const nextTask = tasks[afterTaskIndex + 1];
         if (nextTask) {
-          // Position the new task between the after task and the next task
           newPositionValue = (afterTask.position + nextTask.position) / 2;
         } else {
-          // If there's no next task, we're inserting at the end
           newPositionValue = afterTask.position + 1;
         }
       }

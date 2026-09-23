@@ -29,7 +29,6 @@ export async function getActivityContributions({
     ? toZonedTime(startDate, timezone)
     : subYears(zonedEndDate, 1);
 
-  // Ensure the date range is no longer than one year
   const oneYearBeforeEndDate = subYears(zonedEndDate, 1);
   if (actualStartDate < oneYearBeforeEndDate) {
     actualStartDate = oneYearBeforeEndDate;
