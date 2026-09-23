@@ -104,7 +104,7 @@ export function TasksList({ tasks: initialTasks }: TasksListProps) {
         }
       } catch (error) {
         console.error("Error updating task position:", error);
-        setLocalTasks(initialTasks); // Revert to original order
+        setLocalTasks(initialTasks);
         toast(ERROR_MESSAGE_CONFIG);
       }
     },

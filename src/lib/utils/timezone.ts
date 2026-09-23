@@ -31,7 +31,6 @@ export function isValidTimezone(timezone: string | undefined): boolean {
 
 export async function getUserTimezone(): Promise<string> {
   if (typeof window === "undefined") {
-    // Server-side: Get timezone from cookie
     const cookieStore = await cookies();
     const userTimezone = cookieStore.get("user-timezone")?.value;
 
@@ -45,7 +44,6 @@ export async function getUserTimezone(): Promise<string> {
     return userTimezone || "UTC";
   }
 
-  // Client-side: Get timezone from browser
   try {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
   } catch (error) {

@@ -25,7 +25,6 @@ export async function duplicateTask({
       },
     });
 
-    // Find the highest position in the activity to place the new task at the end
     const highestPositionTask = await tx.task.findFirst({
       where: {
         activityId: sourceTask.activityId,
