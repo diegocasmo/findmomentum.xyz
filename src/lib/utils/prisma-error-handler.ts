@@ -50,7 +50,10 @@ const defaultPrismaErrorMapping: PrismaErrorMapping = {
       }
     }
     const target = error.meta?.target;
-    const field = Array.isArray(target) ? target[0] ?? "unknown" : "unknown";
+    const field =
+      Array.isArray(target) && typeof target[0] === "string"
+        ? target[0]
+        : "unknown";
     return createZodError(`A record with this ${field} already exists`, [
       field,
     ]);

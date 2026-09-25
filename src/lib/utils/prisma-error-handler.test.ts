@@ -34,4 +34,34 @@ describe("transformErrorToFieldErrors", () => {
       },
     });
   });
+
+  it("names the field from meta.target for an unmapped constraint", () => {
+    const error = new PrismaClientKnownRequestError("Unique constraint failed", {
+      code: "P2002",
+      clientVersion: "test",
+      meta: { target: ["email"] },
+    });
+
+    expect(transformErrorToFieldErrors(error)).toEqual({
+      email: {
+        type: "manual",
+        message: "A record with this email already exists",
+      },
+    });
+  });
+
+  it("falls back to an unknown field when meta.target is empty", () => {
+    const error = new PrismaClientKnownRequestError("Unique constraint failed", {
+      code: "P2002",
+      clientVersion: "test",
+      meta: { target: [] },
+    });
+
+    expect(transformErrorToFieldErrors(error)).toEqual({
+      unknown: {
+        type: "manual",
+        message: "A record with this unknown already exists",
+      },
+    });
+  });
 });
