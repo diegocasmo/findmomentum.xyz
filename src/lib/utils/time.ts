@@ -81,7 +81,7 @@ export function getTaskElapsedTime(task: TaskWithTimeEntries): number {
 type FormatDateOptions = {
   /** How many days back to show “x ago” instead of an absolute date */
   recencyThresholdDays?: number;
-  /** date-fns format string for absolute dates (see https://date-fns.org/v2.30.0/docs/format) */
+  /** date-fns format string for absolute dates */
   absoluteDateFormat?: string;
 };
 

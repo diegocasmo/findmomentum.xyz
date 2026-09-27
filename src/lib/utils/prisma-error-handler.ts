@@ -21,7 +21,7 @@ const CONSTRAINT_MAPPING: Partial<
 };
 
 // Prisma 7.x with the PrismaPg driver adapter doesn't surface the violated
-// constraint directly on `error.meta.target` — it's nested as a Postgres
+// constraint directly on `error.meta.target`. It's nested as a Postgres
 // error embedded in `meta.driverAdapterError.cause.originalMessage`, e.g.
 // `duplicate key value violates unique constraint "<name>"`. Extract it.
 function extractConstraintName(error: PrismaClientKnownRequestError): string | null {

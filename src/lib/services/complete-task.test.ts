@@ -33,7 +33,7 @@ describe("completeTask", () => {
     // Schema has @@unique([taskId, stoppedAt]); at most one open entry per task
     // is realistic (multiple stoppedAt:null rows are tolerated by Postgres NULL
     // semantics, but completeTask's updateMany would collide if it had to stop
-    // two at the same instant — that scenario is out of scope).
+    // two at the same instant; that scenario is out of scope).
     const entry = await prisma.timeEntry.create({
       data: { taskId: task.id, startedAt: new Date() },
     });
