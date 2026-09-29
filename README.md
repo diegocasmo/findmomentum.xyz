@@ -15,7 +15,13 @@ nvm install
 nvm use
 ```
 
-4. Set up the environment variables:
+4. Install dependencies
+
+```bash
+npm install
+```
+
+5. Set up the environment variables:
 
 - Copy the `.env.example` file to `.env`:
 
@@ -25,7 +31,7 @@ cp .env.example .env
 
 - Open the `.env` file and fill in the necessary environment variables, including your PostgreSQL database URL
 
-5. Set up Prisma and the database:
+6. Set up Prisma and the database:
 
 - Generate Prisma client:
 
@@ -41,10 +47,9 @@ npx prisma migrate dev
 
 These commands will set up your database schema and apply all existing migrations.
 
-6. Install dependencies and start the development server
+7. Start the development server
 
 ```bash
-npm install
 npm run dev
 ```
 
