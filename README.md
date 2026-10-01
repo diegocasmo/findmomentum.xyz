@@ -67,7 +67,7 @@ createdb momentum_test
 DATABASE_TEST_URL=postgresql://localhost/momentum_test
 ```
 
-The database name **must** contain the word "test" — the test setup file refuses to truncate any database that doesn't, protecting your development data.
+The database name **must** contain the word "test". The test setup file refuses to truncate any database that doesn't, protecting your development data.
 
 3. Run the full suite once:
 
