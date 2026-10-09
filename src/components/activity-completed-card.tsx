@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircleIcon, ClockIcon, TrophyIcon, StarIcon } from "lucide-react";
 import { formatMsAsDuration, getActivityTotalDuration } from "@/lib/utils/time";
 import type { ActivityWithTasksAndTimeEntries } from "@/types";
-import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useWindowSize } from "@/hooks/use-window-size";
 
@@ -20,12 +19,8 @@ export function ActivityCompletedCard({
 }: ActivityCompletedCardProps) {
   const { width, height } = useWindowSize();
   const searchParams = useSearchParams();
-  const [celebrate, setCelebrate] = useState(false);
+  const celebrate = searchParams.get("celebrate") === "true";
   const totalDuration = getActivityTotalDuration(activity);
-
-  useEffect(() => {
-    setCelebrate(searchParams.get("celebrate") === "true");
-  }, [searchParams]);
 
   return (
     <Card className="w-full max-w-3xl shadow-lg border-secondary">

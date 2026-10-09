@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useTransition, useState, useEffect } from "react";
+import { useCallback, useTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DndContext,
@@ -77,10 +77,12 @@ export function TasksList({ tasks: initialTasks }: TasksListProps) {
   const [isPending, startTransition] = useTransition();
   const [localTasks, setLocalTasks] =
     useState<TaskWithTimeEntries[]>(initialTasks);
+  const [prevInitialTasks, setPrevInitialTasks] = useState(initialTasks);
 
-  useEffect(() => {
+  if (initialTasks !== prevInitialTasks) {
+    setPrevInitialTasks(initialTasks);
     setLocalTasks(initialTasks);
-  }, [initialTasks]);
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor),
