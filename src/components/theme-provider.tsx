@@ -35,18 +35,19 @@ function readMode(): ThemeMode {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [mode, setMode] = React.useState<ThemeMode>("system");
+  // Safe to differ between server and client: mode never reaches rendered output.
+  const [mode, setMode] = React.useState<ThemeMode>(() =>
+    typeof window === "undefined" ? "system" : readMode()
+  );
 
   React.useEffect(() => {
-    const intent = readMode();
-    setMode(intent);
-    applyTheme(intent === "system" ? getSystemTheme() : intent);
-  }, []);
-
-  React.useEffect(() => {
-    if (mode !== "system") return;
+    if (mode !== "system") {
+      applyTheme(mode);
+      return;
+    }
     const mql = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => applyTheme(mql.matches ? "dark" : "light");
+    onChange();
     mql.addEventListener("change", onChange);
     return () => mql.removeEventListener("change", onChange);
   }, [mode]);
@@ -54,6 +55,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setTheme = React.useCallback((next: ThemeMode) => {
     setMode(next);
     localStorage.setItem(STORAGE_KEY, next);
+    // Re-apply even when mode is unchanged: another tab may have rewritten the shared cookie.
     applyTheme(next === "system" ? getSystemTheme() : next);
   }, []);
 

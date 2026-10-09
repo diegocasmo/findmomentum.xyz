@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { MS_PER_MIN, MS_PER_SECOND, formatTimeMMss } from "@/lib/utils/time";
 import { MAX_MIN, MAX_SEC } from "@/app/schemas/create-task-schema";
@@ -26,10 +26,12 @@ export function DurationInput({
   ...field
 }: DurationInputProps) {
   const [inputValue, setInputValue] = useState(formatValue(value));
+  const [prevValue, setPrevValue] = useState(value);
 
-  useEffect(() => {
+  if (value !== prevValue) {
+    setPrevValue(value);
     setInputValue(formatValue(value));
-  }, [value]);
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let newValue = e.target.value.replace(/[^\d:]/g, "");
