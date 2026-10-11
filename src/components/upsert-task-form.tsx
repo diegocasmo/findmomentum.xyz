@@ -18,7 +18,7 @@ import {
   PlusCircleIcon,
   Pencil,
 } from "lucide-react";
-import { useTransition, useRef } from "react";
+import { useTransition } from "react";
 import { createTaskAction } from "@/app/actions/create-task-action";
 import { updateTaskAction } from "@/app/actions/update-task-action";
 import { setFormErrors } from "@/lib/utils/form";
@@ -53,7 +53,6 @@ export function UpsertTaskForm({
 }: UpsertTaskFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const nameInputRef = useRef<HTMLInputElement>(null);
   const elapsedMs = task ? getTaskElapsedTime(task) : 0;
 
   const form = useForm<TaskFormInput, unknown, TaskFormOutput>({
@@ -124,10 +123,6 @@ export function UpsertTaskForm({
                     <Input
                       placeholder="Add a new task"
                       {...field}
-                      ref={(e) => {
-                        field.ref(e);
-                        nameInputRef.current = e;
-                      }}
                       autoFocus={autoFocus}
                       autoComplete="off"
                       className="text-sm pr-10"

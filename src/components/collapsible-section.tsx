@@ -23,8 +23,6 @@ interface CollapsibleSectionProps {
   description?: string;
   iconName?: keyof typeof ICONS;
   children: ReactNode;
-  defaultExpanded?: boolean;
-  titleClassName?: string;
 }
 
 export function CollapsibleSection({
@@ -33,17 +31,15 @@ export function CollapsibleSection({
   description,
   iconName,
   children,
-  defaultExpanded = true,
-  titleClassName,
 }: CollapsibleSectionProps) {
   const storageKey = `section-collapsed-${id}`;
 
   const [isExpanded, setIsExpanded] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem(storageKey);
-      return stored !== null ? stored === "true" : defaultExpanded;
+      return stored !== null ? stored === "true" : true;
     }
-    return defaultExpanded;
+    return true;
   });
 
   useEffect(() => {
@@ -63,9 +59,7 @@ export function CollapsibleSection({
           {IconComponent && (
             <IconComponent className="w-5 h-5 mr-2 text-primary" />
           )}
-          <h2 className={cn("text-xl font-semibold", titleClassName)}>
-            {title}
-          </h2>
+          <h2 className="text-xl font-semibold">{title}</h2>
           {description ? (
             <span className="ml-2 text-sm text-muted-foreground">
               {description}

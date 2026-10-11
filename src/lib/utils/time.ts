@@ -78,33 +78,23 @@ export function getTaskElapsedTime(task: TaskWithTimeEntries): number {
   return task.durationMs - getTaskRemainingTime(task);
 }
 
-type FormatDateOptions = {
-  /** How many days back to show “x ago” instead of an absolute date */
-  recencyThresholdDays?: number;
-  /** date-fns format string for absolute dates */
-  absoluteDateFormat?: string;
-};
+const RECENCY_THRESHOLD_DAYS = 10;
 
 /**
  * Returns a human-readable timestamp:
- *  - "5 minutes ago" if within recencyThresholdDays
+ *  - "5 minutes ago" if within RECENCY_THRESHOLD_DAYS
  *  - otherwise a formatted date like "Jan 5, 2022"
  */
-export function formatDateAsTimeAgo(
-  date: Date,
-  options: FormatDateOptions = {}
-): string {
-  const { recencyThresholdDays = 10, absoluteDateFormat = "PP" } = options;
-
+export function formatDateAsTimeAgo(date: Date): string {
   const now = Date.now();
   const elapsedMs = now - date.getTime();
   const elapsedDays = elapsedMs / (1000 * 60 * 60 * 24);
 
-  if (elapsedDays < recencyThresholdDays) {
+  if (elapsedDays < RECENCY_THRESHOLD_DAYS) {
     return formatDistanceToNow(date, { addSuffix: true });
   }
 
-  return format(date, absoluteDateFormat);
+  return format(date, "PP");
 }
 
 export function formatDateWithTime(date: Date): string {

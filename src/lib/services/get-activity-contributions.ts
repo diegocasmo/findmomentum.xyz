@@ -7,15 +7,11 @@ import { teamOwnedBy } from "@/lib/utils/team-owned-by";
 
 type GetActivityContributionsParams = {
   userId: string;
-  startDate?: Date;
-  endDate?: Date;
   timezone?: string;
 };
 
 export async function getActivityContributions({
   userId,
-  startDate,
-  endDate = new Date(),
   timezone = "UTC",
 }: GetActivityContributionsParams): Promise<ActivityContribution[]> {
   if (!isValidTimezone(timezone)) {
@@ -23,18 +19,10 @@ export async function getActivityContributions({
     timezone = "UTC";
   }
 
-  const zonedEndDate = toZonedTime(endDate, timezone);
+  const zonedEndDate = toZonedTime(new Date(), timezone);
+  const zonedStartDate = subYears(zonedEndDate, 1);
 
-  let actualStartDate = startDate
-    ? toZonedTime(startDate, timezone)
-    : subYears(zonedEndDate, 1);
-
-  const oneYearBeforeEndDate = subYears(zonedEndDate, 1);
-  if (actualStartDate < oneYearBeforeEndDate) {
-    actualStartDate = oneYearBeforeEndDate;
-  }
-
-  const utcStartDate = fromZonedTime(actualStartDate, timezone);
+  const utcStartDate = fromZonedTime(zonedStartDate, timezone);
   const utcEndDate = fromZonedTime(zonedEndDate, timezone);
 
   const activities = await prisma.activity.findMany({
@@ -57,7 +45,7 @@ export async function getActivityContributions({
   });
 
   const allDatesInRange = eachDayOfInterval({
-    start: actualStartDate,
+    start: zonedStartDate,
     end: zonedEndDate,
   });
 
