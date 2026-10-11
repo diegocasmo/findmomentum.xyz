@@ -2,16 +2,10 @@ import { useEffect, useState } from "react";
 
 const isBrowser = typeof window !== "undefined";
 
-export function useWindowSize({
-  initialWidth = Infinity,
-  initialHeight = Infinity,
-}: {
-  initialWidth?: number;
-  initialHeight?: number;
-} = {}) {
+export function useWindowSize() {
   const [size, setSize] = useState({
-    width: isBrowser ? window.innerWidth : initialWidth,
-    height: isBrowser ? window.innerHeight : initialHeight,
+    width: isBrowser ? window.innerWidth : Infinity,
+    height: isBrowser ? window.innerHeight : Infinity,
   });
 
   useEffect(() => {

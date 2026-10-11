@@ -30,24 +30,15 @@ export function isValidTimezone(timezone: string | undefined): boolean {
 }
 
 export async function getUserTimezone(): Promise<string> {
-  if (typeof window === "undefined") {
-    const cookieStore = await cookies();
-    const userTimezone = cookieStore.get("user-timezone")?.value;
+  const cookieStore = await cookies();
+  const userTimezone = cookieStore.get("user-timezone")?.value;
 
-    if (!isValidTimezone(userTimezone)) {
-      console.warn(
-        `Invalid timezone detected: ${userTimezone}. Defaulting to UTC.`
-      );
-      return "UTC";
-    }
-
-    return userTimezone || "UTC";
-  }
-
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone;
-  } catch (error) {
-    console.error("Error getting timezone:", error);
+  if (!isValidTimezone(userTimezone)) {
+    console.warn(
+      `Invalid timezone detected: ${userTimezone}. Defaulting to UTC.`
+    );
     return "UTC";
   }
+
+  return userTimezone || "UTC";
 }
