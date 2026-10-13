@@ -59,7 +59,7 @@ const defaultPrismaErrorMapping: PrismaErrorMapping = {
     ]);
   },
   P2025: (error) => {
-    const meta = error.meta as { modelName?: unknown } | undefined;
+    const meta = error.meta;
     const modelName =
       typeof meta?.modelName === "string" ? meta.modelName : null;
     return createZodError(

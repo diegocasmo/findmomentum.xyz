@@ -271,7 +271,7 @@ function CategoryPickerInner({
     setChipPendingRemoval(null);
     closeCauseRef.current = "blur";
     if (deleteTarget !== null) return;
-    const next = e.relatedTarget as HTMLElement | null;
+    const next = e.relatedTarget;
     if (next) {
       if (anchorRef.current?.contains(next)) return;
       if (next.closest("[data-radix-popper-content-wrapper]")) return;
