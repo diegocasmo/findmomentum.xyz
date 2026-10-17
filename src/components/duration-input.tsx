@@ -2,7 +2,11 @@ import type React from "react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { MS_PER_MIN, MS_PER_SECOND, formatTimeMMss } from "@/lib/utils/time";
-import { MAX_MIN, MAX_SEC } from "@/app/schemas/create-task-schema";
+import {
+  MAX_DURATION_MS,
+  MAX_MIN,
+  MAX_SEC,
+} from "@/app/schemas/create-task-schema";
 
 function parseInputMs(input: string): number {
   const [minutes, seconds] = input.split(":").map(Number);
@@ -67,19 +71,13 @@ export function DurationInput({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowUp" || e.key === "ArrowDown") {
       e.preventDefault();
-      let totalSeconds = parseInputMs(inputValue) / MS_PER_SECOND;
-      const increment = e.shiftKey ? 10 : 1;
+      const currentMs = parseInputMs(inputValue);
+      const step = (e.shiftKey ? 10 : 1) * MS_PER_SECOND;
+      const totalMs =
+        e.key === "ArrowUp"
+          ? Math.min(currentMs + step, MAX_DURATION_MS)
+          : Math.max(currentMs - step, 0);
 
-      if (e.key === "ArrowUp") {
-        totalSeconds = Math.min(
-          totalSeconds + increment,
-          MAX_MIN * 60 + MAX_SEC
-        );
-      } else {
-        totalSeconds = Math.max(totalSeconds - increment, 0);
-      }
-
-      const totalMs = totalSeconds * MS_PER_SECOND;
       setInputValue(formatTimeMMss(totalMs));
       onChange(totalMs);
     }
