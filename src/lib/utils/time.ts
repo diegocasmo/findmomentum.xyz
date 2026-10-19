@@ -18,6 +18,8 @@ const SECONDS_PER_MIN = 60;
 export const MS_PER_MIN = SECONDS_PER_MIN * MS_PER_SECOND;
 const MIN_PER_HOUR = 60;
 const MS_PER_HOUR = MIN_PER_HOUR * MS_PER_MIN;
+const HOURS_PER_DAY = 24;
+const MS_PER_DAY = HOURS_PER_DAY * MS_PER_HOUR;
 
 export function formatTimeMMss(ms: number): string {
   const minutes = Math.floor(ms / MS_PER_MIN);
@@ -88,7 +90,7 @@ const RECENCY_THRESHOLD_DAYS = 10;
 export function formatDateAsTimeAgo(date: Date): string {
   const now = Date.now();
   const elapsedMs = now - date.getTime();
-  const elapsedDays = elapsedMs / (1000 * 60 * 60 * 24);
+  const elapsedDays = elapsedMs / MS_PER_DAY;
 
   if (elapsedDays < RECENCY_THRESHOLD_DAYS) {
     return formatDistanceToNow(date, { addSuffix: true });
