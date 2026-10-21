@@ -85,5 +85,5 @@ export function TaskRemainingTime({ task }: TaskRemainingTimeProps) {
     );
   }
 
-  return formatTimeMMss(Math.max(0, displayTime));
+  return formatTimeMMss(displayTime);
 }

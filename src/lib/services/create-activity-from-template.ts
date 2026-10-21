@@ -34,7 +34,7 @@ export async function createActivityFromTemplate({
       return tx.activity.create({
         data: {
           name: sourceActivity.name,
-          description: sourceActivity.description ?? null,
+          description: sourceActivity.description,
           teamId: sourceActivity.teamId,
           userId: userId,
           tasks: {
