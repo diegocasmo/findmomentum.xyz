@@ -25,7 +25,7 @@ export async function duplicateTask({
       },
     });
 
-    const highestPositionTask = await tx.task.findFirst({
+    const highestPositionTask = await tx.task.findFirstOrThrow({
       where: {
         activityId: sourceTask.activityId,
       },
@@ -34,14 +34,10 @@ export async function duplicateTask({
       },
     });
 
-    const newPosition = highestPositionTask
-      ? highestPositionTask.position + 1
-      : sourceTask.position + 1;
-
     return await tx.task.create({
       data: {
         name: sourceTask.name,
-        position: newPosition,
+        position: highestPositionTask.position + 1,
         durationMs: sourceTask.durationMs,
         activityId: sourceTask.activityId,
       },
