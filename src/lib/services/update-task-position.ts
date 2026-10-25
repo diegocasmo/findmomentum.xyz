@@ -46,10 +46,9 @@ export async function updateTaskPosition({
       let newPositionValue: number;
 
       if (newPosition === "top") {
-        newPositionValue = tasks.length > 0 ? tasks[0].position - 1 : 0;
+        newPositionValue = tasks[0].position - 1;
       } else if (newPosition === "bottom") {
-        newPositionValue =
-          tasks.length > 0 ? tasks[tasks.length - 1].position + 1 : 0;
+        newPositionValue = tasks[tasks.length - 1].position + 1;
       } else {
         const afterTaskIndex = tasks.findIndex((t) => t.id === newPosition);
 
