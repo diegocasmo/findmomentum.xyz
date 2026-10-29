@@ -141,16 +141,16 @@ export function UpsertTaskForm({
               <FormItem>
                 <FormControl>
                   <div className="relative">
-                    <DurationInput {...field} value={field.value ?? 0} className="text-sm pr-10" />
+                    <DurationInput {...field} className="text-sm pr-10" />
                     <ClockIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   </div>
                 </FormControl>
                 <DurationPresetPicker
                   value={field.value}
                   onChange={field.onChange}
-                  elapsedMs={task ? elapsedMs : undefined}
+                  elapsedMs={elapsedMs}
                 />
-                {task && elapsedMs > 0 ? (
+                {elapsedMs > 0 ? (
                   <FormDescription>
                     Current elapsed time {formatTimeMMss(elapsedMs)}
                   </FormDescription>
