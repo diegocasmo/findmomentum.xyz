@@ -10,7 +10,7 @@ const PRESETS_MINUTES = [5, 10, 15, 20, 30] as const;
 type DurationPresetPickerProps = {
   value: number;
   onChange: (ms: number) => void;
-  elapsedMs?: number;
+  elapsedMs: number;
 };
 
 export function DurationPresetPicker({
@@ -27,7 +27,7 @@ export function DurationPresetPicker({
       {PRESETS_MINUTES.map((minutes) => {
         const presetMs = minutes * MS_PER_MIN;
         const isSelected = value === presetMs;
-        const isDisabled = elapsedMs !== undefined && presetMs < elapsedMs;
+        const isDisabled = presetMs < elapsedMs;
 
         const chip = (
           <Button
