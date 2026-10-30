@@ -29,7 +29,10 @@ function Arc({ start, length, strokeWidth, opacity }: ArcProps) {
   if (length <= 0) return null;
 
   // Round caps grow past the dash ends, so pull them in to keep the gaps.
-  const capInset = Math.min(strokeWidth / 2 / CIRCUMFERENCE, length / 2);
+  // Below one cap of length the dash shrinks to a dot, anchored at the far
+  // end so a nearly drained fill never spills into the next arc.
+  const capInset = strokeWidth / 2 / CIRCUMFERENCE;
+  const dashLength = Math.max(0, length - 2 * capInset);
 
   return (
     <circle
@@ -37,11 +40,12 @@ function Arc({ start, length, strokeWidth, opacity }: ArcProps) {
       cy="50"
       r={RADIUS}
       pathLength={1}
+      className="transition-[stroke-width,stroke-dasharray,stroke-dashoffset,stroke-opacity] duration-300 ease-out motion-reduce:transition-none"
       strokeLinecap="round"
       strokeOpacity={opacity}
       strokeWidth={strokeWidth}
-      strokeDasharray={`${length - 2 * capInset} 1`}
-      strokeDashoffset={-(start + capInset)}
+      strokeDasharray={`${dashLength} 1`}
+      strokeDashoffset={-(start + length - capInset - dashLength)}
     />
   );
 }
