@@ -73,6 +73,38 @@ export function getTaskElapsedTime(task: TaskWithTimeEntries): number {
   return task.durationMs - getTaskRemainingTime(task);
 }
 
+const TIMER_SEGMENT_GAP = 0.01;
+
+// Fractions of the full circle, so the ring can use any radius.
+export type TimerSegment = {
+  taskId: string;
+  start: number;
+  length: number;
+  fillLength: number;
+};
+
+export function getTimerSegments(tasks: TaskWithTimeEntries[]): TimerSegment[] {
+  const totalMs = tasks.reduce((sum, task) => sum + task.durationMs, 0);
+  if (totalMs === 0) return [];
+
+  let offset = 0;
+  return tasks.map((task) => {
+    const share = task.durationMs / totalMs;
+    // Cap the gap at half the share so a very short task never disappears.
+    const gap = tasks.length > 1 ? Math.min(TIMER_SEGMENT_GAP, share / 2) : 0;
+    const length = share - gap;
+    const remaining = getTaskRemainingTime(task) / task.durationMs;
+    const segment = {
+      taskId: task.id,
+      start: offset + gap / 2,
+      length,
+      fillLength: task.completedAt ? length : length * remaining,
+    };
+    offset += share;
+    return segment;
+  });
+}
+
 const RECENCY_THRESHOLD_DAYS = 10;
 
 /**

@@ -26,9 +26,10 @@ import { Badge } from "@/components/ui/badge";
 
 type TaskCardProps = {
   task: TaskWithTimeEntries;
+  color: string;
 };
 
-export function TaskCard({ task }: TaskCardProps) {
+export function TaskCard({ task, color }: TaskCardProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
@@ -107,6 +108,14 @@ export function TaskCard({ task }: TaskCardProps) {
                   <PlayIcon className="w-5 h-5 text-muted-foreground" />
                 )}
               </div>
+              <span
+                className={cn(
+                  "w-2.5 h-2.5 rounded-full flex-shrink-0",
+                  isCompleted && "opacity-40"
+                )}
+                style={{ backgroundColor: color }}
+                aria-hidden="true"
+              />
               <span
                 className={cn(
                   "text-md font-medium truncate",
