@@ -29,8 +29,8 @@ function Arc({ start, length, strokeWidth, opacity }: ArcProps) {
   if (length <= 0) return null;
 
   // Round caps grow past the dash ends, so pull them in to keep the gaps.
-  // Below one cap of length the dash shrinks to a dot, anchored at the far
-  // end so a nearly drained fill never spills into the next arc.
+  // Anchored at the far end: a dash shorter than its caps becomes a dot that
+  // would otherwise spill into the next arc.
   const capInset = strokeWidth / 2 / CIRCUMFERENCE;
   const dashLength = Math.max(0, length - 2 * capInset);
 
@@ -71,9 +71,8 @@ export function ActivityTimer({ activity }: ActivityTimerProps) {
     <div className="flex flex-col items-center">
       <div className="relative w-[180px] h-[180px]">
         <svg viewBox="0 0 100 100" className="w-full h-full" aria-hidden="true">
-          {/* Start at 12 o'clock and run anticlockwise, draining each arc
-              from its 12 o'clock end: tasks played in order empty the ring
-              from 12 o'clock as one growing gap. */}
+          {/* Anticlockwise from 12 o'clock, draining from that end, so tasks
+              played in order empty the ring as one growing gap. */}
           <g transform="translate(100 0) scale(-1 1) rotate(-90 50 50)">
             {segments.length === 0 && (
               <circle
