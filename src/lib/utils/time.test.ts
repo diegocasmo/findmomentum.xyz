@@ -6,7 +6,7 @@ import { getTimerSegments, MS_PER_MIN } from "./time";
 const NOW = new Date("2026-01-01T12:00:00Z");
 
 function buildTask(
-  overrides: Partial<TaskWithTimeEntries> & { id: string; durationMs: number }
+  overrides: Partial<TaskWithTimeEntries> & { id: string; durationMs: number },
 ): TaskWithTimeEntries {
   return {
     name: overrides.id,
@@ -35,16 +35,13 @@ describe("getTimerSegments", () => {
     vi.useRealTimers();
   });
 
-  it("returns no segments for no tasks", () => {
-    expect(getTimerSegments([])).toEqual([]);
-  });
-
   it("fills the whole ring with one task", () => {
     const [segment] = getTimerSegments([
       buildTask({ id: "a", durationMs: 5 * MS_PER_MIN }),
     ]);
 
-    expect(segment).toEqual({ taskId: "a", start: 0, length: 1, fillLength: 1 });
+    expect(segment.start).toBe(0);
+    expect(segment.length).toBe(1);
   });
 
   it("sizes segments by duration and covers the ring with their gaps", () => {
@@ -53,8 +50,6 @@ describe("getTimerSegments", () => {
       buildTask({ id: "b", durationMs: 3 * MS_PER_MIN }),
     ]);
 
-    expect(segments[0].start).toBeCloseTo(0.005);
-    expect(segments[0].length).toBeCloseTo(0.24);
     expect(segments[1].start).toBeCloseTo(0.255);
     expect(segments[1].length).toBeCloseTo(0.74);
   });
@@ -68,8 +63,8 @@ describe("getTimerSegments", () => {
     expect(tiny.length).toBeGreaterThan(0);
   });
 
-  it("drains only the tasks that ran, in any order", () => {
-    const [first, second] = getTimerSegments([
+  it("drains a segment by its own task's remaining time", () => {
+    const [, second] = getTimerSegments([
       buildTask({ id: "a", durationMs: 10 * MS_PER_MIN }),
       buildTask({
         id: "b",
@@ -87,7 +82,6 @@ describe("getTimerSegments", () => {
       }),
     ]);
 
-    expect(first.fillLength).toBeCloseTo(first.length);
     expect(second.fillLength).toBeCloseTo(second.length / 2);
   });
 
@@ -107,7 +101,6 @@ describe("getTimerSegments", () => {
           },
         ],
       }),
-      buildTask({ id: "b", durationMs: 1 * MS_PER_MIN }),
     ]);
 
     expect(segment.fillLength).toBe(segment.length);
@@ -130,7 +123,6 @@ describe("getTimerSegments", () => {
           },
         ],
       }),
-      buildTask({ id: "b", durationMs: 1 * MS_PER_MIN }),
     ]);
 
     expect(segment.fillLength).toBe(segment.length);

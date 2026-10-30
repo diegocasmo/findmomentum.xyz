@@ -85,7 +85,6 @@ export type TimerSegment = {
 
 export function getTimerSegments(tasks: TaskWithTimeEntries[]): TimerSegment[] {
   const totalMs = tasks.reduce((sum, task) => sum + task.durationMs, 0);
-  if (totalMs === 0) return [];
 
   let offset = 0;
   return tasks.map((task) => {
