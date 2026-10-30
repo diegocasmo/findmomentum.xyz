@@ -103,6 +103,7 @@ export function TasksList({ tasks: initialTasks }: TasksListProps) {
         if (result.success) {
           router.refresh();
         } else {
+          setLocalTasks(initialTasks);
           toast(ERROR_MESSAGE_CONFIG);
         }
       } catch (error) {

@@ -90,10 +90,11 @@ export function getTimerSegments(tasks: TaskWithTimeEntries[]): TimerSegment[] {
   let offset = 0;
   return tasks.map((task) => {
     const share = task.durationMs / totalMs;
-    // Cap the gap at half the share so a very short task never disappears.
+    // Cap the gap at half the share so it never exceeds the task's own arc.
     const gap = tasks.length > 1 ? Math.min(TIMER_SEGMENT_GAP, share / 2) : 0;
     const length = share - gap;
-    const remaining = getTaskRemainingTime(task) / task.durationMs;
+    // A client clock behind the server makes elapsed time negative.
+    const remaining = Math.min(1, getTaskRemainingTime(task) / task.durationMs);
     const segment = {
       taskId: task.id,
       start: offset + gap / 2,

@@ -59,7 +59,7 @@ describe("getTimerSegments", () => {
     expect(segments[1].length).toBeCloseTo(0.74);
   });
 
-  it("keeps a very short task visible next to its gap", () => {
+  it("keeps a very short task's length positive next to its gap", () => {
     const [tiny] = getTimerSegments([
       buildTask({ id: "a", durationMs: 1000 }),
       buildTask({ id: "b", durationMs: 120 * MS_PER_MIN }),
@@ -89,6 +89,28 @@ describe("getTimerSegments", () => {
 
     expect(first.fillLength).toBeCloseTo(first.length);
     expect(second.fillLength).toBeCloseTo(second.length / 2);
+  });
+
+  it("never fills past the segment when the client clock is behind", () => {
+    const [segment] = getTimerSegments([
+      buildTask({
+        id: "a",
+        durationMs: 1 * MS_PER_MIN,
+        timeEntries: [
+          {
+            id: "entry-1",
+            taskId: "a",
+            startedAt: minutesAgo(-0.5),
+            stoppedAt: null,
+            createdAt: NOW,
+            updatedAt: null,
+          },
+        ],
+      }),
+      buildTask({ id: "b", durationMs: 1 * MS_PER_MIN }),
+    ]);
+
+    expect(segment.fillLength).toBe(segment.length);
   });
 
   it("draws a completed task as a full segment", () => {
