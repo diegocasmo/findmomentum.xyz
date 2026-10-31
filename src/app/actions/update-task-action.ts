@@ -38,6 +38,7 @@ export async function updateTaskAction(
       taskId: taskIdResult.data.taskId,
       name: formData.get("name"),
       durationMs: Number(formData.get("durationMs")),
+      color: formData.get("color") ?? undefined,
     });
 
     if (!updateResult.success) {
@@ -49,6 +50,7 @@ export async function updateTaskAction(
       taskId: updateResult.data.taskId,
       name: updateResult.data.name,
       durationMs: updateResult.data.durationMs,
+      color: updateResult.data.color,
     });
 
     return { success: true, data: updatedTask };

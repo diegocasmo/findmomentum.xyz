@@ -19,6 +19,7 @@ export async function createTaskAction(
     name: formData.get("name"),
     activityId: formData.get("activityId"),
     durationMs: Number(formData.get("durationMs")),
+    color: formData.get("color") ?? undefined,
   });
 
   if (!result.success) {
@@ -31,6 +32,7 @@ export async function createTaskAction(
       activityId: result.data.activityId,
       userId,
       durationMs: result.data.durationMs,
+      color: result.data.color,
     });
     return { success: true, data: task };
   } catch (error) {
