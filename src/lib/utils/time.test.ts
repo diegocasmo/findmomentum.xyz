@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { TaskWithTimeEntries } from "@/types";
+import { DEFAULT_TASK_COLOR } from "./task-colors";
 
 import { getTimerSegments, MS_PER_MIN } from "./time";
 
@@ -10,6 +11,7 @@ function buildTask(
 ): TaskWithTimeEntries {
   return {
     name: overrides.id,
+    color: DEFAULT_TASK_COLOR,
     position: 0,
     activityId: "activity-1",
     completedAt: null,
