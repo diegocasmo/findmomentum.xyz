@@ -28,8 +28,12 @@ export function UpsertTaskDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] max-w-[90%] w-full">
-        <DialogHeader>
+      <DialogContent
+        className="sm:max-w-[425px] max-w-[90%] w-full max-h-[calc(100dvh-2rem)]"
+        // Portaled form clicks must not reach the task menu's default-canceling handler.
+        onClick={(event) => event.stopPropagation()}
+      >
+        <DialogHeader className="shrink-0 pr-4">
           <DialogTitle>{task ? "Update" : "Create New"} Task</DialogTitle>
           <DialogDescription>
             {task

@@ -29,14 +29,22 @@ import { RootFormError } from "@/components/root-form-error";
 import { getUpdateTaskSchema } from "@/app/schemas/update-task-schema";
 import { formatTimeMMss, getTaskElapsedTime } from "@/lib/utils/time";
 import type { TaskWithTimeEntries } from "@/types";
-import type { z } from "zod";
+import { z } from "zod";
+import { TaskColorPicker } from "@/components/task-color-picker";
+import { DEFAULT_TASK_COLOR } from "@/lib/utils/task-colors";
+import { taskColorSchema } from "@/app/schemas/task-color-schema";
+
+const formColorSchema = z.string().pipe(taskColorSchema);
+const createTaskFormSchema = createTaskSchema.extend({ color: formColorSchema });
+const getUpdateTaskFormSchema = (elapsedMs: number) =>
+  getUpdateTaskSchema(elapsedMs).extend({ color: formColorSchema });
 
 type TaskFormInput =
-  | z.input<typeof createTaskSchema>
-  | z.input<ReturnType<typeof getUpdateTaskSchema>>;
+  | z.input<typeof createTaskFormSchema>
+  | z.input<ReturnType<typeof getUpdateTaskFormSchema>>;
 type TaskFormOutput =
-  | z.output<typeof createTaskSchema>
-  | z.output<ReturnType<typeof getUpdateTaskSchema>>;
+  | z.output<typeof createTaskFormSchema>
+  | z.output<ReturnType<typeof getUpdateTaskFormSchema>>;
 
 type UpsertTaskFormProps = {
   activityId?: string;
@@ -57,9 +65,10 @@ export function UpsertTaskForm({
 
   const form = useForm<TaskFormInput, unknown, TaskFormOutput>({
     resolver: zodResolver(
-      task ? getUpdateTaskSchema(elapsedMs) : createTaskSchema
+      task ? getUpdateTaskFormSchema(elapsedMs) : createTaskFormSchema
     ),
     defaultValues: {
+      color: task?.color ?? DEFAULT_TASK_COLOR,
       ...(task
         ? {
             taskId: task.id,
@@ -80,6 +89,7 @@ export function UpsertTaskForm({
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("durationMs", data.durationMs.toString());
+        formData.append("color", data.color);
 
         if (task) {
           formData.append("taskId", task.id);
@@ -110,7 +120,7 @@ export function UpsertTaskForm({
   }
 
   return (
-    <div className="bg-background rounded-lg shadow-sm p-4 mb-6 max-w-sm">
+    <div className="min-h-0 overflow-y-auto p-1">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
           <FormField
@@ -121,6 +131,7 @@ export function UpsertTaskForm({
                 <FormControl>
                   <div className="relative">
                     <Input
+                      aria-label="Task name"
                       placeholder="Add a new task"
                       {...field}
                       autoFocus={autoFocus}
@@ -141,7 +152,11 @@ export function UpsertTaskForm({
               <FormItem>
                 <FormControl>
                   <div className="relative">
-                    <DurationInput {...field} className="text-sm pr-10" />
+                    <DurationInput
+                      {...field}
+                      aria-label="Duration"
+                      className="text-sm pr-10"
+                    />
                     <ClockIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   </div>
                 </FormControl>
@@ -157,6 +172,21 @@ export function UpsertTaskForm({
                 ) : null}
                 <FormMessage />
               </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="color"
+            render={({ field, fieldState }) => (
+              <TaskColorPicker
+                name={field.name}
+                value={field.value ?? DEFAULT_TASK_COLOR}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                inputRef={field.ref}
+                disabled={isPending}
+                error={fieldState.error?.message}
+              />
             )}
           />
           <RootFormError message={form.formState.errors.root?.message} />
