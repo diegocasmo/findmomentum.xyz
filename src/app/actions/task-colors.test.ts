@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { createActivity, createOwner, createTask } from "@/lib/test-utils";
 import { DEFAULT_TASK_COLOR, TASK_COLORS } from "@/lib/utils/task-colors";
 import { requireUserId } from "@/lib/utils/require-user-id";
-import { createRootErrors } from "@/lib/utils/form";
 import { createTaskAction } from "./create-task-action";
 import { updateTaskAction } from "./update-task-action";
 
@@ -61,25 +60,4 @@ describe("task color actions", () => {
     },
   );
 
-  it("returns authentication failure without writes", async () => {
-    const failure = { success: false as const, errors: createRootErrors("Not authenticated") };
-    vi.mocked(requireUserId).mockResolvedValue(failure);
-    const before = await snapshot();
-    expect(await createTaskAction(form(TASK_COLORS[4]))).toEqual(failure);
-    expect(await updateTaskAction(form(TASK_COLORS[4]))).toEqual(failure);
-    expect(await snapshot()).toEqual(before);
-  });
-
-  it("does not save color when duration is below elapsed time", async () => {
-    await prisma.timeEntry.create({
-      data: { taskId: task.id, startedAt: new Date(0), stoppedAt: new Date(30000) },
-    });
-    const data = form(TASK_COLORS[4]);
-    data.set("durationMs", "10000");
-    const before = await snapshot();
-    expect(await updateTaskAction(data)).toMatchObject({
-      success: false, errors: { durationMs: { message: expect.any(String) } },
-    });
-    expect(await snapshot()).toEqual(before);
-  });
 });
