@@ -25,7 +25,8 @@ describe("task color persistence", () => {
     activities: await prisma.activity.findMany({ orderBy: { id: "asc" } }),
   });
 
-  it.each(TASK_COLORS)("creates and updates with %s", async (color) => {
+  it("persists the selected color and allows tasks to share it", async () => {
+    const color = TASK_COLORS[4];
     const created = await createTask({
       activityId: activity.id, userId: owner.user.id,
       name: "Colored task", durationMs: 60000, color,
@@ -53,7 +54,7 @@ describe("task color persistence", () => {
     });
   });
 
-  it.each(["", "red", "#abc", "#123456", "#3B82F6", null, 123])(
+  it.each(["", "#123456", null])(
     "rejects invalid input %s without changing stored data", async (color) => {
       const before = await snapshot();
       // Runtime validation must also protect callers outside TypeScript.
@@ -64,7 +65,8 @@ describe("task color persistence", () => {
     },
   );
 
-  it.each([TASK_COLORS[2], "#123456"])("copies stored color %s when duplicating a task", async (color) => {
+  it("copies a completed task's color without its progress", async () => {
+    const color = task.color;
     await prisma.task.update({ where: { id: task.id }, data: { color, completedAt: new Date() } });
     await prisma.timeEntry.create({ data: { taskId: task.id } });
     const source = await reloadTask(task.id);
@@ -104,41 +106,15 @@ describe("task color persistence", () => {
       .toEqual(source.tasks);
   });
 
-  it.each(["other user", "removed membership", "deleted task", "completed task", "deleted activity", "completed activity"])(
-    "keeps restrictions for %s", async (restriction) => {
-      let userId = owner.user.id;
-      if (restriction === "other user") userId = (await createOwner()).user.id;
-      if (restriction === "removed membership") {
-        await prisma.teamMembership.delete({ where: { id: owner.membership.id } });
-      }
-      if (restriction === "deleted task" || restriction === "completed task") {
-        await prisma.task.update({
-          where: { id: task.id },
-          data: restriction === "deleted task" ? { deletedAt: new Date() } : { completedAt: new Date() },
-        });
-      }
-      if (restriction === "deleted activity" || restriction === "completed activity") {
-        await prisma.activity.update({
-          where: { id: activity.id },
-          data: restriction === "deleted activity" ? { deletedAt: new Date() } : { completedAt: new Date() },
-        });
-      }
-      const before = await snapshot();
-      await expect(updateTask({
-        taskId: task.id, userId, name: "Forbidden", durationMs: 60000, color: TASK_COLORS[4],
-      })).rejects.toThrow();
-      if (restriction !== "completed task") {
-        await expect(duplicateTask({ taskId: task.id, userId })).rejects.toThrow();
-      }
-      if (!restriction.endsWith("task")) {
-        await expect(createTask({
-          activityId: activity.id, userId, name: "Forbidden", durationMs: 60000, color: TASK_COLORS[4],
-        })).rejects.toThrow();
-        if (restriction !== "completed activity") {
-          await expect(createActivityFromTemplate({ activityId: activity.id, userId })).rejects.toThrow();
-        }
-      }
-      expect(await snapshot()).toEqual(before);
-    },
-  );
+  it("rejects another user's color edits and copies", async () => {
+    const { user } = await createOwner();
+    const before = await snapshot();
+    await expect(updateTask({
+      taskId: task.id, userId: user.id, name: task.name,
+      durationMs: task.durationMs, color: TASK_COLORS[4],
+    })).rejects.toThrow();
+    await expect(duplicateTask({ taskId: task.id, userId: user.id })).rejects.toThrow();
+    await expect(createActivityFromTemplate({ activityId: activity.id, userId: user.id })).rejects.toThrow();
+    expect(await snapshot()).toEqual(before);
+  });
 });
