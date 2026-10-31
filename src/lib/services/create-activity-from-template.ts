@@ -40,6 +40,7 @@ export async function createActivityFromTemplate({
           tasks: {
             create: sourceActivity.tasks.map((task) => ({
               name: task.name,
+              color: task.color,
               position: task.position,
               durationMs: task.durationMs,
             })),

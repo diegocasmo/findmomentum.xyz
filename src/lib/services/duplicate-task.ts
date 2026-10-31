@@ -37,6 +37,7 @@ export async function duplicateTask({
     return await tx.task.create({
       data: {
         name: sourceTask.name,
+        color: sourceTask.color,
         position: highestPositionTask.position + 1,
         durationMs: sourceTask.durationMs,
         activityId: sourceTask.activityId,

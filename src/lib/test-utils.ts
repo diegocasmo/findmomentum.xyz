@@ -87,11 +87,12 @@ export async function createTask({
 }: {
   activityId: string;
 } & Partial<
-  Pick<Task, "name" | "position" | "durationMs" | "completedAt" | "deletedAt">
+  Pick<Task, "name" | "position" | "durationMs" | "completedAt" | "deletedAt" | "color">
 >): Promise<Task> {
   return prisma.task.create({
     data: {
       name: overrides.name ?? faker.lorem.words(2),
+      color: overrides.color,
       activityId,
       position: overrides.position ?? 0,
       durationMs: overrides.durationMs ?? 60_000,
