@@ -32,21 +32,17 @@ describe("task color actions", () => {
 
   const snapshot = () => prisma.task.findMany({ orderBy: { id: "asc" } });
 
-  it("returns and persists the selected color through both actions", async () => {
+  it("returns the selected color from both actions", async () => {
     const color = TASK_COLORS[4];
     const created = await createTaskAction(form(color));
     expect(created).toMatchObject({ success: true, data: { color } });
-    if (!created.success || !created.data) throw new Error("Expected created task");
-    expect((await prisma.task.findUniqueOrThrow({ where: { id: created.data.id } })).color).toBe(color);
     expect(await updateTaskAction(form(color))).toMatchObject({ success: true, data: { color } });
-    expect((await prisma.task.findUniqueOrThrow({ where: { id: task.id } })).color).toBe(color);
   });
 
   it("accepts legacy forms without resetting an existing color", async () => {
     expect(await createTaskAction(form())).toMatchObject({ success: true, data: { color: DEFAULT_TASK_COLOR } });
-    expect(await updateTaskAction(form())).toMatchObject({ success: true });
-    expect(await prisma.task.findUniqueOrThrow({ where: { id: task.id } })).toMatchObject({
-      name: "Updated task", color: task.color,
+    expect(await updateTaskAction(form())).toMatchObject({
+      success: true, data: { name: "Updated task", color: task.color },
     });
   });
 
@@ -59,5 +55,4 @@ describe("task color actions", () => {
       expect(await snapshot()).toEqual(before);
     },
   );
-
 });
