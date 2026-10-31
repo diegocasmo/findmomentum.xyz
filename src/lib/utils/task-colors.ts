@@ -25,17 +25,3 @@ export const TASK_COLOR_NAMES = {
   "#ea580c": "Orange",
   "#65a30d": "Lime",
 } as const satisfies Record<TaskColor, string>;
-
-export function getTaskColors(count: number): string[] {
-  const colors: string[] = Array.from(
-    { length: count },
-    (_, i) => TASK_COLORS[i % TASK_COLORS.length]
-  );
-
-  // On the ring the last arc touches the first, so they must differ too.
-  if (count > 1 && colors[count - 1] === colors[0]) {
-    colors[count - 1] = TASK_COLORS[1];
-  }
-
-  return colors;
-}

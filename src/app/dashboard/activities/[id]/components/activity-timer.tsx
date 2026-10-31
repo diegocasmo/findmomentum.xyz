@@ -7,7 +7,6 @@ import {
   getActivityTotalDuration,
   getTimerSegments,
 } from "@/lib/utils/time";
-import { getTaskColors } from "@/lib/utils/task-colors";
 import { isTaskRunning } from "@/lib/utils/is-task-running";
 import { useGetActivityRemainingTime } from "@/hooks/use-get-activity-remaining-time";
 import { TimerIcon, HourglassIcon } from "lucide-react";
@@ -58,7 +57,7 @@ export function ActivityTimer({ activity }: ActivityTimerProps) {
   const totalDurationMs = getActivityTotalDuration(activity);
   const remainingTime = useGetActivityRemainingTime({ activity });
   const segments = getTimerSegments(activity.tasks);
-  const colors = getTaskColors(activity.tasks.length);
+  const tasksById = new Map(activity.tasks.map((task) => [task.id, task]));
 
   useEffect(() => {
     document.title = `Momentum (${formatTimeHHMMss(remainingTime)})`;
@@ -85,14 +84,15 @@ export function ActivityTimer({ activity }: ActivityTimerProps) {
                 strokeWidth={STROKE_WIDTH}
               />
             )}
-            {segments.map((segment, i) => {
-              const task = activity.tasks[i];
+            {segments.map((segment) => {
+              const task = tasksById.get(segment.taskId);
+              if (!task) return null;
               const strokeWidth = isTaskRunning(task)
                 ? RUNNING_STROKE_WIDTH
                 : STROKE_WIDTH;
 
               return (
-                <g key={segment.taskId} stroke={colors[i]} fill="none">
+                <g key={segment.taskId} stroke={task.color} fill="none">
                   <Arc
                     start={segment.start}
                     length={segment.length}
