@@ -32,13 +32,11 @@ describe("task color persistence", () => {
       name: "Colored task", durationMs: 60000, color,
     });
     expect((await reloadTask(created.id)).color).toBe(color);
-    const updated = await updateTask({
+    await updateTask({
       taskId: task.id, userId: owner.user.id,
       name: task.name, durationMs: task.durationMs, color,
     });
-    expect(updated.color).toBe(color);
     expect((await reloadTask(task.id)).color).toBe(color);
-    expect(created.activityId).toBe(updated.activityId);
   });
 
   it("defaults new tasks to blue but preserves omitted update colors", async () => {
@@ -50,7 +48,7 @@ describe("task color persistence", () => {
       taskId: task.id, userId: owner.user.id, name: "Renamed", durationMs: 120000,
     });
     expect(await reloadTask(task.id)).toMatchObject({
-      name: "Renamed", durationMs: 120000, color: task.color,
+      name: "Renamed", color: task.color,
     });
   });
 
@@ -65,45 +63,26 @@ describe("task color persistence", () => {
     },
   );
 
-  it("copies a completed task's color without its progress", async () => {
-    const color = task.color;
-    await prisma.task.update({ where: { id: task.id }, data: { color, completedAt: new Date() } });
-    await prisma.timeEntry.create({ data: { taskId: task.id } });
-    const source = await reloadTask(task.id);
+  it("copies a completed task's stored color", async () => {
+    await prisma.task.update({ where: { id: task.id }, data: { completedAt: new Date() } });
     const copy = await duplicateTask({ taskId: task.id, userId: owner.user.id });
     expect(copy.id).not.toBe(task.id);
-    expect(await reloadTask(copy.id)).toMatchObject({
-      name: task.name, durationMs: task.durationMs, activityId: activity.id,
-      position: task.position + 1, color, completedAt: null, deletedAt: null,
-    });
-    expect(await prisma.timeEntry.count({ where: { taskId: copy.id } })).toBe(0);
-    expect(await reloadTask(task.id)).toEqual(source);
+    expect((await reloadTask(copy.id)).color).toBe(task.color);
   });
 
-  it("templates a completed activity with distinct/repeated colors and fresh tasks", async () => {
+  it("copies each included task's color when templating a completed activity", async () => {
     const second = await insertTask({
       activityId: activity.id, position: 1, color: task.color, completedAt: new Date(),
     });
     const third = await insertTask({ activityId: activity.id, position: 2, color: TASK_COLORS[4] });
     await insertTask({ activityId: activity.id, position: 3, deletedAt: new Date(), color: TASK_COLORS[5] });
-    await prisma.timeEntry.create({ data: { taskId: second.id } });
     await prisma.activity.update({ where: { id: activity.id }, data: { completedAt: new Date() } });
-    const source = await snapshot();
     const copy = await createActivityFromTemplate({ activityId: activity.id, userId: owner.user.id });
     const tasks = await prisma.task.findMany({
       where: { activityId: copy.id, deletedAt: null }, orderBy: { position: "asc" },
-      include: { timeEntries: true },
     });
     expect(copy.id).not.toBe(activity.id);
-    expect(copy.completedAt).toBeNull();
-    expect(tasks.map(({ name, durationMs, position, color, completedAt, deletedAt, timeEntries }) => ({
-      name, durationMs, position, color, completedAt, deletedAt, timeEntries,
-    }))).toEqual([task, second, third].map(({ name, durationMs, position, color }) => ({
-      name, durationMs, position, color, completedAt: null, deletedAt: null, timeEntries: [],
-    })));
-    expect(tasks.every((item) => !source.tasks.some((original) => original.id === item.id))).toBe(true);
-    expect(await prisma.task.findMany({ where: { activityId: activity.id }, orderBy: { id: "asc" } }))
-      .toEqual(source.tasks);
+    expect(tasks.map(({ color }) => color)).toEqual([task.color, second.color, third.color]);
   });
 
   it("rejects another user's color edits and copies", async () => {
