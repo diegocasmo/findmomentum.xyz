@@ -25,7 +25,6 @@ import { toast } from "@/hooks/use-toast";
 import { ListTodoIcon, Loader2Icon, PlusCircleIcon } from "lucide-react";
 import { UpsertTaskDialog } from "@/components/upsert-task-dialog";
 import { Button } from "@/components/ui/button";
-import { getTaskColors } from "@/lib/utils/task-colors";
 
 const findTaskIndex = (tasks: TaskWithTimeEntries[], id: string) =>
   tasks.findIndex((item) => item.id === id);
@@ -138,8 +137,6 @@ export function TasksList({ tasks: initialTasks }: TasksListProps) {
     return <NoTasks />;
   }
 
-  const colors = getTaskColors(localTasks.length);
-
   return (
     <DndContext
       sensors={sensors}
@@ -151,8 +148,8 @@ export function TasksList({ tasks: initialTasks }: TasksListProps) {
         strategy={verticalListSortingStrategy}
       >
         <ul className="space-y-4 relative">
-          {localTasks.map((task, i) => (
-            <TaskCard key={task.id} task={task} color={colors[i]} />
+          {localTasks.map((task) => (
+            <TaskCard key={task.id} task={task} />
           ))}
           {isPending && (
             <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
