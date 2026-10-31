@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 import { MS_PER_MIN, MS_PER_SECOND } from "@/lib/utils/time";
+import { DEFAULT_TASK_COLOR } from "@/lib/utils/task-colors";
+import { taskColorSchema } from "./task-color-schema";
 export const MAX_MIN = 59;
 export const MAX_SEC = 59;
 export const MAX_DURATION_MS = MAX_MIN * MS_PER_MIN + MAX_SEC * MS_PER_SECOND;
@@ -12,6 +14,7 @@ export const createTaskSchema = z.object({
     .max(255, "Task name is too long")
     .transform((v) => v.trim()),
   activityId: z.string().cuid("Invalid activity ID"),
+  color: taskColorSchema.default(DEFAULT_TASK_COLOR),
   durationMs: z
     .number()
     .int()
