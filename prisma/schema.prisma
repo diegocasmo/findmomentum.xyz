@@ -131,6 +131,7 @@ model ActivityCategory {
 model Task {
   id          String    @id @default(cuid())
   name        String
+  color       String    @default("#3b82f6")
   position    Float     @default(0)
   activityId  String    @map("activity_id")
   durationMs  Int       @map("duration_ms")
