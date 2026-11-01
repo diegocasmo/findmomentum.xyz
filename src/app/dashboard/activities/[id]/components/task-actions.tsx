@@ -13,7 +13,7 @@ import { UpsertTaskDialog } from "@/components/upsert-task-dialog";
 import type { TaskWithTimeEntries } from "@/types";
 import { isTaskCompleted } from "@/lib/utils/is-task-completed";
 import { isolateActionMenuClick } from "@/lib/utils/isolate-action-menu-click";
-import { useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { duplicateTaskAction } from "@/app/actions/duplicate-task-action";
@@ -26,6 +26,8 @@ export function TaskActions({ task }: TaskActionsProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const menuTriggerRef = useRef<HTMLButtonElement>(null);
 
   const handleDuplicate = () => {
     startTransition(async () => {
@@ -63,12 +65,20 @@ export function TaskActions({ task }: TaskActionsProps) {
     <div onClick={isolateActionMenuClick}>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
+          <Button ref={menuTriggerRef} variant="outline" size="sm">
             <Ellipsis className="h-4 w-4" />
             <span className="sr-only">Open task menu</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuContent
+          className="w-56"
+          align="end"
+          forceMount
+          onCloseAutoFocus={(event) => {
+            // The edit dialog takes focus when the menu closes.
+            if (isEditOpen) event.preventDefault();
+          }}
+        >
           <DropdownMenuItem
             onSelect={(e) => e.preventDefault()}
             asChild
@@ -89,25 +99,28 @@ export function TaskActions({ task }: TaskActionsProps) {
             </Button>
           </DropdownMenuItem>
           {isTaskCompleted(task) ? null : (
-            <>
-              <DropdownMenuItem asChild>
-                <UpsertTaskDialog task={task}>
-                  <Button
-                    variant="ghost"
-                    className="w-full cursor-pointer justify-start"
-                  >
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Update
-                  </Button>
-                </UpsertTaskDialog>
-              </DropdownMenuItem>
-            </>
+            <DropdownMenuItem
+              className="min-h-11 cursor-pointer px-4"
+              onSelect={() => setIsEditOpen(true)}
+            >
+              <Pencil className="h-4 w-4 mr-2" />
+              Update
+            </DropdownMenuItem>
           )}
           <DropdownMenuItem asChild>
             <DeleteTaskDialog task={task} />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <UpsertTaskDialog
+        task={task}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          menuTriggerRef.current?.focus();
+        }}
+      />
     </div>
   );
 }

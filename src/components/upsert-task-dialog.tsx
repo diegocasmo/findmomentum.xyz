@@ -14,22 +14,31 @@ import type { TaskWithTimeEntries } from "@/types";
 
 type UpsertTaskDialogProps = {
   activityId?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onCloseAutoFocus?: React.ComponentProps<typeof DialogContent>["onCloseAutoFocus"];
   task?: TaskWithTimeEntries;
 };
 
 export function UpsertTaskDialog({
   activityId,
   children,
+  open: controlledOpen,
+  onOpenChange,
+  onCloseAutoFocus,
   task,
 }: UpsertTaskDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent
         className="sm:max-w-[425px] max-w-[90%] w-full max-h-[calc(100dvh-2rem)]"
+        onCloseAutoFocus={onCloseAutoFocus}
         // Portaled form clicks must not reach the task menu's default-canceling handler.
         onClick={(event) => event.stopPropagation()}
       >
