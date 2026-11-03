@@ -27,43 +27,19 @@ export const metadata: Metadata = {
   },
   description:
     "Celebrate daily progress and build momentum with small wins. Track your activities, visualize your progress, and stay motivated every day.",
-  keywords: [
-    "daily progress tracker",
-    "small wins",
-    "productivity app",
-    "habit tracker",
-    "activity tracker",
-    "progress visualization",
-    "momentum building",
-    "goal tracking",
-  ],
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://www.findmomentum.xyz",
     siteName: "Momentum",
     title: "Momentum | Track Daily Progress with Small Wins",
     description:
       "Celebrate daily progress and build momentum with small wins. Track your activities, visualize your progress, and stay motivated every day.",
-    images: [
-      {
-        url: "/opengraph-image",
-        width: 1200,
-        height: 630,
-        alt: "Momentum - Track Daily Progress with Small Wins",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Momentum | Track Daily Progress with Small Wins",
     description:
       "Celebrate daily progress and build momentum with small wins. Track your activities, visualize your progress, and stay motivated every day.",
-    images: ["/opengraph-image"],
-  },
-  robots: {
-    index: true,
-    follow: true,
   },
 };
 

@@ -1,6 +1,5 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const alt = "Momentum - Track Daily Progress with Small Wins";
 export const size = {
   width: 1200,
