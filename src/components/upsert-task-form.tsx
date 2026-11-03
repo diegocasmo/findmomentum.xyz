@@ -180,7 +180,7 @@ export function UpsertTaskForm({
             render={({ field, fieldState }) => (
               <TaskColorPicker
                 name={field.name}
-                value={field.value ?? DEFAULT_TASK_COLOR}
+                value={field.value}
                 onChange={field.onChange}
                 onBlur={field.onBlur}
                 inputRef={field.ref}
