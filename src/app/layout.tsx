@@ -22,7 +22,10 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.findmomentum.xyz"),
   verification: {
-    google: "sh1de4-bKH6kXY9DLeHHpy5mliqxb6Tp7cXIM3TC32c",
+    google: [
+      "sh1de4-bKH6kXY9DLeHHpy5mliqxb6Tp7cXIM3TC32c",
+      "MpOdyUBVlQK0-td_-rYVaR4rtBkHcjb-ImpTmpLbFl8",
+    ],
   },
   title: {
     default: "Momentum | Track Daily Progress with Small Wins",
