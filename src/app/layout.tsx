@@ -20,8 +20,27 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Momentum | Small wins. Big progress.",
-  description: "Small wins. Big progress.",
+  metadataBase: new URL("https://www.findmomentum.xyz"),
+  title: {
+    default: "Momentum | Track Daily Progress with Small Wins",
+    template: "%s | Momentum",
+  },
+  description:
+    "Celebrate daily progress and build momentum with small wins. Track your activities, visualize your progress, and stay motivated every day.",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "Momentum",
+    title: "Momentum | Track Daily Progress with Small Wins",
+    description:
+      "Celebrate daily progress and build momentum with small wins. Track your activities, visualize your progress, and stay motivated every day.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Momentum | Track Daily Progress with Small Wins",
+    description:
+      "Celebrate daily progress and build momentum with small wins. Track your activities, visualize your progress, and stay motivated every day.",
+  },
 };
 
 export default async function RootLayout({

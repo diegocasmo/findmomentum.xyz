@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { TopNav } from "@/components/top-nav";
 import { SessionProvider } from "next-auth/react";
 import { NotificationManager } from "@/components/notification-manager";
@@ -5,6 +6,13 @@ import { BottomNav } from "@/components/bottom-nav";
 import { getCategories } from "@/lib/services/get-categories";
 import { requireSession } from "@/lib/utils/require-session";
 import type React from "react";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function DashboardLayout({
   children,
